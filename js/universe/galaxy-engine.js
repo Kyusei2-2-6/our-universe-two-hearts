@@ -37,7 +37,7 @@ export class GalaxyEngine {
     this.renderer.setSize(innerWidth, innerHeight, false);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.12;
+    this.renderer.toneMappingExposure = .78;
     this.clock = new THREE.Clock();
     this.pointer = new THREE.Vector2();
     this.pointerTarget = new THREE.Vector2();
@@ -55,7 +55,7 @@ export class GalaxyEngine {
   #setupComposer() {
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), this.profile.bloom ? 1.1 : 0, .75, .15);
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), this.profile.bloom ? .58 : 0, .55, .28);
     this.bloom.enabled = this.profile.bloom;
     this.composer.addPass(this.bloom);
     this.afterimage = new AfterimagePass(.89);
@@ -80,8 +80,8 @@ export class GalaxyEngine {
     this.flare = this.#makeFlare();
     this.flare.position.set(-9, 7, -15);
     this.root.add(this.flare);
-    const ambient = new THREE.AmbientLight(0x7184ff, 1.1);
-    const key = new THREE.PointLight(0xffa4da, 20, 90, 2);
+    const ambient = new THREE.AmbientLight(0x7184ff, .72);
+    const key = new THREE.PointLight(0xffa4da, 8, 90, 2);
     key.position.set(-8, 5, 8);
     this.scene.add(ambient, key);
   }
@@ -139,7 +139,7 @@ export class GalaxyEngine {
     const group = new THREE.Group();
     const texture = this.#radialTexture(['rgba(255,120,210,.28)','rgba(92,70,210,.14)','rgba(0,0,0,0)']);
     for (let i=0;i<this.profile.nebula;i++) {
-      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map:texture, transparent:true, opacity:.22 + Math.random()*.2, blending:THREE.AdditiveBlending, depthWrite:false }));
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map:texture, transparent:true, opacity:.10 + Math.random()*.10, blending:THREE.AdditiveBlending, depthWrite:false }));
       sprite.position.set((Math.random()-.5)*30,(Math.random()-.5)*12,-8-Math.random()*18);
       sprite.scale.set(18+Math.random()*28,8+Math.random()*15,1);
       sprite.material.rotation = Math.random()*Math.PI;
@@ -149,9 +149,9 @@ export class GalaxyEngine {
   }
 
   #makeFlare() {
-    const texture = this.#radialTexture(['rgba(255,255,255,.95)','rgba(120,205,255,.35)','rgba(0,0,0,0)']);
+    const texture = this.#radialTexture(['rgba(255,255,255,.42)','rgba(120,205,255,.16)','rgba(0,0,0,0)']);
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
-    sprite.scale.set(7,7,1);
+    sprite.scale.set(3.6,3.6,1);
     return sprite;
   }
 
@@ -201,7 +201,7 @@ export class GalaxyEngine {
     this.galaxy.scale.setScalar(.3);
     this.bloom.strength=.3;
     const timeline=gsap.timeline({defaults:{ease:'power2.inOut'}});
-    timeline.to(this.bloom,{strength:1.15,duration:3.2},0)
+    timeline.to(this.bloom,{strength:.66,duration:3.2},0)
       .to(this.camera.position,{z:38,y:1.2,duration:6.6,ease:'power1.inOut'},0)
       .to(this.galaxy.scale,{x:1,y:1,z:1,duration:6.2},.3)
       .call(()=>onQuote?.(),null,2.4)
@@ -222,8 +222,8 @@ export class GalaxyEngine {
         .set(this.camera.position,{z:70,y:-2})
         .to(this.camera.position,{z:12,y:4,duration:2.4,ease:'power4.out'})
         .to(this.camera.rotation,{z:0,x:-.08,duration:1.8},'-=2.2')
-        .to(this.bloom,{strength:1.65,duration:.4},.9)
-        .to(this.bloom,{strength:1.05,duration:1.8},1.35);
+        .to(this.bloom,{strength:.82,duration:.4},.9)
+        .to(this.bloom,{strength:.58,duration:1.8},1.35);
     });
   }
 
@@ -231,7 +231,7 @@ export class GalaxyEngine {
     this.growthLevel=clamp(level,0,10);
     const scale=.94+this.growthLevel*.041;
     gsap.to(this.galaxy.scale,{x:scale,y:scale,z:scale,duration:1.2});
-    if(this.profile.bloom) gsap.to(this.bloom,{strength:.82+.055*this.growthLevel,duration:1});
+    if(this.profile.bloom) gsap.to(this.bloom,{strength:.48+.022*this.growthLevel,duration:1});
   }
 
   meteorShower(count=48) {
@@ -264,7 +264,7 @@ export class GalaxyEngine {
     this.galaxy.rotation.y += dt*.025;
     this.stars.rotation.y -= dt*.003;
     this.nebula.rotation.z=Math.sin(elapsed*.035)*.06;
-    this.flare.material.opacity=.62+Math.sin(elapsed*1.4)*.12;
+    this.flare.material.opacity=.18+Math.sin(elapsed*1.4)*.035;
     if(this.asteroids.visible) this.asteroids.rotation.z+=dt*.07;
     this.composer.render();
   };
