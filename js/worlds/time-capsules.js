@@ -1,0 +1,2 @@
+import { renderCollection } from './shared.js';
+export const renderTimeCapsules=container=>renderCollection(container,{type:'capsule',eyebrow:'TIME CAPSULE',title:'Pesan yang menunggu masa depan.',subtitle:'Isi dan lampiran benar-benar tidak dapat dibaca sebelum tanggal buka yang ditentukan oleh pembuatnya.',emptyTitle:'Belum ada kapsul waktu',emptyText:'Buat pesan untuk ulang tahun hubungan, masa depan, atau suatu hari yang hanya kalian berdua nantikan.'});

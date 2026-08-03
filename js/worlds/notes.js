@@ -1,0 +1,2 @@
+import { renderCollection } from './shared.js';
+export const renderNotes=container=>renderCollection(container,{type:'note',eyebrow:'NOTES',title:'Hal kecil yang tidak ingin terlupa.',subtitle:'Catatan bebas, daftar, rencana, ide perjalanan, atau pesan singkat yang bisa diedit bersama.',emptyTitle:'Notepad bersama masih kosong',emptyText:'Tambahkan catatan sederhana, daftar rencana, atau hal penting yang ingin kalian ingat.'});

@@ -1,0 +1,6 @@
+import http from 'node:http';
+import { readFile, stat } from 'node:fs/promises';
+import { extname, join, normalize } from 'node:path';
+const port=Number(process.env.PORT||8080);const root=process.cwd();
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png','.wav':'audio/wav'};
+http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');let path=normalize(decodeURIComponent(url.pathname)).replace(/^([.][.][/\\])+/, '');if(path==='/'||path==='.')path='/index.html';let file=join(root,path);try{if((await stat(file)).isDirectory())file=join(file,'index.html');}catch{}const data=await readFile(file);res.writeHead(200,{'content-type':mime[extname(file)]||'application/octet-stream','cache-control':'no-cache'});res.end(data);}catch{try{const data=await readFile(join(root,'index.html'));res.writeHead(200,{'content-type':'text/html; charset=utf-8'});res.end(data);}catch{res.writeHead(404);res.end('Not found');}}}).listen(port,'0.0.0.0',()=>console.log(`Our Universe: http://localhost:${port}`));

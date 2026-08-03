@@ -1,0 +1,23 @@
+@keyframes toast-in { from { opacity:0; transform:translateY(12px) scale(.97); } }
+@keyframes pulse-glow { 50% { box-shadow:0 0 50px rgba(150,180,255,.42); } }
+@keyframes float { 50% { transform:translateY(-10px); } }
+@keyframes shimmer { to { background-position:200% 0; } }
+@keyframes twinkle { 50% { opacity:.25; transform:scale(.7); } }
+@keyframes aurora { 50% { transform:translate3d(8%,-2%,0) rotate(2deg); filter:hue-rotate(35deg); } }
+@keyframes heart-pop { 0% { opacity:0; transform:translate(-50%,-50%) scale(.2); } 45% { opacity:1; } 100% { opacity:0; transform:translate(var(--tx),var(--ty)) scale(1.2) rotate(var(--rot)); } }
+.loading-shimmer { background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.12),rgba(255,255,255,.04)); background-size:200% 100%; animation:shimmer 1.4s linear infinite; }
+.heart-particle { position:fixed; z-index:999; left:50%; top:50%; pointer-events:none; animation:heart-pop 1.4s var(--ease) forwards; }
+.confetti { position:fixed; z-index:300; top:-20px; pointer-events:none; animation:confetti-fall 2.8s linear forwards; }
+@keyframes confetti-fall { to { transform:translate3d(var(--x),110vh,0) rotate(720deg); opacity:.2; } }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; } }
+
+@keyframes pulse-record { 50% { opacity:.35; transform:scale(.75); } }
+@keyframes shimmer { to { transform:translateX(100%); } }
+@keyframes soft-float { 50% { transform:translateY(-7px); } }
+@keyframes heart-pop { 0%{transform:scale(.4);opacity:0} 50%{transform:scale(1.15);opacity:1} 100%{transform:translateY(-40px) scale(.8);opacity:0} }
+.soft-float { animation:soft-float 4s ease-in-out infinite; }
+
+@keyframes intro-copy-in { to { opacity:1; transform:translateY(0); } }
+.intro__kicker { transform:translateY(8px); animation:intro-copy-in 1.1s 1s var(--ease) forwards; }
+.intro__quote { transform:translateY(10px); animation:intro-copy-in 1.7s 2s var(--ease) forwards; }
+.intro__button { animation:intro-copy-in 1.05s 4.1s var(--ease) forwards; }

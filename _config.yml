@@ -1,0 +1,7 @@
+include:
+  - .nojekyll
+exclude:
+  - node_modules
+  - tests
+  - scripts
+  - supabase

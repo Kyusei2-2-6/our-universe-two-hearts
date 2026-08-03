@@ -1,0 +1,2 @@
+import { renderCollection } from './shared.js';
+export const renderWishes=container=>renderCollection(container,{type:'wish',eyebrow:'WISH',title:'Impian yang bergerak mendekat.',subtitle:'Buat wishlist bersama, atur progres, ubah status, dan rayakan ketika impian itu tercapai.',emptyTitle:'Belum ada impian yang ditulis',emptyText:'Mulai dari satu hal yang ingin kalian alami bersama, misalnya melihat hujan meteor atau membeli teleskop.'});
