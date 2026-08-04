@@ -1,15 +1,16 @@
 {
   "name": "our-universe-two-hearts",
-  "version": "3.4.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
-  "description": "A private collaborative cinematic universe for exactly two people.",
+  "description": "A private two-person universe built from user-created planets, stories, and shared memories.",
   "scripts": {
     "configure": "node scripts/configure.mjs",
     "test": "node tests/validate.mjs",
     "build": "node scripts/build.mjs",
     "serve": "node scripts/serve.mjs",
-    "setup:notifications": "node scripts/setup-notifications.mjs"
+    "setup:notifications": "node scripts/setup-notifications.mjs",
+    "upgrade:v4": "node scripts/apply-v4-baseline.mjs"
   },
   "engines": {
     "node": ">=20"

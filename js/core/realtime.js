@@ -6,7 +6,7 @@ class RealtimeService {
   async connect({ universeId, user, profile }) {
     await this.disconnect();
     const client = supabase();
-    const tables = ['memory_periods','entries','attachments','comments','reactions','universe_members','profiles'];
+    const tables = ['planets','planet_entries','stories','entries','attachments','comments','reactions','universe_members','profiles'];
     for (const table of tables) {
       const filter = ['profiles'].includes(table) ? undefined : `universe_id=eq.${universeId}`;
       const channel = client.channel(`db:${universeId}:${table}`)

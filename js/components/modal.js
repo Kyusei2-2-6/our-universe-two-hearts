@@ -1,6 +1,6 @@
 import { qs } from '../core/utils.js';
 
-export function openModal({ title = '', content, className = '', onClose, origin = null } = {}) {
+export function openModal({ title = '', content, className = '', onClose, origin = null, dismissible = true } = {}) {
   const root = qs('#modal-root');
   const backdrop = document.createElement('div');
   let closing = false;
@@ -11,7 +11,7 @@ export function openModal({ title = '', content, className = '', onClose, origin
   const container = backdrop.querySelector('.modal__content');
   if (content instanceof Node) container.append(content); else container.textContent = String(content ?? '');
 
-  const onKey = event => { if (event.key === 'Escape') close(); };
+  const onKey = event => { if (dismissible && event.key === 'Escape') close(); };
   const close = () => {
     if (closing) return;
     closing = true;
@@ -31,8 +31,9 @@ export function openModal({ title = '', content, className = '', onClose, origin
     });
   };
 
-  backdrop.addEventListener('click', event => { if (event.target === backdrop || event.target.closest('[data-close]')) close(); });
+  backdrop.addEventListener('click', event => { if (!dismissible) return; if (event.target === backdrop || event.target.closest('[data-close]')) close(); });
   addEventListener('keydown', onKey);
+  if(!dismissible)backdrop.querySelector('[data-close]')?.remove();
   root.append(backdrop);
   document.body.classList.add('no-scroll');
   document.body.dataset.modalOpen = 'true';

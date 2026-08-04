@@ -4,7 +4,7 @@ import { RenderPass } from 'https://esm.sh/three@0.185.1/examples/jsm/postproces
 import { UnrealBloomPass } from 'https://esm.sh/three@0.185.1/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { AfterimagePass } from 'https://esm.sh/three@0.185.1/examples/jsm/postprocessing/AfterimagePass.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.15.0/index.js';
-import { clamp, prefersReducedMotion } from '../core/utils.js';
+import { prefersReducedMotion } from '../core/utils.js';
 import { events } from '../core/event-bus.js';
 
 const vertexShader = `
@@ -27,6 +27,10 @@ void main(){
 }`;
 
 const THEMES = {
+  'solar-system': {
+    core:'#fff0cf', arm:'#6e88d9', accent:'#7ccfff', fog:0x01030a, solar:true,
+    planets:[['#77746f','#302d2b'],['#d8aa72','#6a4526'],['#56a6d8','#174c78'],['#bb6546','#55271d'],['#c8aa7d','#5a4730'],['#d7bd88','#65502f'],['#7dcbd2','#225b66'],['#416db6','#172b59']]
+  },
   'milky-way': {
     core:'#f7e8d0', arm:'#7192ff', accent:'#8edcff', fog:0x02040d,
     planets:[['#8ca6d7','#1d2b56'],['#d69a73','#553124'],['#8ad6c5','#173b46'],['#b39cff','#342957'],['#d6c5a3','#4d4232']]
@@ -64,7 +68,6 @@ export class GalaxyEngine {
     this.pointerTarget = new THREE.Vector2();
     this.reduced = prefersReducedMotion();
     this.mode = 'intro';
-    this.growthLevel = 0;
     this.lastFrame = 0;
     this.disposed = false;
     this.spaceTheme = 'milky-way';
@@ -222,8 +225,19 @@ export class GalaxyEngine {
 
   #makePlanetSystem(theme) {
     const group=new THREE.Group();
-    const segments=this.mobileComfort?24:42;
-    const specs=[
+    const segments=this.mobileComfort?22:38;
+    const solarSpecs=[
+      {name:'Sun',radius:4.8,distance:0,speed:0,y:2,z:-72,sun:true},
+      {name:'Mercury',radius:.48,distance:12,speed:.052,y:4,z:-45},
+      {name:'Venus',radius:.78,distance:17,speed:.042,y:-3,z:-49},
+      {name:'Earth',radius:.86,distance:22,speed:.034,y:5,z:-52,moon:true},
+      {name:'Mars',radius:.62,distance:27,speed:.029,y:-6,z:-57},
+      {name:'Jupiter',radius:2.25,distance:35,speed:.019,y:8,z:-65},
+      {name:'Saturn',radius:1.85,distance:43,speed:.015,y:-8,z:-74,ring:true},
+      {name:'Uranus',radius:1.22,distance:50,speed:.012,y:7,z:-82,ring:true},
+      {name:'Neptune',radius:1.16,distance:57,speed:.010,y:-5,z:-91}
+    ];
+    const ambientSpecs=[
       {radius:2.25,distance:25,speed:.021,y:10,z:-20,ring:true},
       {radius:1.55,distance:18,speed:-.028,y:-10,z:-15},
       {radius:1.12,distance:33,speed:.015,y:-1,z:-34},
@@ -231,41 +245,28 @@ export class GalaxyEngine {
       {radius:.92,distance:14,speed:.036,y:6,z:-10},
       {radius:1.30,distance:29,speed:-.019,y:-14,z:-28}
     ];
+    const specs=theme.solar?solarSpecs:ambientSpecs.slice(0,this.mobileComfort?4:5);
     this.planetData=[];
-    specs.slice(0,this.mobileComfort?4:5).forEach((spec,index)=>{
-      const [light,dark]=theme.planets[index%theme.planets.length];
-      const material=new THREE.MeshStandardMaterial({
-        map:this.#planetTexture(light,dark,index),
-        roughness:.82,
-        metalness:.04
-      });
-      const mesh=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,segments,segments),material);
-      mesh.position.set(spec.distance,spec.y,spec.z);
-      group.add(mesh);
-      const atmosphere=new THREE.Mesh(
-        new THREE.SphereGeometry(spec.radius*1.055,segments,segments),
-        new THREE.MeshBasicMaterial({
-          color:new THREE.Color(light),
-          transparent:true,
-          opacity:this.mobileComfort?.065:.095,
-          blending:THREE.AdditiveBlending,
-          side:THREE.BackSide,
-          depthWrite:false
-        })
-      );
-      mesh.add(atmosphere);
-      let ring=null;
-      if(spec.ring){
-        ring=new THREE.Mesh(
-          new THREE.RingGeometry(spec.radius*1.35,spec.radius*2.2,64),
-          new THREE.MeshBasicMaterial({color:new THREE.Color(light),transparent:true,opacity:.24,side:THREE.DoubleSide,depthWrite:false})
-        );
-        ring.rotation.x=Math.PI*.55;
-        mesh.add(ring);
+    specs.forEach((spec,index)=>{
+      if(spec.sun){
+        const mesh=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,segments,segments),new THREE.MeshBasicMaterial({map:this.#sunTexture()}));
+        mesh.position.set(0,spec.y,spec.z);group.add(mesh);
+        const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:this.#radialTexture(['rgba(255,255,235,.92)','rgba(255,178,72,.36)','rgba(0,0,0,0)']),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+        glow.scale.set(20,20,1);mesh.add(glow);this.planetData.push({mesh,spec,phase:0,glow});return;
       }
+      const paletteIndex=Math.max(0,index-(theme.solar?1:0));const [light,dark]=theme.planets[paletteIndex%theme.planets.length];
+      const mesh=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,segments,segments),new THREE.MeshStandardMaterial({map:this.#planetTexture(light,dark,paletteIndex),roughness:.82,metalness:.04}));
+      mesh.position.set(spec.distance,spec.y,spec.z);group.add(mesh);
+      const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(spec.radius*1.055,segments,segments),new THREE.MeshBasicMaterial({color:new THREE.Color(light),transparent:true,opacity:this.mobileComfort?.055:.085,blending:THREE.AdditiveBlending,side:THREE.BackSide,depthWrite:false}));mesh.add(atmosphere);
+      let ring=null;if(spec.ring){ring=new THREE.Mesh(new THREE.RingGeometry(spec.radius*1.35,spec.radius*2.25,64),new THREE.MeshBasicMaterial({color:new THREE.Color(light),transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false}));ring.rotation.x=Math.PI*.55;mesh.add(ring);}
+      if(spec.moon){const moon=new THREE.Mesh(new THREE.SphereGeometry(spec.radius*.27,16,16),new THREE.MeshStandardMaterial({color:0xaeb7c4,roughness:.95}));moon.position.set(spec.radius*1.8,.2,0);mesh.add(moon);}
       this.planetData.push({mesh,spec,phase:index*1.37+Math.random()*.8,ring,atmosphere});
     });
     return group;
+  }
+
+  #sunTexture(){
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=256;const ctx=canvas.getContext('2d');const g=ctx.createRadialGradient(82,72,5,128,128,150);g.addColorStop(0,'#fffde5');g.addColorStop(.15,'#ffd976');g.addColorStop(.56,'#ff9c31');g.addColorStop(1,'#9e320d');ctx.fillStyle=g;ctx.fillRect(0,0,256,256);for(let i=0;i<48;i++){ctx.globalAlpha=.08+Math.random()*.16;ctx.fillStyle=i%2?'#fff4a8':'#ad2708';ctx.beginPath();ctx.arc(Math.random()*256,Math.random()*256,3+Math.random()*16,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;return texture;
   }
 
   #planetTexture(light,dark,seed) {
@@ -335,23 +336,17 @@ export class GalaxyEngine {
     const theme=THEMES[next];
     this.scene.fog.color.set(theme.fog);
 
-    const oldMilky=this.milkyWay;const oldGalaxy=this.galaxy;const oldNebula=this.nebula;
+    const oldMilky=this.milkyWay;const oldGalaxy=this.galaxy;const oldNebula=this.nebula;const oldPlanets=this.planets;
     this.milkyWay=this.#makeMilkyWay(Math.max(2600,Math.round(this.profile.galaxy*.82)),theme);
     this.milkyWay.rotation.set(-.26,0,-.46);this.milkyWay.position.set(0,-4,-34);
     this.galaxy=this.#makeGalaxy(Math.max(2400,Math.round(this.profile.galaxy*.66)),theme);
     this.galaxy.rotation.x=.30;this.galaxy.rotation.z=-.12;this.galaxy.position.set(0,-2,-8);
     this.nebula=this.#makeNebula(theme);
-    this.root.remove(oldMilky,oldGalaxy,oldNebula);this.root.add(this.milkyWay,this.galaxy,this.nebula);
+    this.planets=this.#makePlanetSystem(theme);
+    this.root.remove(oldMilky,oldGalaxy,oldNebula,oldPlanets);this.root.add(this.milkyWay,this.galaxy,this.nebula,this.planets);
     oldMilky.geometry.dispose();oldMilky.material.dispose();oldGalaxy.geometry.dispose();oldGalaxy.material.dispose();
     for(const child of oldNebula.children){child.material.map?.dispose?.();child.material.dispose();}
-
-    this.planetData.forEach(({mesh},index)=>{
-      const [light,dark]=theme.planets[index%theme.planets.length];
-      const old=mesh.material.map;
-      mesh.material.map=this.#planetTexture(light,dark,index+17);
-      mesh.material.needsUpdate=true;
-      old?.dispose?.();
-    });
+    oldPlanets?.traverse?.(object=>{object.geometry?.dispose?.();if(Array.isArray(object.material))object.material.forEach(material=>{material.map?.dispose?.();material.dispose?.();});else{object.material?.map?.dispose?.();object.material?.dispose?.();}});
   }
 
   async playOpening(onQuote,onReady) {
@@ -384,12 +379,6 @@ export class GalaxyEngine {
     });
   }
 
-  setGrowth(level) {
-    this.growthLevel=clamp(level,0,10);
-    const scale=.96+this.growthLevel*.025;
-    gsap.to(this.galaxy.scale,{x:scale,y:scale,z:scale,duration:1.1});
-    if(this.profile.bloom)gsap.to(this.bloom,{strength:(this.mobileComfort?.035:.075)+.003*this.growthLevel,duration:1});
-  }
 
   meteorShower(count=48) {
     const geometry=new THREE.BufferGeometry();const positions=new Float32Array(count*3);const velocity=[];

@@ -37,8 +37,7 @@ export function supabase() {
   if (!isSupabaseConfigured()) throw new Error('Supabase belum dikonfigurasi. Jalankan npm run configure lalu push hasilnya ke GitHub.');
   client = createClient(url, key, {
     auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:'our-universe-auth' },
-    realtime: { params:{ eventsPerSecond:8 } },
-    global: { headers:{ 'x-application-name':'our-universe-two-hearts' } }
+    realtime: { params:{ eventsPerSecond:8 } }
   });
   return client;
 }

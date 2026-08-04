@@ -16,6 +16,14 @@ export function detectFileKind(fileOrMime = '') {
   return 'other';
 }
 
+export function suggestedEntryType(file) {
+  const kind=detectFileKind(file);
+  if(kind==='image'||kind==='video')return 'gallery';
+  if(kind==='audio')return 'music';
+  if(['pdf','document','archive','text','other'].includes(kind))return 'file';
+  return 'memory';
+}
+
 export function safeFileName(name = 'file') {
   const parts = String(name).normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   return (parts || 'file').slice(-140);
@@ -28,28 +36,30 @@ export function validateFile(file) {
   return true;
 }
 
+async function uploadAt(path,file,onProgress){
+  validateFile(file);onProgress?.(12);
+  const {data,error}=await supabase().storage.from(CONFIG.STORAGE_BUCKET).upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type||'application/octet-stream'});
+  if(error)throw error;onProgress?.(88);return data.path;
+}
+
 export async function uploadEntryFile({ universeId, entryId, file, onProgress }) {
-  validateFile(file);
   const extName = safeFileName(file.name || `recording-${Date.now()}.webm`);
   const path = `${universeId}/${entryId}/${crypto.randomUUID()}-${extName}`;
-  onProgress?.(12);
-  const { data, error } = await supabase().storage.from(CONFIG.STORAGE_BUCKET).upload(path, file, {
-    cacheControl:'3600', upsert:false, contentType:file.type || 'application/octet-stream'
-  });
-  if (error) throw error;
-  onProgress?.(88);
-  return { path:data.path, kind:detectFileKind(file), name:file.name || extName, mime_type:file.type || 'application/octet-stream', size_bytes:file.size };
+  const stored=await uploadAt(path,file,onProgress);
+  return { path:stored, kind:detectFileKind(file), name:file.name || extName, mime_type:file.type || 'application/octet-stream', size_bytes:file.size };
+}
+
+export async function uploadPlanetCover({universeId,planetId,file,onProgress}){
+  if(!file.type.startsWith('image/'))throw new Error('Cover planet harus berupa gambar.');
+  const path=`${universeId}/planets/${planetId}/${crypto.randomUUID()}-${safeFileName(file.name||'cover.jpg')}`;
+  return uploadAt(path,file,onProgress);
 }
 
 export async function uploadAvatar({ universeId, userId, file }) {
   validateFile(file);
   if (!file.type.startsWith('image/')) throw new Error('Avatar harus berupa gambar.');
   const path = `${universeId}/profiles/${userId}/${crypto.randomUUID()}-${safeFileName(file.name)}`;
-  const { data, error } = await supabase().storage.from(CONFIG.STORAGE_BUCKET).upload(path, file, {
-    cacheControl:'3600', upsert:false, contentType:file.type
-  });
-  if (error) throw error;
-  return data.path;
+  return uploadAt(path,file);
 }
 
 export async function signedUrl(path, { download = false, force = false } = {}) {
@@ -66,9 +76,10 @@ export async function signedUrl(path, { download = false, force = false } = {}) 
 export async function removeFiles(paths = []) {
   const unique = [...new Set(paths.filter(Boolean))];
   if (!unique.length) return;
-  const { error } = await supabase().storage.from(CONFIG.STORAGE_BUCKET).remove(unique);
-  if (error) throw error;
-  unique.forEach(path => {
-    for (const key of signedCache.keys()) if (key.startsWith(`${path}|`)) signedCache.delete(key);
-  });
+  for(let i=0;i<unique.length;i+=80){
+    const batch=unique.slice(i,i+80);
+    const { error } = await supabase().storage.from(CONFIG.STORAGE_BUCKET).remove(batch);
+    if (error) throw error;
+  }
+  unique.forEach(path => { for (const key of signedCache.keys()) if (key.startsWith(`${path}|`)) signedCache.delete(key); });
 }

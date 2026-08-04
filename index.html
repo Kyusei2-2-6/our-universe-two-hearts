@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#050713">
-  <meta name="description" content="Our Universe, semesta digital privat yang dibangun dan ditumbuhkan oleh dua orang.">
+  <meta name="theme-color" content="#03050d">
+  <meta name="description" content="OUR UNIVERSE, semesta digital privat yang diciptakan dan diisi oleh dua orang.">
   <meta name="color-scheme" content="dark">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://esm.sh; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net https://esm.sh; font-src 'self' data:; object-src 'none'; frame-src 'self' blob:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
-  <meta property="og:title" content="Our Universe">
+  <meta property="og:title" content="OUR UNIVERSE">
   <meta property="og:description" content="Di alam semesta yang begitu luas, aku tetap menemukanmu.">
   <meta property="og:image" content="images/social-cover.svg">
   <link rel="manifest" href="manifest.webmanifest">
@@ -20,12 +20,10 @@
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
   <link rel="stylesheet" href="css/readability.css">
-  <link rel="stylesheet" href="css/cosmic-orbits.css">
-  <link rel="stylesheet" href="css/cinematic-memory.css">
   <link rel="stylesheet" href="css/memory-experience.css">
   <link rel="stylesheet" href="css/notifications.css">
-  <title>Our Universe</title>
-  
+  <link rel="stylesheet" href="css/v4-universe.css">
+  <title>OUR UNIVERSE</title>
 </head>
 <body>
   <a class="skip-link" href="#app-shell">Lewati intro</a>
@@ -36,61 +34,57 @@
     <div class="intro__content">
       <p id="intro-kicker" class="intro__kicker">OUR UNIVERSE</p>
       <p id="intro-quote" class="intro__quote">Di alam semesta yang begitu luas, aku tetap menemukanmu.</p>
-      <button id="enter-universe" class="button button--primary intro__button" type="button">
-        <span>Masuk ke Semesta Kita</span><span aria-hidden="true">✦</span>
-      </button>
+      <button id="enter-universe" class="button button--primary intro__button" type="button"><span>Masuk ke Semesta Kita</span><span aria-hidden="true">✦</span></button>
     </div>
     <button id="skip-intro" class="intro__skip" type="button">Lewati intro</button>
   </section>
 
-  <main id="app-shell" class="app-shell" hidden>
-    <header class="topbar glass-panel">
-      <button id="home-button" class="icon-button" type="button" aria-label="Kembali ke Galaxy Hub">✦</button>
-      <div class="brand">
-        <span class="brand__eyebrow">OUR</span>
-        <strong class="brand__title">UNIVERSE</strong>
-      </div>
+  <main id="app-shell" class="app-shell app-shell--v4" hidden>
+    <header class="topbar topbar--v4 glass-panel">
+      <button id="home-button" class="icon-button" type="button" aria-label="Kembali ke semesta">✦</button>
+      <div class="brand"><span class="brand__eyebrow">OUR</span><strong class="brand__title">UNIVERSE</strong></div>
       <div id="member-presence" class="member-presence" aria-label="Anggota semesta"></div>
       <div class="topbar__actions">
-        <button id="global-search" class="icon-button" type="button" aria-label="Cari semua isi">⌕</button>
+        <button id="global-search" class="icon-button" type="button" aria-label="Cari">⌕</button>
         <button id="capture-universe" class="icon-button" type="button" aria-label="Simpan tangkapan layar" data-capture-ignore="true">◉</button>
-        <button id="sound-toggle" class="icon-button" type="button" aria-label="Aktifkan atau matikan suara">◉</button>
-        <button id="profile-button" class="avatar-button" type="button" aria-label="Profil dan pengaturan"><span>♡</span></button>
+        <button id="sound-toggle" class="icon-button" type="button" aria-label="Suara latar">○</button>
+        <button id="profile-button" class="avatar-button" type="button" aria-label="Profil"><span>♡</span></button>
       </div>
     </header>
 
-    <section id="galaxy-hub" class="galaxy-hub" aria-labelledby="hub-title">
-      <div class="hub-copy">
-        <p class="eyebrow" id="hub-eyebrow">SEMESTA MILIK KALIAN</p>
-        <h1 id="hub-title">Semesta yang tumbuh bersama.</h1>
-        <p id="hub-subtitle">Setiap kenangan menyalakan bintang baru.</p>
-        <nav class="hub-quick-links" aria-label="Jalan pintas semesta">
-          <button id="gallery-shortcut" type="button"><span>▣</span><strong>Galeri Sinematik</strong></button>
-          <button id="studio-shortcut" type="button"><span>＋</span><strong>Universe Studio</strong></button>
-        </nav>
+    <section id="galaxy-hub" class="galaxy-hub galaxy-hub--v4" aria-labelledby="hub-title">
+      <div class="hub-copy hub-copy--v4">
+        <p class="eyebrow">SEMESTA YANG KALIAN CIPTAKAN</p>
+        <h1 id="hub-title">OUR UNIVERSE</h1>
+        <p id="hub-subtitle">Kalian menciptakan planet, memberi nama, lalu mengisinya bersama.</p>
       </div>
-      <div id="orbit-cards" class="orbit-cards" aria-label="Planet menu di dalam semesta"></div>
-      <p class="orbit-hint" aria-hidden="true">Geser planet · pilih dunia kalian</p>
-      <div id="growth-meter" class="growth-meter glass-panel" aria-live="polite"></div>
-      <div id="empty-universe-hint" class="empty-universe-hint glass-panel" hidden>
-        <span class="empty-universe-hint__star">✦</span>
-        <div><strong>Semesta ini masih sunyi.</strong><p>Tambahkan kenangan pertama kalian dan biarkan bintang pertama lahir.</p></div>
-        <button class="button button--primary" type="button" data-open-composer>Tambahkan yang pertama</button>
-      </div>
+      <section id="home-stories" class="home-stories" hidden></section>
+      <div id="planet-deck-host" class="planet-deck-host"></div>
+      <section id="hub-empty" class="hub-empty" hidden>
+        <div class="hub-empty__star">✦</div>
+        <h2>Semesta ini masih sunyi.</h2>
+        <p>Tidak ada menu bawaan. Planet pertama lahir dari nama dan kebutuhan kalian sendiri.</p>
+        <button data-create-planet class="button button--primary" type="button">＋ Ciptakan Planet</button>
+      </section>
+      <button data-create-planet class="create-planet-float button button--ghost" type="button">＋ Planet baru</button>
     </section>
 
-    <section id="world-stage" class="world-stage" hidden aria-live="polite"></section>
+    <section id="world-stage" class="world-stage world-stage--v4" hidden aria-live="polite"></section>
 
-    <button id="studio-fab" class="studio-fab" type="button" aria-label="Tambahkan sesuatu ke semesta">
-      <span aria-hidden="true">＋</span><span>Tambahkan</span>
-    </button>
+    <nav class="app-dock glass-panel" aria-label="Navigasi utama" data-capture-ignore="true">
+      <button id="dock-home" type="button" aria-label="Beranda"><span>✦</span><small>Semesta</small></button>
+      <button id="dock-search" type="button" aria-label="Cari"><span>⌕</span><small>Cari</small></button>
+      <button id="dock-add" class="app-dock__add" type="button" aria-label="Tambahkan story"><span>＋</span></button>
+      <button id="dock-notifications" type="button" aria-label="Notifikasi"><span>♡</span><small>Kabar</small></button>
+      <button id="dock-profile" type="button" aria-label="Profil"><span>DS</span><small>Profil</small></button>
+    </nav>
   </main>
 
   <section id="auth-root" class="auth-root" hidden aria-live="polite"></section>
   <div id="modal-root"></div>
   <div id="toast-root" class="toast-root" aria-live="polite"></div>
   <audio id="ambient-audio" src="music/ambient-space.wav" loop preload="none" muted></audio>
-  <noscript>Our Universe membutuhkan JavaScript untuk menjalankan pengalaman interaktif.</noscript>
+  <noscript>OUR UNIVERSE membutuhkan JavaScript.</noscript>
   <script src="js/bootstrap-fallback.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>

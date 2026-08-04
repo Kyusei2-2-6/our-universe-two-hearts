@@ -1,8 +1,8 @@
-const CACHE='our-universe-two-hearts-v10-romantic-push';
+const CACHE='our-universe-v4-dynamic-planets';
 const SHELL=[
   './','./index.html','./404.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png',
-  './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/cosmic-orbits.css','./css/cinematic-memory.css','./css/memory-experience.css','./css/notifications.css',
-  './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/screenshot.js','./js/core/notifications.js','./music/romantic-chime.wav','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
+  './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/memory-experience.css','./css/notifications.css','./css/v4-universe.css',
+  './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/screenshot.js','./js/core/notifications.js','./js/components/planet-deck.js','./js/components/planet-composer.js','./js/components/story-composer.js','./js/components/rebuild-gate.js','./js/worlds/planet.js','./music/romantic-chime.wav','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
 ];
 
 self.addEventListener('install',event=>{

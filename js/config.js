@@ -12,26 +12,11 @@ export const CONFIG = Object.freeze({
 });
 
 export const ROUTES = new Set([
-  'home','memories','gallery','letters','notes','wishes','music','timeline',
+  'home','planet','memories','gallery','letters','notes','wishes','music','timeline',
   'sky-tonight','time-capsules','files','search','activity','settings','studio','about-us'
 ]);
 
-export const WORLD_CARDS = Object.freeze([
-  { route:'gallery', icon:'◫', label:'Gallery', description:'Foto dan video kalian' },
-  { route:'memories', icon:'✦', label:'Memories', description:'Cerita dan momen bersama' },
-  { route:'letters', icon:'✉', label:'Letters', description:'Surat yang tersimpan' },
-  { route:'notes', icon:'▤', label:'Notes', description:'Catatan dan ide bersama' },
-  { route:'wishes', icon:'♡', label:'Wish', description:'Impian yang ingin dicapai' },
-  { route:'music', icon:'♫', label:'Music', description:'Lagu milik hubungan kalian' },
-  { route:'timeline', icon:'⌁', label:'Timeline', description:'Perjalanan dari waktu ke waktu' },
-  { route:'sky-tonight', icon:'☾', label:'Sky Tonight', description:'Langit malam kalian' },
-  { route:'time-capsules', icon:'◉', label:'Time Capsule', description:'Pesan untuk masa depan' },
-  { route:'files', icon:'⌑', label:'Files', description:'PDF, dokumen, dan berkas lain' },
-  { route:'search', icon:'⌕', label:'Search', description:'Temukan seluruh isi semesta' },
-  { route:'activity', icon:'◎', label:'Activity', description:'Jejak perubahan kalian' },
-  { route:'about-us', icon:'☾', label:'About Us', description:'Dua penjaga semesta' },
-  { route:'studio', icon:'＋', label:'Universe Studio', description:'Bangun semesta bersama' }
-]);
+export const WORLD_CARDS = Object.freeze([]);
 
 export const ENTRY_TYPES = Object.freeze({
   memory: { label:'Memory', plural:'Memories', icon:'✦', route:'memories', hint:'Cerita kenangan dengan foto, video, suara, atau file.' },

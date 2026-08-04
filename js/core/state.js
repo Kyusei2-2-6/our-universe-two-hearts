@@ -2,6 +2,7 @@ import { events } from './event-bus.js';
 
 const initialState = {
   route: 'home',
+  routeParams: {},
   introComplete: false,
   soundEnabled: true,
   session: null,
@@ -12,7 +13,6 @@ const initialState = {
   members: [],
   presence: {},
   performanceMode: 'auto',
-  universeLevel: 0,
   searchQuery: ''
 };
 

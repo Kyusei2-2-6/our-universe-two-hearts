@@ -1,11 +1,10 @@
-OUR UNIVERSE · ROMANTIC PUSH v10
+OUR UNIVERSE v4 · Dynamic Planets
 
-1. Ekstrak ZIP ini ke folder OUR-UNIVERSE-TWO-HEARTS dengan opsi overwrite.
-2. Jalankan migrasi supabase/migrations/2026-08-04-romantic-push.sql.
-3. Jalankan npm run setup:notifications.
-4. Set Edge Function secrets dan deploy send-romantic-push.
-5. Jalankan npm test dan npm run build.
-6. Commit dan push.
-7. Pada kedua HP, buka Settings > Notifikasi romantis > Aktifkan notifikasi.
+1. Ekstrak ZIP ini ke folder project aktif.
+2. Jalankan: node scripts/apply-v4-baseline.mjs
+3. Jalankan migrasi: supabase/migrations/2026-08-04-dynamic-planets-v4.sql
+4. Jalankan: npm test && npm run build
+5. Commit dan push ke repository GitHub yang sama.
 
-Panduan lengkap: INSTALL-NOTIFICATIONS-ANDROID.md
+Jangan menjalankan npm run configure atau setup:notifications lagi.
+Patch tidak membawa js/config.js sehingga Project URL, Publishable Key, email, dan VAPID Public Key di HP tetap aman.
