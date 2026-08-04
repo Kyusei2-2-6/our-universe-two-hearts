@@ -1,7 +1,7 @@
-const CACHE='our-universe-two-hearts-v8-cinematic-memory';
+const CACHE='our-universe-two-hearts-v9-memory-experience';
 const SHELL=[
   './','./index.html','./404.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png',
-  './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/cosmic-orbits.css','./css/cinematic-memory.css',
+  './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/cosmic-orbits.css','./css/cinematic-memory.css','./css/memory-experience.css',
   './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/screenshot.js','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
 ];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));});

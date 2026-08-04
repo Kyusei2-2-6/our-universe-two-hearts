@@ -11,6 +11,7 @@ import { renderSocialSection } from '../components/comments.js';
 import { confirmAction } from '../components/confirm.js';
 import { openModal } from '../components/modal.js';
 import { toast } from '../components/toast.js';
+import { createMemoryViewer } from '../components/memory-viewer.js';
 
 export function profileMap() {
   return new Map((state.get('members') || []).map(member => [member.user_id, member.profile]));
@@ -27,7 +28,7 @@ export async function renderCollection(container, { type, title, subtitle, empty
   const toolbar=document.createElement('div');toolbar.className='toolbar';toolbar.innerHTML='<input class="input" style="max-width:420px" type="search" placeholder="Cari di bagian ini…"><button class="button button--ghost" type="button" data-favorites>Favorit saja</button>';
   container.append(toolbar);const grid=document.createElement('div');grid.className='content-grid';container.append(grid);
   let favorites=false;let query='';
-  async function load(){grid.innerHTML='<div class="skeleton" style="grid-column:1/-1;min-height:280px;border-radius:28px"></div>';try{let entries=await repository.listEntries({type,query,favorite:favorites?true:undefined});if(filter)entries=entries.filter(filter);grid.innerHTML='';if(!entries.length){grid.append(emptyState(emptyTitle||`Belum ada ${ENTRY_TYPES[type]?.plural||'isi'}`,emptyText||'Tambahkan sesuatu dan biarkan semesta kalian mulai tumbuh.',()=>openComposer({type,onSaved:load})));return;}const map=profileMap();for(const entry of entries)grid.append(createEntryCard(entry,{profileMap:map,onOpen:item=>openEntryDetail(item,{onChanged:load}),onEdit:item=>openComposer({type:item.type,entry:item,onSaved:load}),onDelete:item=>deleteEntry(item,load)}));}catch(error){grid.innerHTML='';const node=emptyState('Bagian ini belum bisa dibuka',error.message);grid.append(node);}}
+  async function load(){grid.innerHTML='<div class="skeleton" style="grid-column:1/-1;min-height:280px;border-radius:28px"></div>';try{let entries=await repository.listEntries({type,query,favorite:favorites?true:undefined});if(filter)entries=entries.filter(filter);grid.innerHTML='';if(!entries.length){grid.append(emptyState(emptyTitle||`Belum ada ${ENTRY_TYPES[type]?.plural||'isi'}`,emptyText||'Tambahkan sesuatu dan biarkan semesta kalian mulai tumbuh.',()=>openComposer({type,onSaved:load})));return;}const map=profileMap();for(const entry of entries)grid.append(createEntryCard(entry,{profileMap:map,onOpen:(item,origin)=>openEntryDetail(item,{onChanged:load,origin}),onEdit:item=>openComposer({type:item.type,entry:item,onSaved:load}),onDelete:item=>deleteEntry(item,load)}));}catch(error){grid.innerHTML='';const node=emptyState('Bagian ini belum bisa dibuka',error.message);grid.append(node);}}
   toolbar.querySelector('input').addEventListener('input',event=>{query=event.target.value.trim();clearTimeout(toolbar._timer);toolbar._timer=setTimeout(load,280);});toolbar.querySelector('[data-favorites]').onclick=event=>{favorites=!favorites;event.currentTarget.classList.toggle('button--primary',favorites);load();};await load();
 }
 
@@ -36,15 +37,37 @@ export function emptyState(title,text,onAction){const node=document.createElemen
 export async function deleteEntry(entry,onChanged){const ok=await confirmAction({title:'Hapus dari semesta?',message:`“${entry.title}” beserta seluruh lampirannya akan dihapus untuk kalian berdua. Tindakan ini tidak dapat dibatalkan.`,confirmLabel:'Hapus selamanya',danger:true});if(!ok)return;try{await removeFiles((entry.attachments||[]).map(item=>item.file_path));await repository.deleteEntry(entry.id);toast('Isi telah dihapus dari semesta.');await onChanged?.();}catch(error){toast(error.message,{type:'error'});}}
 
 export async function openEntryDetail(entry,{onChanged,origin=null}={}){
-  const content=document.createElement('div');content.className='entry-detail';content.innerHTML='<div class="skeleton" style="min-height:400px;border-radius:26px"></div>';const modal=openModal({title:ENTRY_TYPES[entry.type]?.label||'Detail',content,className:'entry-modal',origin});
-  async function render(){try{const fresh=await repository.getEntry(entry.id);content.innerHTML='';const map=profileMap();const creator=map.get(fresh.created_by)?.display_name||'Seseorang';const hero=document.createElement('section');hero.className='entry-detail__hero';hero.innerHTML='<p class="eyebrow"></p><h2></h2><p class="muted"></p>';hero.querySelector('.eyebrow').textContent=ENTRY_TYPES[fresh.type]?.label||fresh.type;hero.querySelector('h2').textContent=fresh.title;hero.querySelector('.muted').textContent=`Dibuat oleh ${creator} · ${formatDateTime(fresh.created_at)}`;content.append(hero);
-      const actions=document.createElement('div');actions.className='toolbar';const edit=actionButton('✎ Edit');edit.onclick=()=>openComposer({type:fresh.type,entry:fresh,onSaved:async()=>{await render();await onChanged?.();}});const favorite=actionButton(fresh.favorite?'♥ Favorit':'♡ Jadikan favorit');favorite.onclick=async()=>{await repository.updateEntry(fresh.id,{favorite:!fresh.favorite});await render();await onChanged?.();};const remove=actionButton('× Hapus','button--danger');remove.onclick=async()=>{await deleteEntry(fresh,async()=>{modal.close();await onChanged?.();});};actions.append(edit,favorite,remove);content.append(actions);
-      const meta=document.createElement('div');meta.className='entry-detail__metadata';if(fresh.event_date)meta.append(chip(`◷ ${formatDate(fresh.event_date)}`));if(fresh.location)meta.append(chip(`⌖ ${fresh.location}`));if(fresh.mood)meta.append(chip(`♡ ${fresh.mood}`));if(fresh.weather)meta.append(chip(`☁ ${fresh.weather}`));for(const tag of fresh.tags||[])meta.append(chip(`#${tag}`));if(fresh.type==='wish')meta.append(chip(`${fresh.progress||0}% · ${statusLabel(fresh.status)}`));content.append(meta);
+  const content=document.createElement('div');content.className='entry-detail memory-detail-root';content.innerHTML='<div class="skeleton" style="min-height:min(76vh,720px);border-radius:30px"></div>';
+  const modal=openModal({title:'',content,className:'entry-modal memory-experience-modal',origin});
+  async function render(){
+    try{
+      const fresh=await repository.getEntry(entry.id);content.innerHTML='';
+      const map=profileMap();const creator=map.get(fresh.created_by)?.display_name||'Seseorang';
+      const actions=document.createElement('div');actions.className='toolbar';
+      const edit=actionButton('✎ Edit');edit.onclick=()=>openComposer({type:fresh.type,entry:fresh,onSaved:async()=>{await render();await onChanged?.();}});
+      const favorite=actionButton(fresh.favorite?'♥ Favorit':'♡ Jadikan favorit');favorite.onclick=async()=>{await repository.updateEntry(fresh.id,{favorite:!fresh.favorite});await render();await onChanged?.();};
+      const remove=actionButton('× Hapus','button--danger');remove.onclick=async()=>{await deleteEntry(fresh,async()=>{modal.close();await onChanged?.();});};actions.append(edit,favorite,remove);
+
+      const meta=[];
+      if(fresh.event_date)meta.push(`◷ ${formatDate(fresh.event_date)}`);
+      if(fresh.location)meta.push(`⌖ ${fresh.location}`);
+      if(fresh.mood)meta.push(`♡ ${fresh.mood}`);
+      if(fresh.weather)meta.push(`☁ ${fresh.weather}`);
+      for(const tag of fresh.tags||[])meta.push(`#${tag}`);
+      if(fresh.type==='wish')meta.push(`${fresh.progress||0}% · ${statusLabel(fresh.status)}`);
+
       const locked=fresh.type==='capsule'&&fresh.unlock_at&&new Date(fresh.unlock_at)>new Date();
-      if(locked){content.append(renderLockedCapsule(fresh));}
-      else {const body=await resolveBody(fresh);if(body){const bodyNode=document.createElement('div');bodyNode.className='world-panel glass-panel entry-detail__body';bodyNode.textContent=body;content.append(bodyNode);}if(fresh.type==='wish')content.append(progressPanel(fresh));if(fresh.attachments?.length){const heading=document.createElement('h3');heading.textContent='Lampiran';content.append(heading);const grid=document.createElement('div');grid.className='attachment-grid';for(const attachment of fresh.attachments)grid.append(attachmentCard(attachment));content.append(grid);}}
-      content.append(renderSocialSection(fresh,{profileMap:map,onChanged:render}));
-    }catch(error){content.innerHTML='';content.append(emptyState('Tidak dapat membuka isi ini',error.message));}}
+      let body='';let lockedContent=null;const extraContent=[];
+      if(locked)lockedContent=renderLockedCapsule(fresh);
+      else{
+        body=await resolveBody(fresh);
+        if(fresh.type==='wish')extraContent.push(progressPanel(fresh));
+      }
+      const socialContent=renderSocialSection(fresh,{profileMap:map,onChanged:render});
+      const viewer=await createMemoryViewer({entry:fresh,body,creator,dateLabel:formatDateTime(fresh.created_at),meta,actions,lockedContent,extraContent,socialContent});
+      content.append(viewer);
+    }catch(error){content.innerHTML='';content.append(emptyState('Tidak dapat membuka isi ini',error.message));}
+  }
   await render();return modal;
 }
 

@@ -15,7 +15,7 @@ export function openTypePicker({ onChoose } = {}) {
   const modal=openModal({title:'Apa yang ingin kalian tambahkan?',content,className:'composer-picker'});return modal;
 }
 
-export function openComposer({ type='memory', entry=null, initialPeriodId=null, onSaved } = {}) {
+export function openComposer({ type='memory', entry=null, onSaved } = {}) {
   const definition=ENTRY_TYPES[type]||ENTRY_TYPES.memory;
   const wrapper=document.createElement('div');wrapper.className='composer';
   const form=document.createElement('form');form.className='composer';
@@ -33,7 +33,6 @@ export function openComposer({ type='memory', entry=null, initialPeriodId=null, 
       <div class="field"><label>Cuaca</label><input class="input" name="weather" maxlength="80" placeholder="Cerah, hujan, berawan…"></div>
       <div class="field"><label>Tag</label><input class="input" name="tags" maxlength="500" placeholder="Pisahkan dengan koma"></div>
     </div>
-    <div class="field composer-period-field"><label>Orbit Kenangan</label><select class="select" name="period_id"><option value="">Tanpa orbit / belum dikelompokkan</option></select><small class="muted" data-period-help>Pilih periode agar foto, video, musik, catatan, dan cerita tampil sebagai satu perjalanan.</small></div>
     <div class="form-grid" data-wish-fields hidden>
       <div class="field"><label>Progres</label><input class="input" name="progress" type="number" min="0" max="100" value="0"></div>
       <div class="field"><label>Status</label><select class="select" name="status"><option value="active">Direncanakan</option><option value="in_progress">Sedang dijalani</option><option value="completed">Sudah tercapai</option><option value="archived">Diarsipkan</option></select></div>
@@ -52,7 +51,7 @@ export function openComposer({ type='memory', entry=null, initialPeriodId=null, 
   wrapper.append(form);
   const modal=openModal({title:`${entry?'Edit':'Tambah'} ${definition.label}`,content:wrapper,className:'composer-modal',onClose:()=>stopRecorder()});
   form.querySelector('[data-cancel]').onclick=()=>modal.close();
-  configureFields();hydrate();bindFiles();bindThumbnail();renderFileList();loadPeriodOptions();renderThumbnail();
+  configureFields();hydrate();bindFiles();bindThumbnail();renderFileList();renderThumbnail();
 
   function configureFields(){
     form.querySelector('[data-body-label]').textContent=type==='music'?'Cerita atau makna lagu':type==='wish'?'Deskripsi impian':type==='note'?'Isi catatan':type==='letter'?'Isi surat':type==='capsule'?'Pesan untuk masa depan':'Isi atau cerita';
@@ -62,18 +61,9 @@ export function openComposer({ type='memory', entry=null, initialPeriodId=null, 
     form.querySelector('[data-music-thumbnail]').hidden=type!=='music';
   }
   function hydrate(){
-    if(!entry){form.elements.period_id.dataset.selected=initialPeriodId||'';return;}form.elements.title.value=entry.title||'';form.elements.body.value=entry.body||'';form.elements.event_date.value=toLocal(entry.event_date);form.elements.unlock_at.value=toLocal(entry.unlock_at);form.elements.location.value=entry.location||'';form.elements.mood.value=entry.mood||'';form.elements.weather.value=entry.weather||'';form.elements.tags.value=(entry.tags||[]).join(', ');form.elements.favorite.checked=Boolean(entry.favorite);form.elements.progress.value=entry.progress||0;form.elements.status.value=entry.status||'active';form.elements.period_id.dataset.selected=entry.period_id||'';
+    if(!entry)return;form.elements.title.value=entry.title||'';form.elements.body.value=entry.body||'';form.elements.event_date.value=toLocal(entry.event_date);form.elements.unlock_at.value=toLocal(entry.unlock_at);form.elements.location.value=entry.location||'';form.elements.mood.value=entry.mood||'';form.elements.weather.value=entry.weather||'';form.elements.tags.value=(entry.tags||[]).join(', ');form.elements.favorite.checked=Boolean(entry.favorite);form.elements.progress.value=entry.progress||0;form.elements.status.value=entry.status||'active';
   }
 
-  async function loadPeriodOptions(){
-    const select=form.elements.period_id;const help=form.querySelector('[data-period-help]');
-    try{
-      const periods=await repository.listPeriods();
-      for(const period of periods){const option=document.createElement('option');option.value=period.id;option.textContent=period.title;select.append(option);}
-      select.value=select.dataset.selected||'';
-      if(!periods.length)help.textContent='Belum ada Orbit Kenangan. Simpan tanpa orbit atau buat orbit melalui menu Orbit Kenangan.';
-    }catch(error){select.disabled=true;help.textContent='Aktifkan migrasi Orbit Kenangan terlebih dahulu agar pengelompokan periode tersedia.';}
-  }
   function bindFiles(){
     const input=form.elements.files;const zone=form.querySelector('[data-drop-zone]');input.onchange=()=>addFiles([...input.files]);
     zone.addEventListener('dragover',event=>{event.preventDefault();zone.classList.add('is-dragging');});zone.addEventListener('dragleave',()=>zone.classList.remove('is-dragging'));zone.addEventListener('drop',event=>{event.preventDefault();zone.classList.remove('is-dragging');addFiles([...event.dataTransfer.files]);});
@@ -127,7 +117,7 @@ export function openComposer({ type='memory', entry=null, initialPeriodId=null, 
     try{
       const values=Object.fromEntries(new FormData(form));const password=String(values.password||'');const secretRequested=type==='capsule'||(type==='letter'&&password)||Boolean(entry?.metadata?.secret);
       const metadata={...(entry?.metadata||{}),secret:secretRequested,password_protected:Boolean(password)||Boolean(entry?.metadata?.password_protected)};
-      const payload={type,title:values.title,body:secretRequested?null:values.body,event_date:toIso(values.event_date),unlock_at:type==='capsule'?toIso(values.unlock_at):null,period_id:values.period_id||null,location:values.location,mood:values.mood,weather:values.weather,tags:parseTags(values.tags),favorite:form.elements.favorite.checked,progress:type==='wish'?Number(values.progress||0):0,status:type==='wish'?values.status:'active',metadata};
+      const payload={type,title:values.title,body:secretRequested?null:values.body,event_date:toIso(values.event_date),unlock_at:type==='capsule'?toIso(values.unlock_at):null,location:values.location,mood:values.mood,weather:values.weather,tags:parseTags(values.tags),favorite:form.elements.favorite.checked,progress:type==='wish'?Number(values.progress||0):0,status:type==='wish'?values.status:'active',metadata};
       submit.textContent='Menyimpan tulisan…';const saved=entry?await repository.updateEntry(entry.id,payload):await repository.createEntry(payload);
       if(secretRequested&&String(values.body||'').trim()){
         submit.textContent='Mengunci isi…';const secretBody={body:String(values.body).trim()};if(password){await repository.setSecret(saved.id,{encryptedPayload:await encryptPayload(secretBody,password),passwordProtected:true});}else{await repository.setSecret(saved.id,{payload:secretBody,passwordProtected:false});}

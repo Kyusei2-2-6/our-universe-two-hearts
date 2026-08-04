@@ -27,7 +27,6 @@ document.documentElement.dataset.ourUniverseBooted='true';
 window.dispatchEvent(new Event('our-universe:booted'));
 
 const worldLoaders={
-  orbits:()=>import('./worlds/memory-orbits.js').then(m=>m.renderMemoryOrbits),
   memories:()=>import('./worlds/memories.js').then(m=>m.renderMemories),
   gallery:()=>import('./worlds/gallery.js').then(m=>m.renderGallery),
   letters:()=>import('./worlds/letters.js').then(m=>m.renderLetters),
@@ -61,7 +60,7 @@ async function init(){
 
 function setupCards(){
   const host=qs('#orbit-cards');
-  const cards=WORLD_CARDS.map((card,index)=>createOrbitCard(card.route==='orbits'?{...card,label:'Periode Kenangan',description:'Bab perjalanan kalian'}:card,route=>{
+  const cards=WORLD_CARDS.map((card,index)=>createOrbitCard(card,route=>{
     if(performance.now()<orbitSuppressClickUntil)return;
     router.navigate(route);
   }));
@@ -161,7 +160,6 @@ function animateOrbitCards(){
 function setupControls(){
   qs('#home-button').onclick=()=>router.navigate('home');
   qs('#global-search').onclick=()=>router.navigate('search');
-  qs('#periods-shortcut').onclick=()=>router.navigate('orbits');
   qs('#gallery-shortcut').onclick=()=>router.navigate('gallery');
   qs('#studio-shortcut').onclick=()=>router.navigate('studio');
   qs('#capture-universe').onclick=async event=>{const button=event.currentTarget;button.disabled=true;const before=button.textContent;button.textContent='…';try{await captureCurrentView({galaxy});toast('Tangkapan semesta disimpan sebagai PNG.');}catch(error){toast(`Tangkapan gagal: ${error.message}`,{type:'error',duration:6500});}finally{button.disabled=false;button.textContent=before;}};
