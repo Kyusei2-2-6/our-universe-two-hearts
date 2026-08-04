@@ -224,11 +224,12 @@ export class GalaxyEngine {
     const group=new THREE.Group();
     const segments=this.mobileComfort?24:42;
     const specs=[
-      {radius:1.65,distance:26,speed:.024,y:9,z:-23,ring:true},
-      {radius:1.05,distance:18,speed:-.032,y:-9,z:-17},
-      {radius:.78,distance:34,speed:.017,y:-2,z:-38},
-      {radius:1.25,distance:40,speed:-.012,y:13,z:-48,ring:true},
-      {radius:.56,distance:14,speed:.041,y:6,z:-11}
+      {radius:2.25,distance:25,speed:.021,y:10,z:-20,ring:true},
+      {radius:1.55,distance:18,speed:-.028,y:-10,z:-15},
+      {radius:1.12,distance:33,speed:.015,y:-1,z:-34},
+      {radius:1.85,distance:39,speed:-.011,y:13,z:-43,ring:true},
+      {radius:.92,distance:14,speed:.036,y:6,z:-10},
+      {radius:1.30,distance:29,speed:-.019,y:-14,z:-28}
     ];
     this.planetData=[];
     specs.slice(0,this.mobileComfort?4:5).forEach((spec,index)=>{
@@ -241,6 +242,18 @@ export class GalaxyEngine {
       const mesh=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,segments,segments),material);
       mesh.position.set(spec.distance,spec.y,spec.z);
       group.add(mesh);
+      const atmosphere=new THREE.Mesh(
+        new THREE.SphereGeometry(spec.radius*1.055,segments,segments),
+        new THREE.MeshBasicMaterial({
+          color:new THREE.Color(light),
+          transparent:true,
+          opacity:this.mobileComfort?.065:.095,
+          blending:THREE.AdditiveBlending,
+          side:THREE.BackSide,
+          depthWrite:false
+        })
+      );
+      mesh.add(atmosphere);
       let ring=null;
       if(spec.ring){
         ring=new THREE.Mesh(
@@ -250,7 +263,7 @@ export class GalaxyEngine {
         ring.rotation.x=Math.PI*.55;
         mesh.add(ring);
       }
-      this.planetData.push({mesh,spec,phase:index*1.37+Math.random()*.8,ring});
+      this.planetData.push({mesh,spec,phase:index*1.37+Math.random()*.8,ring,atmosphere});
     });
     return group;
   }
@@ -355,7 +368,7 @@ export class GalaxyEngine {
   }
 
   async enterUniverse() {
-    this.mode='travel';this.asteroids.visible=true;
+    this.mode='travel';this.asteroids.visible=false;
     this.afterimage.enabled=Boolean(this.profile.afterimage&&!this.reduced&&!this.mobileComfort);
     return new Promise(resolve=>{
       const tl=gsap.timeline({defaults:{ease:'power2.inOut'},onComplete:()=>{
@@ -408,8 +421,8 @@ export class GalaxyEngine {
     this.planetData.forEach(({mesh,spec,phase},index)=>{
       const angle=elapsed*spec.speed+phase;
       mesh.position.x=Math.cos(angle)*spec.distance;
-      mesh.position.z=spec.z+Math.sin(angle)*8;
-      mesh.position.y=spec.y+Math.sin(angle*.72+index)*1.8;
+      mesh.position.z=spec.z+Math.sin(angle)*11;
+      mesh.position.y=spec.y+Math.sin(angle*.72+index)*2.4;
       mesh.rotation.y+=dt*(.08+index*.014);
       mesh.rotation.z=Math.sin(elapsed*.15+phase)*.06;
     });

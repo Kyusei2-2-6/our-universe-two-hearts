@@ -1,4 +1,4 @@
-const CACHE='our-universe-two-hearts-v6-cosmic-orbits';
+const CACHE='our-universe-two-hearts-v7-planetary-menu';
 const SHELL=[
   './','./index.html','./404.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png',
   './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/cosmic-orbits.css',

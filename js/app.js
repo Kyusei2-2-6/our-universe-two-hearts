@@ -65,15 +65,23 @@ function setupCards(){
     router.navigate(route);
   }));
   host.replaceChildren(...cards);
-  orbitMeta=cards.map((card,index)=>({
-    card,
-    base:index/cards.length*Math.PI*2,
-    phase:(index*1.618)%Math.PI*2,
-    radial:.88+((index*37)%17)/100,
-    yRange:22+((index*29)%38),
-    tilt:-3+((index*11)%7),
-    wobble:.00018+((index%5)*.000018)
-  }));
+  const planetStyles=['azure','rose','gold','ocean','violet','emerald','ice','coral'];
+  orbitMeta=cards.map((card,index)=>{
+    card.dataset.planet=planetStyles[index%planetStyles.length];
+    card.style.setProperty('--planet-index',String(index));
+    return {
+      card,
+      base:index/cards.length*Math.PI*2,
+      phase:(index*1.618)%Math.PI*2,
+      radiusX:.73+((index*31)%28)/100,
+      radiusY:.60+((index*19)%32)/100,
+      speed:.76+((index*17)%43)/100,
+      inclination:-.34+((index*23)%69)/100,
+      drift:10+((index*29)%31),
+      tilt:-4+((index*11)%9),
+      wobble:.00015+((index%6)*.000017)
+    };
+  });
   bindOrbitGestures(host);
   animateOrbitCards();
 }
@@ -111,31 +119,39 @@ function animateOrbitCards(){
     orbitFrame=requestAnimationFrame(render);
     if(now-orbitLast<1000/Math.min(45,performanceProfile.fps))return;
     const dt=Math.min(48,now-orbitLast||16);orbitLast=now;
-    if(!orbitDragging){orbitRotation+=dt*orbitVelocity;orbitVelocity+=(.000034-orbitVelocity)*.012;}
+    if(!orbitDragging){orbitRotation+=dt*orbitVelocity;orbitVelocity+=(.000031-orbitVelocity)*.012;}
     const host=qs('#orbit-cards');if(!host||host.hidden)return;
     const rect=host.getBoundingClientRect();const mobile=innerWidth<700;
-    const cx=rect.width/2;const cy=rect.height*(mobile?.51:.52);
-    const rx=Math.max(mobile?142:260,Math.min(rect.width*(mobile?.39:.40),520));
-    const ry=Math.max(mobile?170:210,Math.min(rect.height*(mobile?.25:.29),315));
+    const cx=rect.width/2;
+    const cy=rect.height*(mobile?.52:.53);
+    const baseRx=Math.max(mobile?150:300,Math.min(rect.width*(mobile?.43:.43),560));
+    const baseRy=Math.max(mobile?220:250,Math.min(rect.height*(mobile?.31:.34),365));
+
     orbitMeta.forEach((meta,index)=>{
-      const angle=orbitRotation+meta.base+Math.sin(now*meta.wobble+meta.phase)*.055;
-      const depth=(Math.cos(angle)+1)/2;
+      const angle=orbitRotation*meta.speed+meta.base+Math.sin(now*meta.wobble+meta.phase)*.075;
       const depthSigned=Math.cos(angle);
-      const x=cx+Math.sin(angle)*rx*meta.radial;
-      const y=cy+Math.sin(angle*1.43+meta.phase)*meta.yRange+Math.sin(angle*.58+meta.phase)*ry*.26;
-      const scale=(mobile?.60:.64)+depth*(mobile?.43:.48);
-      const opacity=.28+depth*.72;
-      const blur=(1-depth)*2.4;
-      const rotate=meta.tilt+Math.sin(now*.0005+meta.phase)*2.2;
+      const depth=(depthSigned+1)/2;
+      const rx=baseRx*meta.radiusX;
+      const ry=baseRy*meta.radiusY;
+      const x=cx+Math.sin(angle)*rx+Math.sin(angle*.43+meta.phase)*meta.drift;
+      const y=cy+Math.sin(angle+meta.inclination)*ry*.58+Math.cos(angle*1.9+meta.phase)*meta.drift*.42;
+      const scale=(mobile?.54:.58)+depth*(mobile?.50:.56);
+      const opacity=.24+depth*.76;
+      const blur=(1-depth)*2.1;
+      const rotate=meta.tilt+Math.sin(now*.00042+meta.phase)*3.2;
+      const z=(depth-.5)*(mobile?150:240);
+
       meta.card.style.left=`${x}px`;
       meta.card.style.top=`${y}px`;
-      meta.card.style.zIndex=String(depthSigned>0?20+Math.round(depth*18):7+Math.round(depth*8));
-      meta.card.style.transform=`translate(-50%,-50%) scale(${scale}) rotate(${rotate}deg)`;
+      meta.card.style.zIndex=String(depthSigned>0?30+Math.round(depth*26):5+Math.round(depth*10));
+      meta.card.style.transform=`translate(-50%,-50%) translateZ(${z.toFixed(1)}px) scale(${scale.toFixed(3)}) rotate(${rotate.toFixed(2)}deg)`;
       meta.card.style.opacity=String(opacity);
-      meta.card.style.filter=`blur(${blur.toFixed(2)}px) saturate(${(.72+depth*.38).toFixed(2)})`;
-      meta.card.style.setProperty('--border-angle',`${(now*.012+index*23)%360}deg`);
-      meta.card.dataset.depth=depthSigned>.12?'front':depthSigned<-.18?'back':'side';
-      meta.card.setAttribute('aria-hidden',depth<.16?'true':'false');
+      meta.card.style.filter=`blur(${blur.toFixed(2)}px) saturate(${(.72+depth*.48).toFixed(2)}) brightness(${(.68+depth*.38).toFixed(2)})`;
+      meta.card.style.setProperty('--orbit-depth',depth.toFixed(3));
+      meta.card.style.setProperty('--border-angle',`${(now*.018+index*29)%360}deg`);
+      meta.card.dataset.depth=depthSigned>.14?'front':depthSigned<-.20?'back':'side';
+      meta.card.setAttribute('aria-hidden',depth<.12?'true':'false');
+      meta.card.tabIndex=depth<.14?-1:0;
     });
   };
   orbitFrame=requestAnimationFrame(render);
