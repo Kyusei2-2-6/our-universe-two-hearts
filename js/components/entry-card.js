@@ -7,7 +7,7 @@ const PLACEHOLDERS={memory:'✦',gallery:'◫',letter:'✉',note:'▤',wish:'♡
 export function createEntryCard(entry, { onOpen, onEdit, onDelete, profileMap = new Map() } = {}) {
   const card=document.createElement('article');card.className=`entry-card entry-card--${entry.type}`;card.tabIndex=0;
   const visual=document.createElement('div');
-  const cover=entry.attachments?.find(item=>item.kind==='image') || entry.attachments?.find(item=>item.kind==='video');
+  const cover=(entry.type==='music'?entry.attachments?.find(item=>item.kind==='image'&&item.metadata?.role==='thumbnail'):null) || entry.attachments?.find(item=>item.kind==='image') || entry.attachments?.find(item=>item.kind==='video');
   if(cover){visual.className='entry-card__cover-placeholder';visual.textContent='✧';loadCover(visual,cover);}else{visual.className='entry-card__cover-placeholder';visual.textContent=PLACEHOLDERS[entry.type]||'✦';}
   const body=document.createElement('div');body.className='entry-card__body';
   const creator=profileMap.get(entry.created_by)?.display_name || 'Kalian';

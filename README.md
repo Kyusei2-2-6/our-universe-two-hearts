@@ -4,9 +4,11 @@ OUR UNIVERSE adalah web app romantis privat untuk **tepat dua orang**. Aplikasi 
 
 ## Isi utama
 
-- Intro deep-space, perjalanan kamera, galaksi berputar, nebula, bintang, asteroid, bloom, dan easter egg.
+- Intro deep-space, bentangan Bima Sakti, planet bergerak, perjalanan kamera, bintang, asteroid, bloom lembut, dan easter egg.
+- Galaxy Hub dengan bulan pusat serta menu 3D yang berorbit dari depan ke belakang dan dapat digeser.
 - Login Supabase Auth dengan allowlist yang hanya menerima dua email yang telah ditentukan.
 - Universe Studio yang ramah layar sentuh.
+- Orbit Kenangan yang menggabungkan foto, video, musik, notes, surat, dan file dalam perjalanan berdasarkan periode.
 - Memory dengan banyak lampiran sekaligus.
 - Foto, video, musik, voice note, PDF, TXT, dokumen, ZIP, dan file lain.
 - Letters dengan enkripsi kata sandi berbasis Web Crypto.
@@ -88,12 +90,13 @@ Kedua anggota mempunyai hak yang sama untuk menambah, mengedit, dan menghapus is
 
 | Jenis | Kegunaan |
 |---|---|
+| Orbit Kenangan | Folder periode berbentuk dunia kecil dengan popup perjalanan sinematik |
 | Memory | Cerita lengkap dengan tanggal, tempat, mood, cuaca, tag, dan lampiran |
 | Gallery | Foto dan video |
 | Letter | Surat biasa atau surat terenkripsi dengan kata sandi tambahan |
 | Note | Notepad bersama, daftar, dan rencana |
 | Wish | Impian dengan progres dan status |
-| Music | Lagu, rekaman, dan voice note |
+| Music | Lagu, rekaman, voice note, dan thumbnail cover khusus |
 | Timeline | Tonggak perjalanan hubungan |
 | Time Capsule | Pesan dan file yang tidak bisa dibaca sebelum waktu buka |
 | File | PDF, teks, dokumen, arsip, dan file lainnya |
@@ -147,3 +150,7 @@ tests/
 ## Tidak ada data contoh
 
 Repository ini sengaja tidak memiliki folder data JSON berisi kenangan palsu. Database akan tetap kosong sampai salah satu dari dua anggota membuat konten pertama.
+
+## Upgrade dari versi Two Hearts sebelumnya
+
+Gunakan panduan [UPGRADE-COSMIC-ORBITS-ANDROID.md](UPGRADE-COSMIC-ORBITS-ANDROID.md). Migrasi bersifat aditif dan tidak menghapus akun atau data lama.

@@ -6,12 +6,14 @@ class Repository {
   setContext({ universeId, userId }) { this.universeId = universeId; this.userId = userId; }
   requireContext() { if (!this.universeId || !this.userId) throw new Error('Semesta belum aktif.'); }
 
-  async listEntries({ type, query, status, favorite, limit = 100, ascending = false } = {}) {
+  async listEntries({ type, query, status, favorite, periodId, unassigned = false, limit = 100, ascending = false } = {}) {
     this.requireContext();
     let request = supabase().from('entries').select('*').eq('universe_id', this.universeId).order('event_date', { ascending, nullsFirst:false }).order('created_at', { ascending:false }).limit(limit);
     if (type) request = request.eq('type', type);
     if (status) request = request.eq('status', status);
     if (typeof favorite === 'boolean') request = request.eq('favorite', favorite);
+    if (periodId) request = request.eq('period_id', periodId);
+    if (unassigned) request = request.is('period_id', null);
     if (query) request = request.or(`title.ilike.%${this.escapeFilter(query)}%,body.ilike.%${this.escapeFilter(query)}%,location.ilike.%${this.escapeFilter(query)}%`);
     const { data, error } = await request;
     if (error) throw error;
@@ -31,6 +33,52 @@ class Repository {
       grouped.get(item.entry_id).push(item);
     }
     return entries.map(entry => ({ ...entry, attachments:grouped.get(entry.id) || [] }));
+  }
+
+
+  async listPeriods() {
+    this.requireContext();
+    const { data, error } = await supabase().from('memory_periods').select('*').eq('universe_id',this.universeId).order('sort_order').order('start_date',{ascending:true,nullsFirst:false}).order('created_at',{ascending:true});
+    if (error) throw error;
+    return data || [];
+  }
+
+  async getPeriod(id) {
+    this.requireContext();
+    const { data, error } = await supabase().from('memory_periods').select('*').eq('universe_id',this.universeId).eq('id',id).single();
+    if (error) throw error;
+    return data;
+  }
+
+  async createPeriod(payload) {
+    this.requireContext();
+    const record={
+      universe_id:this.universeId,created_by:this.userId,updated_by:this.userId,
+      title:String(payload.title||'').trim().slice(0,140),
+      description:payload.description?String(payload.description).trim().slice(0,12000):null,
+      start_date:payload.start_date||null,end_date:payload.end_date||null,
+      planet_style:payload.planet_style||'moon',accent_color:payload.accent_color||'#8fb8ff',
+      sort_order:Number.isFinite(payload.sort_order)?payload.sort_order:0,metadata:payload.metadata||{}
+    };
+    const {data,error}=await supabase().from('memory_periods').insert(record).select().single();
+    if(error)throw error;return data;
+  }
+
+  async updatePeriod(id,payload) {
+    this.requireContext();
+    const allowed=['title','description','start_date','end_date','planet_style','accent_color','sort_order','metadata'];
+    const record={updated_by:this.userId};
+    for(const key of allowed)if(key in payload)record[key]=payload[key];
+    if('title' in record)record.title=String(record.title||'').trim().slice(0,140);
+    if('description' in record)record.description=record.description?String(record.description).trim().slice(0,12000):null;
+    const {data,error}=await supabase().from('memory_periods').update(record).eq('universe_id',this.universeId).eq('id',id).select().single();
+    if(error)throw error;return data;
+  }
+
+  async deletePeriod(id) {
+    this.requireContext();
+    const {error}=await supabase().from('memory_periods').delete().eq('universe_id',this.universeId).eq('id',id);
+    if(error)throw error;
   }
 
   async getEntry(id) {
@@ -60,7 +108,7 @@ class Repository {
       weather:payload.weather ? String(payload.weather).trim().slice(0,80) : null,
       tags:Array.isArray(payload.tags) ? payload.tags.slice(0,30).map(tag => String(tag).trim().slice(0,50)).filter(Boolean) : [],
       favorite:Boolean(payload.favorite), status:payload.status || 'active', progress:Number.isFinite(payload.progress) ? Math.max(0,Math.min(100,payload.progress)) : 0,
-      unlock_at:payload.unlock_at || null, metadata:payload.metadata || {}
+      unlock_at:payload.unlock_at || null, period_id:payload.period_id || null, metadata:payload.metadata || {}
     };
     const { data, error } = await supabase().from('entries').insert(record).select().single();
     if (error) throw error;
@@ -69,7 +117,7 @@ class Repository {
 
   async updateEntry(id, payload) {
     this.requireContext();
-    const allowed = ['type','title','body','event_date','location','mood','weather','tags','favorite','status','progress','unlock_at','metadata'];
+    const allowed = ['type','title','body','event_date','location','mood','weather','tags','favorite','status','progress','unlock_at','period_id','metadata'];
     const record = { updated_by:this.userId };
     for (const key of allowed) if (key in payload) record[key] = payload[key];
     if ('title' in record) record.title = String(record.title || '').trim().slice(0,180);
@@ -157,15 +205,17 @@ class Repository {
   async stats() {
     this.requireContext();
     const client = supabase();
-    const [entries, attachments, comments] = await Promise.all([
-      client.from('entries').select('id,type,status,progress',{count:'exact'}).eq('universe_id',this.universeId),
+    const [entries, attachments, comments, periods] = await Promise.all([
+      client.from('entries').select('id,type,status,progress,period_id',{count:'exact'}).eq('universe_id',this.universeId),
       client.from('attachments').select('id,kind,size_bytes',{count:'exact'}).eq('universe_id',this.universeId),
-      client.from('comments').select('id',{count:'exact'}).eq('universe_id',this.universeId)
+      client.from('comments').select('id',{count:'exact'}).eq('universe_id',this.universeId),
+      client.from('memory_periods').select('id',{count:'exact'}).eq('universe_id',this.universeId)
     ]);
     if (entries.error) throw entries.error;
     if (attachments.error) throw attachments.error;
     if (comments.error) throw comments.error;
-    return { entries:entries.data || [], entryCount:entries.count || 0, attachments:attachments.data || [], attachmentCount:attachments.count || 0, commentCount:comments.count || 0 };
+    if (periods.error) throw periods.error;
+    return { entries:entries.data || [], entryCount:entries.count || 0, attachments:attachments.data || [], attachmentCount:attachments.count || 0, commentCount:comments.count || 0, periodCount:periods.count || 0 };
   }
 }
 export const repository = new Repository();

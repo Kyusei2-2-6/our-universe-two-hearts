@@ -52,9 +52,29 @@ create table if not exists public.universe_members (
   unique (user_id)
 );
 
+
+create table if not exists public.memory_periods (
+  id uuid primary key default gen_random_uuid(),
+  universe_id uuid not null references public.universes(id) on delete cascade,
+  title text not null check (char_length(title) between 1 and 140),
+  description text,
+  start_date date,
+  end_date date,
+  planet_style text not null default 'moon' check (planet_style in ('moon','saturn','aurora','ember','ice')),
+  accent_color text not null default '#8fb8ff' check (accent_color ~ '^#[0-9A-Fa-f]{6}$'),
+  sort_order integer not null default 0,
+  metadata jsonb not null default '{}'::jsonb,
+  created_by uuid not null references public.profiles(id) on delete restrict,
+  updated_by uuid not null references public.profiles(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint memory_period_date_order check (end_date is null or start_date is null or end_date >= start_date)
+);
+
 create table if not exists public.entries (
   id uuid primary key default gen_random_uuid(),
   universe_id uuid not null references public.universes(id) on delete cascade,
+  period_id uuid references public.memory_periods(id) on delete set null,
   type text not null check (type in ('memory','gallery','letter','note','wish','music','timeline','capsule','file')),
   title text not null check (char_length(title) between 1 and 180),
   body text,
@@ -137,6 +157,8 @@ create table if not exists public.activity_logs (
 );
 
 create index if not exists idx_members_universe on public.universe_members(universe_id);
+create index if not exists idx_periods_universe_order on public.memory_periods(universe_id,sort_order,start_date,created_at);
+create index if not exists idx_entries_period on public.entries(universe_id,period_id,event_date,created_at);
 create index if not exists idx_entries_universe_type_date on public.entries(universe_id,type,event_date desc,created_at desc);
 create index if not exists idx_entries_tags on public.entries using gin(tags);
 create index if not exists idx_attachments_entry on public.attachments(entry_id,sort_order);
@@ -156,6 +178,8 @@ drop trigger if exists profiles_set_updated_at on public.profiles;
 create trigger profiles_set_updated_at before update on public.profiles for each row execute function public.set_updated_at();
 drop trigger if exists universes_set_updated_at on public.universes;
 create trigger universes_set_updated_at before update on public.universes for each row execute function public.set_updated_at();
+drop trigger if exists memory_periods_set_updated_at on public.memory_periods;
+create trigger memory_periods_set_updated_at before update on public.memory_periods for each row execute function public.set_updated_at();
 drop trigger if exists entries_set_updated_at on public.entries;
 create trigger entries_set_updated_at before update on public.entries for each row execute function public.set_updated_at();
 drop trigger if exists secrets_set_updated_at on public.entry_secrets;
@@ -227,6 +251,8 @@ create or replace function public.generate_invite_code()
 returns text
 language sql
 volatile
+security definer
+set search_path = public, extensions, pg_catalog
 as $$
   select upper(encode(gen_random_bytes(5),'hex'));
 $$;
@@ -374,6 +400,7 @@ begin
   v_universe:=row_data.universe_id;
   v_entity_id:=row_data.id::text;
   if tg_table_name='entries' then v_title:=row_data.title;
+  elsif tg_table_name='memory_periods' then v_title:=row_data.title;
   elsif tg_table_name='attachments' then v_title:=row_data.file_name;
   elsif tg_table_name='comments' then v_title:=left(row_data.body,120);
   else v_title:=null; end if;
@@ -383,6 +410,8 @@ begin
 end;
 $$;
 
+drop trigger if exists memory_periods_activity on public.memory_periods;
+create trigger memory_periods_activity after insert or update or delete on public.memory_periods for each row execute function public.log_shared_activity();
 drop trigger if exists entries_activity on public.entries;
 create trigger entries_activity after insert or update or delete on public.entries for each row execute function public.log_shared_activity();
 drop trigger if exists attachments_activity on public.attachments;
@@ -394,6 +423,7 @@ alter table public.app_config enable row level security;
 alter table public.profiles enable row level security;
 alter table public.universes enable row level security;
 alter table public.universe_members enable row level security;
+alter table public.memory_periods enable row level security;
 alter table public.entries enable row level security;
 alter table public.entry_secrets enable row level security;
 alter table public.attachments enable row level security;
@@ -415,6 +445,13 @@ create policy "profiles_update_own" on public.profiles for update to authenticat
 create policy "universes_select_member" on public.universes for select to authenticated using(public.is_universe_member(id));
 create policy "universes_update_member" on public.universes for update to authenticated using(public.is_universe_member(id)) with check(public.is_universe_member(id));
 create policy "members_select_member" on public.universe_members for select to authenticated using(public.is_universe_member(universe_id));
+
+
+-- Memory periods / Orbit Kenangan
+create policy "periods_select_member" on public.memory_periods for select to authenticated using(public.is_universe_member(universe_id));
+create policy "periods_insert_member" on public.memory_periods for insert to authenticated with check(public.is_universe_member(universe_id) and created_by=auth.uid() and updated_by=auth.uid());
+create policy "periods_update_member" on public.memory_periods for update to authenticated using(public.is_universe_member(universe_id)) with check(public.is_universe_member(universe_id) and updated_by=auth.uid());
+create policy "periods_delete_member" on public.memory_periods for delete to authenticated using(public.is_universe_member(universe_id));
 
 -- Shared entries
 create policy "entries_select_member" on public.entries for select to authenticated using(public.is_universe_member(universe_id));
@@ -461,7 +498,7 @@ grant select,update on public.profiles to authenticated;
 grant select on public.universe_members to authenticated;
 grant select on public.universes to authenticated;
 grant update(name,settings,updated_at) on public.universes to authenticated;
-grant select,insert,update,delete on public.entries,public.entry_secrets,public.attachments,public.comments,public.reactions to authenticated;
+grant select,insert,update,delete on public.memory_periods,public.entries,public.entry_secrets,public.attachments,public.comments,public.reactions to authenticated;
 grant select on public.activity_logs to authenticated;
 grant usage,select on sequence public.activity_logs_id_seq to authenticated;
 revoke all on function public.create_universe(text,text,text) from public;
@@ -528,5 +565,14 @@ begin
     end if;
   end loop;
 end $$;
+
+do $$
+begin
+  begin
+    alter publication supabase_realtime add table public.memory_periods;
+  exception when duplicate_object then null; when undefined_object then null;
+  end;
+end;
+$$;
 
 commit;

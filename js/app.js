@@ -26,6 +26,7 @@ document.documentElement.dataset.ourUniverseBooted='true';
 window.dispatchEvent(new Event('our-universe:booted'));
 
 const worldLoaders={
+  orbits:()=>import('./worlds/memory-orbits.js').then(m=>m.renderMemoryOrbits),
   memories:()=>import('./worlds/memories.js').then(m=>m.renderMemories),
   gallery:()=>import('./worlds/gallery.js').then(m=>m.renderGallery),
   letters:()=>import('./worlds/letters.js').then(m=>m.renderLetters),
@@ -44,11 +45,12 @@ const worldLoaders={
 };
 
 let galaxy;let routeStarted=false;let orbitFrame;let orbitLast=0;let authUnsubscribe;let accessReady=false;
+let orbitRotation=0;let orbitVelocity=.000034;let orbitDragging=false;let orbitDragX=0;let orbitMoved=false;let orbitSuppressClickUntil=0;let orbitMeta=[];
 const performanceProfile=getPerformanceProfile();
 
 async function init(){
   document.title=CONFIG.APP_NAME;
-  audioEngine.configure({ambientElement:qs('#ambient-audio'),volume:.34,enabled:true});
+  const soundEnabled=localStorage.getItem('our-universe-sound')==='on';audioEngine.configure({ambientElement:qs('#ambient-audio'),volume:.22,enabled:soundEnabled});
   galaxy=new GalaxyEngine(qs('#universe-canvas'),performanceProfile);
   setupCards();setupControls();setupEvents();
   new EasterEggs({galaxyEngine:galaxy,canvas:qs('#universe-canvas'),initials:'♡'});
@@ -56,8 +58,88 @@ async function init(){
   await openingExperience();
 }
 
-function setupCards(){const host=qs('#orbit-cards');host.replaceChildren(...WORLD_CARDS.map(card=>createOrbitCard(card,route=>router.navigate(route))));animateOrbitCards();}
-function animateOrbitCards(){cancelAnimationFrame(orbitFrame);const cards=qsa('.orbit-card');const render=now=>{orbitFrame=requestAnimationFrame(render);if(now-orbitLast<1000/Math.min(45,performanceProfile.fps))return;orbitLast=now;const rect=qs('#orbit-cards').getBoundingClientRect();const mobile=innerWidth<700;const cx=rect.width/2;const cy=rect.height*(mobile?.5:.49);const rx=Math.max(135,Math.min(rect.width*(mobile?.34:.43),510));const ry=Math.max(270,Math.min(rect.height*(mobile?.42:.39),390));const speed=(now*.000032);cards.forEach((card,index)=>{const angle=speed+(index/cards.length)*Math.PI*2;const layer=Math.sin(angle)*.5+.5;const x=cx+Math.cos(angle)*rx;const y=cy+Math.sin(angle)*ry;const scale=.82+layer*.2;card.style.left=`${x}px`;card.style.top=`${y}px`;card.style.zIndex=String(10+Math.round(layer*10));card.style.transform=`translate(-50%,-50%) scale(${scale})`;card.style.opacity=String(.68+layer*.32);});};orbitFrame=requestAnimationFrame(render);}
+function setupCards(){
+  const host=qs('#orbit-cards');
+  const cards=WORLD_CARDS.map((card,index)=>createOrbitCard(card,route=>{
+    if(performance.now()<orbitSuppressClickUntil)return;
+    router.navigate(route);
+  }));
+  host.replaceChildren(...cards);
+  orbitMeta=cards.map((card,index)=>({
+    card,
+    base:index/cards.length*Math.PI*2,
+    phase:(index*1.618)%Math.PI*2,
+    radial:.88+((index*37)%17)/100,
+    yRange:22+((index*29)%38),
+    tilt:-3+((index*11)%7),
+    wobble:.00018+((index%5)*.000018)
+  }));
+  bindOrbitGestures(host);
+  animateOrbitCards();
+}
+
+function bindOrbitGestures(host){
+  host.addEventListener('pointerdown',event=>{
+    orbitDragging=true;orbitMoved=false;orbitDragX=event.clientX;
+    host.setPointerCapture?.(event.pointerId);
+  });
+  host.addEventListener('pointermove',event=>{
+    if(!orbitDragging)return;
+    const delta=event.clientX-orbitDragX;orbitDragX=event.clientX;
+    if(Math.abs(delta)>2)orbitMoved=true;
+    orbitRotation+=delta*.0065;
+    orbitVelocity=delta*.000008;
+  });
+  const release=event=>{
+    if(!orbitDragging)return;
+    orbitDragging=false;
+    if(orbitMoved)orbitSuppressClickUntil=performance.now()+260;
+    host.releasePointerCapture?.(event.pointerId);
+  };
+  host.addEventListener('pointerup',release);
+  host.addEventListener('pointercancel',release);
+  host.addEventListener('wheel',event=>{
+    if(Math.abs(event.deltaX)>Math.abs(event.deltaY)){
+      orbitRotation+=event.deltaX*.0018;event.preventDefault();
+    }
+  },{passive:false});
+}
+
+function animateOrbitCards(){
+  cancelAnimationFrame(orbitFrame);
+  const render=now=>{
+    orbitFrame=requestAnimationFrame(render);
+    if(now-orbitLast<1000/Math.min(45,performanceProfile.fps))return;
+    const dt=Math.min(48,now-orbitLast||16);orbitLast=now;
+    if(!orbitDragging){orbitRotation+=dt*orbitVelocity;orbitVelocity+=(.000034-orbitVelocity)*.012;}
+    const host=qs('#orbit-cards');if(!host||host.hidden)return;
+    const rect=host.getBoundingClientRect();const mobile=innerWidth<700;
+    const cx=rect.width/2;const cy=rect.height*(mobile?.51:.52);
+    const rx=Math.max(mobile?142:260,Math.min(rect.width*(mobile?.39:.40),520));
+    const ry=Math.max(mobile?170:210,Math.min(rect.height*(mobile?.25:.29),315));
+    orbitMeta.forEach((meta,index)=>{
+      const angle=orbitRotation+meta.base+Math.sin(now*meta.wobble+meta.phase)*.055;
+      const depth=(Math.cos(angle)+1)/2;
+      const depthSigned=Math.cos(angle);
+      const x=cx+Math.sin(angle)*rx*meta.radial;
+      const y=cy+Math.sin(angle*1.43+meta.phase)*meta.yRange+Math.sin(angle*.58+meta.phase)*ry*.26;
+      const scale=(mobile?.60:.64)+depth*(mobile?.43:.48);
+      const opacity=.28+depth*.72;
+      const blur=(1-depth)*2.4;
+      const rotate=meta.tilt+Math.sin(now*.0005+meta.phase)*2.2;
+      meta.card.style.left=`${x}px`;
+      meta.card.style.top=`${y}px`;
+      meta.card.style.zIndex=String(depthSigned>0?20+Math.round(depth*18):7+Math.round(depth*8));
+      meta.card.style.transform=`translate(-50%,-50%) scale(${scale}) rotate(${rotate}deg)`;
+      meta.card.style.opacity=String(opacity);
+      meta.card.style.filter=`blur(${blur.toFixed(2)}px) saturate(${(.72+depth*.38).toFixed(2)})`;
+      meta.card.style.setProperty('--border-angle',`${(now*.012+index*23)%360}deg`);
+      meta.card.dataset.depth=depthSigned>.12?'front':depthSigned<-.18?'back':'side';
+      meta.card.setAttribute('aria-hidden',depth<.16?'true':'false');
+    });
+  };
+  orbitFrame=requestAnimationFrame(render);
+}
 
 function setupControls(){
   qs('#home-button').onclick=()=>router.navigate('home');
@@ -65,9 +147,9 @@ function setupControls(){
   qs('#studio-fab').onclick=()=>openTypePicker({onChoose:type=>openComposer({type,onSaved:handleDataChanged})});
   document.addEventListener('click',event=>{if(event.target.closest('[data-open-composer]'))openTypePicker({onChoose:type=>openComposer({type,onSaved:handleDataChanged})});});
   qs('#profile-button').onclick=()=>openProfileMenu({onRefresh:refreshContext,onNavigate:route=>router.navigate(route),onSignOut:showAccessGate});
-  qs('#sound-toggle').onclick=async event=>{await audioEngine.setEnabled(!audioEngine.enabled);event.currentTarget.textContent=audioEngine.enabled?'◉':'○';toast(audioEngine.enabled?'Suara semesta aktif.':'Suara semesta dimatikan.');};
+  const soundToggle=qs('#sound-toggle');soundToggle.textContent=audioEngine.enabled?'◉':'○';soundToggle.onclick=async event=>{await audioEngine.setEnabled(!audioEngine.enabled);localStorage.setItem('our-universe-sound',audioEngine.enabled?'on':'off');event.currentTarget.textContent=audioEngine.enabled?'◉':'○';toast(audioEngine.enabled?'Suara latar dinyalakan manual.':'Suara latar dimatikan.');};
   qs('#skip-intro').onclick=()=>completeIntro(true);
-  qs('#enter-universe').onclick=async()=>{const button=qs('#enter-universe');button.disabled=true;await audioEngine.playAmbient();await galaxy.enterUniverse();completeIntro(false);};
+  qs('#enter-universe').onclick=async()=>{const button=qs('#enter-universe');button.disabled=true;await galaxy.enterUniverse();completeIntro(false);};
 }
 
 function setupEvents(){
@@ -100,7 +182,7 @@ async function showAccessGate(){
 async function refreshContext(){try{const context=await auth.context();if(!context.session||!context.membership){showAccessGate();return;}await activateUniverse(context);}catch(error){toast(error.message,{type:'error'});}}
 
 async function activateUniverse(context){
-  state.patch(context);repository.setContext({universeId:context.universe.id,userId:context.user.id});document.documentElement.dataset.theme=context.universe.settings?.theme||'violet';
+  state.patch(context);repository.setContext({universeId:context.universe.id,userId:context.user.id});document.documentElement.dataset.theme=context.universe.settings?.theme||'violet';document.documentElement.dataset.spaceTheme=context.universe.settings?.space_theme||'milky-way';galaxy.setTheme(context.universe.settings?.space_theme||'milky-way');
   qs('#auth-root').hidden=true;qs('#auth-root').innerHTML='';qs('#app-shell').hidden=false;accessReady=true;
   qs('#hub-title').textContent=context.universe.name||'Semesta yang tumbuh bersama.';qs('#hub-subtitle').textContent=context.members.length<2?'Semesta sudah hidup. Sekarang undang pasangan untuk membangunnya bersama.':'Setiap kenangan yang kalian tambahkan akan membuat semesta ini semakin terang.';
   await realtime.connect({universeId:context.universe.id,user:context.user,profile:context.profile});renderMembers();await updateGrowth();

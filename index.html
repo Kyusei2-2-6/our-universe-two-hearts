@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
   <link rel="stylesheet" href="css/readability.css">
+  <link rel="stylesheet" href="css/cosmic-orbits.css">
   <title>Our Universe</title>
   
 </head>
@@ -60,6 +61,11 @@
         <h1 id="hub-title">Semesta yang tumbuh bersama.</h1>
         <p id="hub-subtitle">Setiap kenangan menyalakan bintang baru.</p>
       </div>
+      <div id="hub-moon" class="hub-moon" aria-hidden="true">
+        <div class="hub-moon__halo"></div>
+        <div class="hub-moon__surface"></div>
+        <div class="hub-moon__label">Geser orbit · pilih dunia kalian</div>
+      </div>
       <div id="orbit-cards" class="orbit-cards" aria-label="Dunia di dalam semesta"></div>
       <div id="growth-meter" class="growth-meter glass-panel" aria-live="polite"></div>
       <div id="empty-universe-hint" class="empty-universe-hint glass-panel" hidden>
@@ -79,7 +85,7 @@
   <section id="auth-root" class="auth-root" hidden aria-live="polite"></section>
   <div id="modal-root"></div>
   <div id="toast-root" class="toast-root" aria-live="polite"></div>
-  <audio id="ambient-audio" src="music/ambient-space.wav" loop preload="none"></audio>
+  <audio id="ambient-audio" src="music/ambient-space.wav" loop preload="none" muted></audio>
   <noscript>Our Universe membutuhkan JavaScript untuk menjalankan pengalaman interaktif.</noscript>
   <script src="js/bootstrap-fallback.js"></script>
   <script type="module" src="js/app.js"></script>

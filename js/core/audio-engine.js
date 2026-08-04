@@ -7,21 +7,21 @@ class AudioEngine {
   #ambient;
   #current;
   #next;
-  #volume = .34;
-  #enabled = true;
+  #volume = .22;
+  #enabled = false;
 
-  configure({ ambientElement, volume = .34, enabled = true }) {
+  configure({ ambientElement, volume = .22, enabled = false }) {
     this.#ambient = ambientElement;
     this.#volume = clamp(volume, 0, 1);
     this.#enabled = enabled;
-    if (this.#ambient) this.#ambient.volume = this.#volume * .68;
+    if (this.#ambient) { this.#ambient.volume = this.#volume * .55; this.#ambient.muted = !this.#enabled; if (!this.#enabled) this.#ambient.pause(); }
   }
 
   async ensureContext() {
     if (!this.#context) {
       this.#context = new AudioContext();
       this.#master = this.#context.createGain();
-      this.#master.gain.value = this.#enabled ? this.#volume : 0;
+      this.#master.gain.value = this.#volume;
       this.#master.connect(this.#context.destination);
     }
     if (this.#context.state === 'suspended') await this.#context.resume();
@@ -37,21 +37,14 @@ class AudioEngine {
 
   async setEnabled(enabled) {
     this.#enabled = Boolean(enabled);
-    if (this.#master && this.#context) {
-      this.#master.gain.cancelScheduledValues(this.#context.currentTime);
-      this.#master.gain.linearRampToValueAtTime(this.#enabled ? this.#volume : 0, this.#context.currentTime + .35);
-    }
-    if (this.#ambient) {
-      this.#ambient.muted = !this.#enabled;
-      if (enabled) await this.playAmbient();
-    }
+    if (this.#ambient) { this.#ambient.muted = !this.#enabled; if (enabled) await this.playAmbient(); else this.pauseAmbient(); }
     events.emit('audio:enabled', { enabled: this.#enabled });
   }
 
   setVolume(value) {
     this.#volume = clamp(Number(value), 0, 1);
-    if (this.#ambient) this.#ambient.volume = this.#volume * .68;
-    if (this.#master && this.#context) this.#master.gain.setTargetAtTime(this.#enabled ? this.#volume : 0, this.#context.currentTime, .08);
+    if (this.#ambient) this.#ambient.volume = this.#volume * .55;
+    if (this.#master && this.#context) this.#master.gain.setTargetAtTime(this.#volume, this.#context.currentTime, .08);
   }
 
   async playTrack(song, crossfadeSeconds = 3) {

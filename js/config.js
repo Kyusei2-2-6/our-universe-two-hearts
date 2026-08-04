@@ -11,11 +11,12 @@ export const CONFIG = Object.freeze({
 });
 
 export const ROUTES = new Set([
-  'home','memories','gallery','letters','notes','wishes','music','timeline',
+  'home','orbits','memories','gallery','letters','notes','wishes','music','timeline',
   'sky-tonight','time-capsules','files','search','activity','settings','studio','about-us'
 ]);
 
 export const WORLD_CARDS = Object.freeze([
+  { route:'orbits', icon:'◌', label:'Orbit Kenangan', description:'Periode yang menjadi dunia kecil kalian' },
   { route:'gallery', icon:'◫', label:'Gallery', description:'Foto dan video kalian' },
   { route:'memories', icon:'✦', label:'Memories', description:'Cerita dan momen bersama' },
   { route:'letters', icon:'✉', label:'Letters', description:'Surat yang tersimpan' },
