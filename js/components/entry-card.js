@@ -25,9 +25,10 @@ export function createEntryCard(entry,{onOpen,onEdit,onDelete,profileMap=new Map
   const body=document.createElement('div');body.className='entry-card__body memory-card__body';
   const creator=profileMap.get(entry.created_by)?.display_name||'Kalian';
   const date=entry.event_date?formatDate(entry.event_date):formatDate(entry.created_at);
-  body.innerHTML='<div class="entry-card__meta"><span></span><span></span></div><h3></h3><p></p><div class="entry-card__footer"></div><span class="memory-card__open">Buka kenangan <b>→</b></span>';
-  body.querySelector('.entry-card__meta span:first-child').textContent=ENTRY_TYPES[entry.type]?.label||entry.type;
-  body.querySelector('.entry-card__meta span:last-child').textContent=date;
+  body.innerHTML='<div class="entry-card__meta"><span data-entry-type></span><span class="entry-card__creator" data-entry-creator></span><span data-entry-date></span></div><h3></h3><p></p><div class="entry-card__footer"></div><span class="memory-card__open">Buka kenangan <b>→</b></span>';
+  body.querySelector('[data-entry-type]').textContent=ENTRY_TYPES[entry.type]?.label||entry.type;
+  body.querySelector('[data-entry-creator]').textContent=`Oleh ${creator}`;
+  body.querySelector('[data-entry-date]').textContent=date;
   body.querySelector('h3').textContent=entry.title;
   body.querySelector('p').textContent=entry.type==='capsule'&&new Date(entry.unlock_at)>new Date()
     ?`Terkunci sampai ${formatDate(entry.unlock_at)}`

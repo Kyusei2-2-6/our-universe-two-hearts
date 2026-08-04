@@ -77,3 +77,84 @@ html[data-galaxy-engine="lite"] #universe-canvas{opacity:.94;background:radial-g
   .planet-composer__actions .button{min-height:48px}
   .toast-root{top:calc(72px + env(safe-area-inset-top));bottom:auto;right:10px;width:calc(100vw - 20px)}
 }
+
+/* v4.1.3 · reliable file pickers, long-form notepad, creator labels, and solid cards */
+.story-composer{position:relative}
+.story-composer__actions{background:#070b19;box-shadow:0 12px 30px rgba(0,0,0,.24)}
+.story-composer__actions button{
+  background:#0d1328!important;
+  border:1px solid rgba(173,190,235,.24)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+  transform:none!important;
+  animation:none!important;
+  transition:background-color .16s ease,border-color .16s ease,color .16s ease!important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.story-composer__actions button:hover,
+.story-composer__actions button:focus-visible,
+.story-composer__actions button:active{
+  background:#141d39!important;
+  border-color:rgba(135,164,255,.72)!important;
+  transform:none!important;
+  outline:none;
+}
+.story-composer__open-notepad{width:100%;justify-content:center;border-style:solid!important}
+
+.story-notepad-modal .modal{width:min(760px,calc(100vw - 24px));max-height:min(92dvh,900px);overflow:auto;border:1px solid rgba(163,181,232,.28);background:#070b18!important}
+.story-notepad-modal .modal__header{background:#070b18;border-bottom:1px solid rgba(163,181,232,.16)}
+.story-notepad{display:grid;gap:16px}
+.story-notepad__intro h3{font-family:var(--font-display);font-size:clamp(2rem,7vw,3.4rem);line-height:1;margin:.3rem 0 .7rem}
+.story-notepad__intro>p:last-child{color:#abb6ce;line-height:1.6}
+.story-notepad__paper{position:relative;overflow:hidden;border:1px solid rgba(139,159,220,.38);border-radius:26px;background:
+  linear-gradient(90deg,transparent 0 46px,rgba(255,116,143,.2) 46px 48px,transparent 48px),
+  repeating-linear-gradient(180deg,#0d1428 0,#0d1428 37px,rgba(126,151,216,.16) 38px,#0d1428 39px);
+  box-shadow:0 24px 70px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.04)}
+.story-notepad__paper input,
+.story-notepad__paper textarea{display:block;width:100%;border:0;outline:0;color:#eef3ff;background:transparent;font:inherit}
+.story-notepad__paper input{min-height:74px;padding:20px 24px 14px 68px;font-family:var(--font-display);font-size:clamp(1.55rem,5vw,2.25rem);font-weight:700;border-bottom:1px solid rgba(139,159,220,.2)}
+.story-notepad__paper textarea{min-height:52dvh;resize:vertical;padding:17px 24px 32px 68px;line-height:39px;font-size:1rem}
+.story-notepad__paper input::placeholder,.story-notepad__paper textarea::placeholder{color:#7f8ba7}
+.story-notepad__status{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#94a1bb;font-size:.76rem}
+.story-notepad__status [data-count]{color:#d9e3fb;font-weight:800}
+.story-notepad__actions{justify-content:flex-end;margin:0}
+
+.entry-card__meta{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:8px 10px!important}
+.entry-card__creator{min-width:0;text-align:center;color:#d7e2fb!important;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.story-bubble small{display:block;max-width:100px;color:#9eabc5;font-size:.6rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Saved content cards stay solid and never jump when touched. */
+.app-shell--v4 .memory-card,
+.app-shell--v4 .planet-memory-card{
+  border:1px solid rgba(178,196,238,.2)!important;
+  transform:none!important;
+  animation:none!important;
+  transition:border-color .18s ease,box-shadow .18s ease!important;
+  touch-action:manipulation;
+}
+.app-shell--v4 .memory-card:hover,
+.app-shell--v4 .memory-card:focus-visible,
+.app-shell--v4 .memory-card:active,
+.app-shell--v4 .planet-memory-card:hover,
+.app-shell--v4 .planet-memory-card:focus-visible,
+.app-shell--v4 .planet-memory-card:active{
+  transform:none!important;
+  border-color:rgba(139,164,232,.42)!important;
+}
+.app-shell--v4 .memory-card__border,
+.app-shell--v4 .memory-card__glow,
+.app-shell--v4 .planet-memory-card::before{display:none!important;animation:none!important}
+.app-shell--v4 .memory-card:hover .memory-card__asset,
+.app-shell--v4 .memory-card:focus-visible .memory-card__asset,
+.app-shell--v4 .memory-card:active .memory-card__asset{transform:none!important;filter:none!important}
+
+@media(max-width:600px){
+  .story-composer__actions{position:sticky;top:76px;z-index:19;background:#070b19;padding:10px!important}
+  .story-composer__actions button{min-height:78px!important}
+  .story-notepad-modal .modal{width:100vw;height:100dvh;max-height:100dvh;border-radius:0}
+  .story-notepad-modal .modal__content{padding:14px}
+  .story-notepad__paper input{padding-left:52px}
+  .story-notepad__paper textarea{min-height:55dvh;padding-left:52px}
+  .entry-card__meta{grid-template-columns:1fr auto!important}
+  .entry-card__creator{grid-column:1/-1;grid-row:2;text-align:left}
+}

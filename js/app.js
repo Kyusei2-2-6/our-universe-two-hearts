@@ -32,6 +32,8 @@ const worldLoaders={
 };
 let galaxy=createLiteGalaxy(),galaxyLoadPromise=null,routeStarted=false,authUnsubscribe,accessReady=false,openedNotificationEntry='',deckController=null,rebuildModal=null;
 const performanceProfile=getPerformanceProfile();
+const REFRESH_FLASH_KEY='our-universe-refresh-flash';
+let hardRefreshScheduled=false;
 
 
 function createLiteGalaxy(){
@@ -97,11 +99,33 @@ async function openCreateFlow(){try{const planets=await repository.listPlanets()
 function setupEvents(){
   events.on('route:change',event=>{if(accessReady)renderRoute(event.detail.route);});
   const refresh=debounce(async()=>{if(!accessReady)return;if(state.get('route')==='home')await renderHome();else await renderRoute(state.get('route'));},420);
-  const refreshNow=debounce(async()=>{if(!accessReady)return;if(state.get('route')==='home')await renderHome();else await renderRoute(state.get('route'));},80);
   const refreshContextRealtime=debounce(()=>refreshContext(),650);
   events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail.table))refreshContextRealtime();else refresh();});
   events.on('presence:sync',event=>{state.set('presence',event.detail.state||{});renderMembers();});
-  addEventListener('our-universe:refresh',()=>refreshNow());
+  events.on('data:changed',event=>scheduleHardRefresh({source:'content',message:event.detail?.message||'Perubahan berhasil disimpan.'}));
+  addEventListener('our-universe:refresh',event=>scheduleHardRefresh(event.detail||{}));
+}
+
+function scheduleHardRefresh(detail={}){
+  if(hardRefreshScheduled)return;
+  hardRefreshScheduled=true;
+  const message=detail.message||({
+    entry:'Isi baru berhasil disimpan.',
+    planet:'Planet berhasil disimpan.',
+    'planet-delete':'Planet berhasil dihapus.',
+    profile:'Profil berhasil diperbarui.',
+    'settings-name':'Nama semesta berhasil diperbarui.',
+    'settings-partner':'Data pasangan berhasil diperbarui.',
+    content:'Perubahan berhasil disimpan.'
+  })[detail.source]||'Perubahan berhasil disimpan.';
+  try{sessionStorage.setItem(REFRESH_FLASH_KEY,message);}catch{}
+  setTimeout(()=>location.reload(),520);
+}
+
+function showRefreshFlash(){
+  let message='';
+  try{message=sessionStorage.getItem(REFRESH_FLASH_KEY)||'';sessionStorage.removeItem(REFRESH_FLASH_KEY);}catch{}
+  if(message)setTimeout(()=>toast(message,{type:'success',duration:4800}),260);
 }
 
 function openingExperience(){
@@ -125,7 +149,7 @@ async function showAccessGate(){
 async function refreshContext(){try{const context=await auth.context();if(!context.session||!context.membership){showAccessGate();return;}await activateUniverse(context);}catch(error){toast(error.message,{type:'error'});}}
 async function activateUniverse(context){
   state.patch(context);repository.setContext({universeId:context.universe.id,userId:context.user.id});notificationService.configure({universeId:context.universe.id,userId:context.user.id,profile:context.profile});const settings=context.universe.settings||{};document.documentElement.dataset.theme=settings.theme||'violet';document.documentElement.dataset.spaceTheme=settings.space_theme||'solar-system';galaxy.setTheme(settings.space_theme||'solar-system');
-  qs('#auth-root').hidden=true;qs('#auth-root').innerHTML='';qs('#app-shell').hidden=false;accessReady=true;await realtime.connect({universeId:context.universe.id,user:context.user,profile:context.profile});renderMembers();cleanupExpiredStories().catch(error=>console.warn('Pembersihan story tertunda:',error));
+  qs('#auth-root').hidden=true;qs('#auth-root').innerHTML='';qs('#app-shell').hidden=false;accessReady=true;await realtime.connect({universeId:context.universe.id,user:context.user,profile:context.profile});renderMembers();showRefreshFlash();cleanupExpiredStories().catch(error=>console.warn('Pembersihan story tertunda:',error));
   if(needsV4Rebuild()&&!rebuildModal){rebuildModal=openRebuildGate({onComplete:async()=>{rebuildModal=null;await refreshContext();}});}
   if(!routeStarted){router.start();routeStarted=true;}else await renderRoute(state.get('route')||'home');
   window.setTimeout(()=>void ensureGalaxy(settings.space_theme||'solar-system'),900);
