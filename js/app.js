@@ -97,9 +97,11 @@ async function openCreateFlow(){try{const planets=await repository.listPlanets()
 function setupEvents(){
   events.on('route:change',event=>{if(accessReady)renderRoute(event.detail.route);});
   const refresh=debounce(async()=>{if(!accessReady)return;if(state.get('route')==='home')await renderHome();else await renderRoute(state.get('route'));},420);
+  const refreshNow=debounce(async()=>{if(!accessReady)return;if(state.get('route')==='home')await renderHome();else await renderRoute(state.get('route'));},80);
   const refreshContextRealtime=debounce(()=>refreshContext(),650);
   events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail.table))refreshContextRealtime();else refresh();});
   events.on('presence:sync',event=>{state.set('presence',event.detail.state||{});renderMembers();});
+  addEventListener('our-universe:refresh',()=>refreshNow());
 }
 
 function openingExperience(){

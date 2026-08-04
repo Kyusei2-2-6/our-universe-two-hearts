@@ -230,9 +230,10 @@ function openProfileEditor({ onRefresh } = {}) {
         avatar_path:avatarPath,
         accent:snapshot.profile?.accent
       });
-      toast('Profil diperbarui.');
+      toast('Profil diperbarui.', { type:'success' });
       modal.close();
       await onRefresh?.();
+      window.dispatchEvent(new CustomEvent('our-universe:refresh',{detail:{source:'profile'}}));
     } catch (error) {
       toast(error.message, { type:'error' });
     } finally {

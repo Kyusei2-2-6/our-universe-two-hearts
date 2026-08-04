@@ -1,8 +1,8 @@
-const CACHE='our-universe-v4-1-1-fast-stable';
+const CACHE='our-universe-v4-1-2-touch-save-stable';
 const SHELL=[
   './','./index.html','./404.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png',
   './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/memory-experience.css','./css/notifications.css','./css/v4-universe.css',
-  './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/pwa.js','./js/core/performance.js','./js/core/screenshot.js','./js/core/notifications.js','./js/components/profile-menu.js','./js/components/planet-deck.js','./js/components/planet-composer.js','./js/components/story-composer.js','./js/components/rebuild-gate.js','./js/universe/galaxy-engine.js','./js/worlds/planet.js','./music/romantic-chime.wav','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
+  './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/pwa.js','./js/core/performance.js','./js/core/router.js','./js/core/repository.js','./js/core/storage.js','./js/core/screenshot.js','./js/core/notifications.js','./js/components/profile-menu.js','./js/components/planet-deck.js','./js/components/planet-composer.js','./js/components/story-composer.js','./js/components/rebuild-gate.js','./js/universe/galaxy-engine.js','./js/worlds/planet.js','./js/worlds/settings.js','./music/romantic-chime.wav','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
 ];
 
 self.addEventListener('install',event=>{

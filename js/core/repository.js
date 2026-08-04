@@ -221,7 +221,6 @@ class Repository {
   async createPlanet(payload) {
     this.requireContext();
     const record={
-      universe_id:this.universeId,created_by:this.userId,updated_by:this.userId,
       name:String(payload.name||'').trim().slice(0,120),
       description:payload.description?String(payload.description).trim().slice(0,3000):null,
       cover_path:payload.cover_path||null,planet_style:payload.planet_style||'ocean',
@@ -230,18 +229,26 @@ class Repository {
       theme_song_path:payload.theme_song_path||null,sort_order:Number(payload.sort_order)||0,
       is_favorite:Boolean(payload.is_favorite),metadata:payload.metadata||{}
     };
-    const {data,error}=await supabase().from('planets').insert(record).select().single();
-    if(error)throw error;return data;
+    const {data,error}=await supabase().rpc('create_planet_v412',{p_universe_id:this.universeId,p_payload:record}).single();
+    if(error){
+      if(error.code==='PGRST202')throw new Error('Pembaruan database V4.1.2 belum dipasang. Jalankan migrasi stabilitas terlebih dahulu.');
+      throw friendlyPlanetError(error);
+    }
+    return data;
   }
 
   async updatePlanet(id,payload) {
     this.requireContext();
     const allowed=['name','description','cover_path','planet_style','accent_color','mode','accepted_content_types','theme_song_path','sort_order','is_favorite','metadata'];
-    const record={updated_by:this.userId};for(const key of allowed)if(key in payload)record[key]=payload[key];
+    const record={};for(const key of allowed)if(key in payload)record[key]=payload[key];
     if('name' in record)record.name=String(record.name||'').trim().slice(0,120);
     if('description' in record)record.description=record.description?String(record.description).trim().slice(0,3000):null;
-    const {data,error}=await supabase().from('planets').update(record).eq('universe_id',this.universeId).eq('id',id).select().single();
-    if(error)throw error;return data;
+    const {data,error}=await supabase().rpc('update_planet_v412',{p_planet_id:id,p_payload:record}).single();
+    if(error){
+      if(error.code==='PGRST202')throw new Error('Pembaruan database V4.1.2 belum dipasang. Jalankan migrasi stabilitas terlebih dahulu.');
+      throw friendlyPlanetError(error);
+    }
+    return data;
   }
 
   async deletePlanet(id) {
@@ -352,4 +359,11 @@ class Repository {
     for(const result of [entries,attachments,comments,planets])if(result.error)throw result.error;
     return {entries:entries.data||[],entryCount:entries.count||0,attachments:attachments.data||[],attachmentCount:attachments.count||0,commentCount:comments.count||0,planetCount:planets.count||0};
   }}
+
+function friendlyPlanetError(error){
+  const message=String(error?.message||'').toLowerCase();
+  if(message.includes('row-level security')||message.includes('permission denied'))return new Error('Izin menyimpan planet belum sinkron. Migrasi V4.1.2 akan memperbaikinya tanpa menghapus data.');
+  return error instanceof Error?error:new Error(String(error?.message||'Planet belum dapat disimpan.'));
+}
+
 export const repository = new Repository();

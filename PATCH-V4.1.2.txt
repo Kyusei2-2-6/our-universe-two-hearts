@@ -1,0 +1,17 @@
+OUR UNIVERSE V4.1.2 · TOUCH & SAVE STABILITY
+
+Perbaikan:
+- Tombol Buka Planet sekarang dapat diketuk; gesture geser tidak lagi memblokir klik.
+- Router tidak merender halaman dua kali saat berpindah planet.
+- Penyimpanan planet memakai RPC aman sehingga tidak gagal karena RLS.
+- Policy Storage cover planet diperkuat tanpa mengubah data lama.
+- Planet tetap tersimpan meskipun upload cover tertunda.
+- Notifikasi sukses dan status proses simpan tampil jelas.
+- Isi halaman diperbarui otomatis setelah planet, story, profil, atau nama semesta disimpan.
+- Tata letak planet mobile dirapikan agar petunjuk, tombol, dan dock tidak bertabrakan.
+- Cache Service Worker dinaikkan ke V4.1.2.
+
+Wajib menjalankan migrasi:
+supabase/migrations/2026-08-04-v4-1-2-stability.sql
+
+Tidak menghapus akun, pasangan, planet, isi, file, login, secrets, atau notifikasi.

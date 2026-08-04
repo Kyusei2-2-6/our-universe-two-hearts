@@ -12,7 +12,9 @@ class Router{
   start(){addEventListener('hashchange',()=>this.sync());this.sync();}
   navigate(route,params={},replace=false){
     const safe=ROUTES.has(route)?route:'home';const query=new URLSearchParams(Object.entries(params||{}).filter(([,v])=>v!==undefined&&v!==null&&v!=='')).toString();const target=`#${safe}${query?`?${query}`:''}`;
-    if(replace)history.replaceState(null,'',target);else if(location.hash!==target)location.hash=target;this.sync();
+    if(replace){history.replaceState(null,'',target);this.sync();return;}
+    if(location.hash===target){this.sync();return;}
+    location.hash=target;
   }
   sync(){const parsed=parse(location.hash);state.set('route',parsed.route);state.set('routeParams',parsed.params);events.emit('route:change',parsed);}
 }

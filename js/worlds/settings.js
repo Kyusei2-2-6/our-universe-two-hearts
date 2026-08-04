@@ -125,7 +125,8 @@ function createUniverseForm(snapshot) {
     save.disabled = true;
     try {
       await auth.updateUniverse({ id:snapshot.universe.id, name:form.elements.name.value });
-      toast('Nama semesta diperbarui.');
+      toast('Nama semesta diperbarui.', { type:'success' });
+      window.dispatchEvent(new CustomEvent('our-universe:refresh',{detail:{source:'settings-name'}}));
     } catch (error) {
       toast(error.message, { type:'error' });
     } finally {
@@ -162,7 +163,8 @@ function createUniverseForm(snapshot) {
         save.disabled = true;
         try {
           await auth.updatePartnerEmail(snapshot.universe.id, partnerForm.elements.partner_email.value.trim().toLowerCase());
-          toast('Email pasangan diperbarui.');
+          toast('Email pasangan diperbarui.', { type:'success' });
+          window.dispatchEvent(new CustomEvent('our-universe:refresh',{detail:{source:'settings-partner'}}));
         } catch (error) {
           toast(error.message, { type:'error' });
         } finally {

@@ -44,3 +44,36 @@ html[data-galaxy-engine="lite"] #universe-canvas{opacity:.94;background:radial-g
   .planet-slide__clouds{animation-duration:42s;opacity:.32}
   .app-dock,.settings-simple__nav{backdrop-filter:blur(12px) saturate(112%)!important;-webkit-backdrop-filter:blur(12px) saturate(112%)!important}
 }
+
+/* v4.1.2 · touch, spacing, and save feedback stability */
+.planet-save-status{min-height:22px;margin:0;color:#aeb9d0;font-size:.78rem;line-height:1.45}
+.planet-save-status.is-working{color:#b8c5ff}
+.planet-save-status.is-success{color:#a8ebcd}
+.planet-save-status.is-error{color:#ffb6c2}
+.planet-slide__actions [data-open]{position:relative;z-index:4;touch-action:manipulation}
+.planet-slide__actions [data-edit]{position:relative;z-index:4;touch-action:manipulation}
+.planet-slide__sphere{touch-action:manipulation}
+
+@media(max-width:600px){
+  .galaxy-hub--v4{overflow:visible;padding-bottom:128px;gap:8px}
+  .planet-deck-host,.planet-deck{min-height:650px}
+  .planet-deck__viewport{overflow:visible}
+  .planet-slide{top:43%;width:84vw;min-height:500px;padding:19px 18px 22px;gap:14px}
+  .planet-slide__sphere{width:min(198px,50vw)}
+  .planet-slide__copy h2{margin:.18rem 0 .58rem}
+  .planet-slide__description{margin:.1rem auto;font-size:.82rem;line-height:1.52}
+  .planet-slide__meta{margin:12px 0}
+  .planet-slide__actions{margin-top:2px}
+  .planet-deck__footer{bottom:12px;width:90vw;gap:6px;pointer-events:none}
+  .planet-deck__dots{pointer-events:auto}
+  .planet-deck__hint{max-width:82vw;text-align:center;line-height:1.35;background:rgba(3,6,17,.55);padding:5px 9px;border-radius:999px}
+  .create-planet-float{position:relative;right:auto;bottom:auto;align-self:flex-end;margin:-4px 8px 18px;z-index:12}
+  .planet-composer-modal .modal{max-height:94dvh;padding:16px}
+  .planet-composer__preview{min-height:290px;border-radius:26px}
+  .planet-preview__sphere{width:174px}
+  .planet-composer__preview>p{font-size:1.65rem;margin:.15rem 0}
+  .planet-composer__form{gap:13px}
+  .planet-composer__actions{position:sticky;bottom:-16px;z-index:5;margin:2px -4px -8px;padding:11px 4px 8px;background:linear-gradient(transparent,rgba(5,8,20,.97) 24%)}
+  .planet-composer__actions .button{min-height:48px}
+  .toast-root{top:calc(72px + env(safe-area-inset-top));bottom:auto;right:10px;width:calc(100vw - 20px)}
+}
