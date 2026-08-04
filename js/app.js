@@ -10,6 +10,7 @@ import { repository } from './core/repository.js';
 import { realtime } from './core/realtime.js';
 import { audioEngine } from './core/audio-engine.js';
 import { registerPWA } from './core/pwa.js';
+import { notificationService } from './core/notifications.js';
 import { getPerformanceProfile } from './core/performance.js';
 import { signedUrl } from './core/storage.js';
 import { captureCurrentView } from './core/screenshot.js';
@@ -44,7 +45,7 @@ const worldLoaders={
   'about-us':()=>import('./worlds/about-us.js').then(m=>m.renderAboutUs)
 };
 
-let galaxy;let routeStarted=false;let orbitFrame;let orbitLast=0;let authUnsubscribe;let accessReady=false;
+let galaxy;let routeStarted=false;let orbitFrame;let orbitLast=0;let authUnsubscribe;let accessReady=false;let openedNotificationEntry='';
 let orbitRotation=0;let orbitVelocity=.000034;let orbitDragging=false;let orbitDragX=0;let orbitMoved=false;let orbitSuppressClickUntil=0;let orbitMeta=[];
 const performanceProfile=getPerformanceProfile();
 
@@ -201,7 +202,7 @@ async function showAccessGate(){
 async function refreshContext(){try{const context=await auth.context();if(!context.session||!context.membership){showAccessGate();return;}await activateUniverse(context);}catch(error){toast(error.message,{type:'error'});}}
 
 async function activateUniverse(context){
-  state.patch(context);repository.setContext({universeId:context.universe.id,userId:context.user.id});document.documentElement.dataset.theme=context.universe.settings?.theme||'violet';document.documentElement.dataset.spaceTheme=context.universe.settings?.space_theme||'milky-way';galaxy.setTheme(context.universe.settings?.space_theme||'milky-way');
+  state.patch(context);repository.setContext({universeId:context.universe.id,userId:context.user.id});notificationService.configure({universeId:context.universe.id,userId:context.user.id,profile:context.profile});document.documentElement.dataset.theme=context.universe.settings?.theme||'violet';document.documentElement.dataset.spaceTheme=context.universe.settings?.space_theme||'milky-way';galaxy.setTheme(context.universe.settings?.space_theme||'milky-way');
   qs('#auth-root').hidden=true;qs('#auth-root').innerHTML='';qs('#app-shell').hidden=false;accessReady=true;
   qs('#hub-title').textContent=context.universe.name||'Semesta yang tumbuh bersama.';qs('#hub-subtitle').textContent=context.members.length<2?'Semesta sudah hidup. Sekarang undang pasangan untuk membangunnya bersama.':'Setiap kenangan yang kalian tambahkan akan membuat semesta ini semakin terang.';
   await realtime.connect({universeId:context.universe.id,user:context.user,profile:context.profile});renderMembers();await updateGrowth();
@@ -213,6 +214,18 @@ async function renderMembers(){const host=qs('#member-presence');host.innerHTML=
 async function updateGrowth(){try{const stats=await repository.stats();const growth=calculateGrowth(stats);state.set('universeLevel',growth.level);galaxy.setGrowth(growth.level);renderGrowthMeter(qs('#growth-meter'),growth);qs('#empty-universe-hint').hidden=growth.entries>0;}catch(error){console.warn('Growth gagal diperbarui',error);}}
 async function handleDataChanged(){await updateGrowth();const route=state.get('route');if(route&&route!=='home')renderRoute(route);}
 
-async function renderRoute(route){const hub=qs('#galaxy-hub');const stage=qs('#world-stage');if(route==='home'){stage.hidden=true;hub.hidden=false;return;}hub.hidden=true;stage.hidden=false;stage.classList.add('is-loading');stage.innerHTML='';try{const renderer=await worldLoaders[route]?.();if(!renderer){router.navigate('home',true);return;}await renderer(stage);}catch(error){stage.innerHTML=`<section class="world-panel glass-panel"><h2>Bagian ini belum dapat dibuka.</h2><p class="muted"></p></section>`;stage.querySelector('p').textContent=error.message;console.error(error);}finally{stage.classList.remove('is-loading');scrollTo({top:0,behavior:'smooth'});}}
+async function renderRoute(route){const hub=qs('#galaxy-hub');const stage=qs('#world-stage');if(route==='home'){stage.hidden=true;hub.hidden=false;return;}hub.hidden=true;stage.hidden=false;stage.classList.add('is-loading');stage.innerHTML='';try{const renderer=await worldLoaders[route]?.();if(!renderer){router.navigate('home',true);return;}await renderer(stage);await openNotificationDeepLink();}catch(error){stage.innerHTML=`<section class="world-panel glass-panel"><h2>Bagian ini belum dapat dibuka.</h2><p class="muted"></p></section>`;stage.querySelector('p').textContent=error.message;console.error(error);}finally{stage.classList.remove('is-loading');scrollTo({top:0,behavior:'smooth'});}}
+
+async function openNotificationDeepLink(){
+  const query=String(location.hash||'').split('?')[1]||'';
+  const entryId=new URLSearchParams(query).get('entry');
+  if(!entryId||entryId===openedNotificationEntry)return;
+  openedNotificationEntry=entryId;
+  try{
+    const entry=await repository.getEntry(entryId);
+    const {openEntryDetail}=await import('./worlds/shared.js');
+    await openEntryDetail(entry);
+  }catch(error){console.warn('Isi dari notifikasi tidak dapat dibuka:',error);}
+}
 
 init().catch(error=>{document.body.innerHTML=`<main style="padding:32px;color:white;background:#02030a;min-height:100vh;font-family:system-ui"><h1>Our Universe tidak dapat dimulai.</h1><pre></pre></main>`;document.querySelector('pre').textContent=error.stack||error.message;});

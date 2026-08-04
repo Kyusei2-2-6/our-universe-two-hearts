@@ -188,11 +188,11 @@ class Repository {
     if (existing) {
       const { error } = await client.from('reactions').delete().eq('id',existing.id);
       if (error) throw error;
-      return false;
+      return { active:false, id:null };
     }
-    const { error } = await client.from('reactions').insert({ universe_id:this.universeId, entry_id:entryId, user_id:this.userId, emoji:String(emoji).slice(0,12) });
+    const { data, error } = await client.from('reactions').insert({ universe_id:this.universeId, entry_id:entryId, user_id:this.userId, emoji:String(emoji).slice(0,12) }).select('id').single();
     if (error) throw error;
-    return true;
+    return { active:true, id:data.id };
   }
 
   async activities(limit = 80) {

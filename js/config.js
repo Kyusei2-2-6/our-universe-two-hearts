@@ -7,7 +7,8 @@ export const CONFIG = Object.freeze({
   MAX_UPLOAD_MB: 80,
   SIGNED_URL_TTL_SECONDS: 3600,
   DEFAULT_PERFORMANCE: 'auto',
-  ENABLE_PWA: true
+  ENABLE_PWA: true,
+  VAPID_PUBLIC_KEY: 'BLTzXQ6RpsF-Hxee2nMcI6sipLU0jrwAd6cMDIiMCC5PsZQeekMC_aw-IALQmPhIqgh1KkX3xj7cJeuxfqzD-Pg'
 });
 
 export const ROUTES = new Set([

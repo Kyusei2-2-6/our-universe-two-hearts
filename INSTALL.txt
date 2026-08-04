@@ -1,0 +1,11 @@
+OUR UNIVERSE · ROMANTIC PUSH v10
+
+1. Ekstrak ZIP ini ke folder OUR-UNIVERSE-TWO-HEARTS dengan opsi overwrite.
+2. Jalankan migrasi supabase/migrations/2026-08-04-romantic-push.sql.
+3. Jalankan npm run setup:notifications.
+4. Set Edge Function secrets dan deploy send-romantic-push.
+5. Jalankan npm test dan npm run build.
+6. Commit dan push.
+7. Pada kedua HP, buka Settings > Notifikasi romantis > Aktifkan notifikasi.
+
+Panduan lengkap: INSTALL-NOTIFICATIONS-ANDROID.md

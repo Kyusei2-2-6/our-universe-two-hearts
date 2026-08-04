@@ -1,0 +1,4 @@
+project_id = "vqonhdalfdcutojzntdw"
+
+[functions.send-romantic-push]
+verify_jwt = true

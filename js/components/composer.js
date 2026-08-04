@@ -3,6 +3,7 @@ import { repository } from '../core/repository.js';
 import { uploadEntryFile, removeFiles, signedUrl } from '../core/storage.js';
 import { encryptPayload } from '../core/crypto.js';
 import { events } from '../core/event-bus.js';
+import { notificationService } from '../core/notifications.js';
 import { formatBytes, parseTags } from '../core/utils.js';
 import { openModal } from './modal.js';
 import { toast } from './toast.js';
@@ -125,7 +126,9 @@ export function openComposer({ type='memory', entry=null, onSaved } = {}) {
       if(deletedAttachments.length){submit.textContent='Menghapus lampiran lama…';for(const id of deletedAttachments){const old=entry.attachments.find(item=>item.id===id);if(old){await removeFiles([old.file_path]);await repository.deleteAttachment(id);}}}
       let order=(entry?.attachments?.length||0)-deletedAttachments.length;
       for(const item of files){item.status='uploading';renderFileList();submit.textContent=`Mengunggah ${item.file.name}…`;const uploaded=await uploadEntryFile({universeId:repository.universeId,entryId:saved.id,file:item.file,onProgress:value=>{item.progress=value;renderFileList();}});uploaded.metadata={...(item.metadata||{})};await repository.addAttachment(saved.id,uploaded,order++);item.progress=100;item.status='done';renderFileList();}
-      events.emit('data:changed',{entryId:saved.id,type});toast(entry?'Perubahan tersimpan.':'Sebuah bagian baru telah lahir di semesta kalian.');modal.close();await onSaved?.(saved);
+      events.emit('data:changed',{entryId:saved.id,type});
+      if(!entry)notificationService.send('entry_created',{resourceId:saved.id}).catch(error=>console.warn('Notifikasi pasangan gagal dikirim:',error));
+      toast(entry?'Perubahan tersimpan.':'Sebuah bagian baru telah lahir di semesta kalian.');modal.close();await onSaved?.(saved);
     }catch(error){toast(error.message,{type:'error',duration:6500});}
     finally{submit.disabled=false;submit.textContent=original;}
   };

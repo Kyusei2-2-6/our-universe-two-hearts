@@ -15,3 +15,7 @@ select id,name,public,file_size_limit from storage.buckets where id='universe-fi
 select schemaname,tablename,policyname from pg_policies where schemaname in ('public','storage') order by schemaname,tablename,policyname;
 
 select column_name,data_type from information_schema.columns where table_schema='public' and table_name='entries' and column_name='period_id';
+
+
+select to_regclass('public.push_subscriptions') as push_subscriptions_table,
+       to_regclass('public.notification_preferences') as notification_preferences_table;

@@ -154,3 +154,7 @@ Repository ini sengaja tidak memiliki folder data JSON berisi kenangan palsu. Da
 ## Upgrade dari versi Two Hearts sebelumnya
 
 Gunakan panduan [UPGRADE-COSMIC-ORBITS-ANDROID.md](UPGRADE-COSMIC-ORBITS-ANDROID.md). Migrasi bersifat aditif dan tidak menghapus akun atau data lama.
+
+## Romantic Push Notifications
+
+Versi 3.4 menambahkan Web Push privat untuk dua anggota semesta. Notifikasi dikirim melalui Supabase Edge Function, subscription disimpan dengan RLS, dan perangkat pengirim tidak menerima notifikasinya sendiri. Lihat `INSTALL-NOTIFICATIONS-ANDROID.md` untuk instalasi.
