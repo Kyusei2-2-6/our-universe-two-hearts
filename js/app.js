@@ -19,7 +19,7 @@ import { EasterEggs } from './universe/easter-eggs.js';
 import { createPlanetDeck } from './components/planet-deck.js';
 import { openPlanetComposer } from './components/planet-composer.js';
 import { openStoryComposer } from './components/story-composer.js';
-import { openProfileMenu } from './components/profile-menu.js';
+import { openProfileMenu, openMemberProfile } from './components/profile-menu.js';
 import { needsV4Rebuild,openRebuildGate } from './components/rebuild-gate.js';
 import { toast } from './components/toast.js';
 import { renderConfigurationGate, renderAuthGate, renderOnboarding } from './components/auth-gate.js';
@@ -85,7 +85,19 @@ async function cleanupExpiredStories(){
   }
 }
 
-async function renderMembers(){const host=qs('#member-presence');host.innerHTML='';const presence=state.get('presence')||{};for(const member of state.get('members')||[]){const node=document.createElement('span');node.className='presence-avatar';node.title=member.profile?.display_name||'Anggota';node.textContent=initials(member.profile?.display_name);if(member.profile?.avatar_path)signedUrl(member.profile.avatar_path).then(url=>{const img=document.createElement('img');img.src=url;img.alt='';node.textContent='';node.append(img);}).catch(()=>{});const dot=document.createElement('span');dot.className=`status-dot${presence[member.user_id]?.length?' is-online':''}`;node.append(dot);host.append(node);}const profile=state.get('profile');const button=qs('#profile-button');button.innerHTML='';if(profile?.avatar_path){try{const img=document.createElement('img');img.src=await signedUrl(profile.avatar_path);img.alt='';button.append(img);}catch{button.textContent=initials(profile?.display_name);}}else button.textContent=initials(profile?.display_name);qs('#dock-profile span').textContent=initials(profile?.display_name);}
+async function renderMembers(){
+  const host=qs('#member-presence');host.innerHTML='';const presence=state.get('presence')||{};
+  for(const member of state.get('members')||[]){
+    const node=document.createElement('button');node.type='button';node.className='presence-avatar';node.title=`Lihat profil ${member.profile?.display_name||'anggota'}`;node.setAttribute('aria-label',node.title);node.textContent=initials(member.profile?.display_name);
+    if(member.profile?.avatar_path)signedUrl(member.profile.avatar_path).then(url=>{const img=document.createElement('img');img.src=url;img.alt='';node.textContent='';node.append(img);node.append(createPresenceDot(member,presence));}).catch(()=>{});
+    else node.append(createPresenceDot(member,presence));
+    node.onclick=()=>openMemberProfile(member,{onRefresh:refreshContext});host.append(node);
+  }
+  const profile=state.get('profile');const button=qs('#profile-button');button.innerHTML='';
+  if(profile?.avatar_path){try{const img=document.createElement('img');img.src=await signedUrl(profile.avatar_path);img.alt='';button.append(img);}catch{button.textContent=initials(profile?.display_name);}}else button.textContent=initials(profile?.display_name);
+  qs('#dock-profile span').textContent=initials(profile?.display_name);
+}
+function createPresenceDot(member,presence){const dot=document.createElement('span');dot.className=`status-dot${presence[member.user_id]?.length?' is-online':''}`;return dot;}
 
 async function renderHome(){
   const hub=qs('#galaxy-hub'),stage=qs('#world-stage');stage.hidden=true;hub.hidden=false;qs('#dock-home').classList.add('is-active');
@@ -95,7 +107,17 @@ async function renderHome(){
 }
 async function renderStoryRail(){const host=qs('#home-stories');try{const stories=await repository.listActiveStories();host.innerHTML='';host.hidden=!stories.length;if(!stories.length)return;const label=document.createElement('p');label.className='eyebrow';label.textContent='STORY YANG MASIH BERSINAR';host.append(label);const row=document.createElement('div');row.className='home-story-row';for(const story of stories){const button=document.createElement('button');button.type='button';button.className='home-story';button.style.setProperty('--planet-accent',story.planets?.accent_color||'#7C8CFF');button.innerHTML='<span>✦</span><strong></strong><small></small>';button.querySelector('strong').textContent=story.entries?.title||'Story';button.querySelector('small').textContent=story.planets?.name||'Planet';button.onclick=async()=>{const entry=await repository.getEntry(story.entry_id);const {openEntryDetail}=await import('./worlds/shared.js');await openEntryDetail(entry);};row.append(button);}host.append(row);}catch(error){host.hidden=true;}}
 
-async function renderRoute(route){document.querySelectorAll('.app-dock button').forEach(button=>button.classList.remove('is-active'));if(route==='home'){await renderHome();return;}if(route==='search')qs('#dock-search').classList.add('is-active');const hub=qs('#galaxy-hub'),stage=qs('#world-stage');hub.hidden=true;stage.hidden=false;stage.classList.add('is-loading');stage.innerHTML='';try{const renderer=await worldLoaders[route]?.();if(!renderer){if(state.get('routeParams')?.entry){await renderHome();await openNotificationDeepLink();return;}router.navigate('home',{},true);return;}await renderer(stage);await openNotificationDeepLink();}catch(error){stage.innerHTML='<section class="world-panel glass-panel"><h2>Bagian ini belum dapat dibuka.</h2><p class="muted"></p></section>';stage.querySelector('p').textContent=error.message;console.error(error);}finally{stage.classList.remove('is-loading');scrollTo({top:0,behavior:'smooth'});}}
+async function renderRoute(route){
+  document.querySelectorAll('.app-dock button').forEach(button=>button.classList.remove('is-active'));
+  if(route==='home'){await renderHome();return;}
+  if(route==='search')qs('#dock-search').classList.add('is-active');
+  if(route==='settings'&&state.get('routeParams')?.section==='notifications')qs('#dock-notifications').classList.add('is-active');
+  else if(route==='settings'||route==='activity')qs('#dock-profile').classList.add('is-active');
+  const hub=qs('#galaxy-hub'),stage=qs('#world-stage');hub.hidden=true;stage.hidden=false;stage.classList.add('is-loading');stage.innerHTML='';
+  try{const renderer=await worldLoaders[route]?.();if(!renderer){if(state.get('routeParams')?.entry){await renderHome();await openNotificationDeepLink();return;}router.navigate('home',{},true);return;}await renderer(stage);await openNotificationDeepLink();}
+  catch(error){stage.innerHTML='<section class="world-panel glass-panel"><h2>Bagian ini belum dapat dibuka.</h2><p class="muted"></p></section>';stage.querySelector('p').textContent=error.message;console.error(error);}
+  finally{stage.classList.remove('is-loading');scrollTo({top:0,behavior:'smooth'});}
+}
 async function openNotificationDeepLink(){const entryId=state.get('routeParams')?.entry;if(!entryId||entryId===openedNotificationEntry)return;openedNotificationEntry=entryId;try{const entry=await repository.getEntry(entryId);const {openEntryDetail}=await import('./worlds/shared.js');await openEntryDetail(entry);}catch(error){console.warn(error);}}
 
 init().catch(error=>{document.body.innerHTML='<main style="padding:32px;color:white;background:#02030a;min-height:100vh;font-family:system-ui"><h1>Our Universe tidak dapat dimulai.</h1><pre></pre></main>';document.querySelector('pre').textContent=error.stack||error.message;});
