@@ -53,7 +53,7 @@ export class GalaxyEngine {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, .1, 5000);
     this.camera.position.set(0, 2.5, 38);
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:false, powerPreference:'high-performance' });
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:false, powerPreference:'high-performance', preserveDrawingBuffer:true });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, this.profile.pixelRatio));
     this.renderer.setSize(innerWidth, innerHeight, false);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -434,4 +434,11 @@ export class GalaxyEngine {
     this.disposed=true;removeEventListener('resize',this.onResize);removeEventListener('pointermove',this.onPointer);
     this.renderer.dispose();this.composer.dispose();
   }
+  async captureFrame() {
+    this.composer.render();
+    return new Promise((resolve, reject) => {
+      this.canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Kanvas galaksi tidak dapat disimpan.')), 'image/png', 1);
+    });
+  }
+
 }

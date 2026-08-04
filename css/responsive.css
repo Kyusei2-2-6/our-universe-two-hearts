@@ -43,7 +43,7 @@
   .member-presence { display:none; }
   .topbar { gap:6px; }
   .topbar__actions { margin-left:auto; }
-  .topbar__actions .icon-button:nth-child(2) { display:none; }
+  #sound-toggle { display:none; }
   .studio-fab { right:12px; bottom:calc(12px + var(--safe-bottom)); width:54px; height:54px; padding:0; justify-content:center; }
   .studio-fab span:last-child { display:none; }
   .studio-fab span:first-child { font-size:1.6rem; }

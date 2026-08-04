@@ -1,6 +1,6 @@
 {
   "name": "our-universe-two-hearts",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "private": true,
   "type": "module",
   "description": "A private collaborative cinematic universe for exactly two people.",
@@ -10,6 +10,8 @@
     "build": "node scripts/build.mjs",
     "serve": "node scripts/serve.mjs"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "license": "MIT"
 }

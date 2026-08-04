@@ -1,8 +1,8 @@
-const CACHE='our-universe-two-hearts-v7-planetary-menu';
+const CACHE='our-universe-two-hearts-v8-cinematic-memory';
 const SHELL=[
   './','./index.html','./404.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png',
-  './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/cosmic-orbits.css',
-  './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
+  './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/cosmic-orbits.css','./css/cinematic-memory.css',
+  './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/screenshot.js','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
 ];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});

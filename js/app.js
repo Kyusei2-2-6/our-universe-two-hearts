@@ -12,6 +12,7 @@ import { audioEngine } from './core/audio-engine.js';
 import { registerPWA } from './core/pwa.js';
 import { getPerformanceProfile } from './core/performance.js';
 import { signedUrl } from './core/storage.js';
+import { captureCurrentView } from './core/screenshot.js';
 import { GalaxyEngine } from './universe/galaxy-engine.js';
 import { calculateGrowth, renderGrowthMeter } from './universe/growth-engine.js';
 import { EasterEggs } from './universe/easter-eggs.js';
@@ -60,7 +61,7 @@ async function init(){
 
 function setupCards(){
   const host=qs('#orbit-cards');
-  const cards=WORLD_CARDS.map((card,index)=>createOrbitCard(card,route=>{
+  const cards=WORLD_CARDS.map((card,index)=>createOrbitCard(card.route==='orbits'?{...card,label:'Periode Kenangan',description:'Bab perjalanan kalian'}:card,route=>{
     if(performance.now()<orbitSuppressClickUntil)return;
     router.navigate(route);
   }));
@@ -160,6 +161,10 @@ function animateOrbitCards(){
 function setupControls(){
   qs('#home-button').onclick=()=>router.navigate('home');
   qs('#global-search').onclick=()=>router.navigate('search');
+  qs('#periods-shortcut').onclick=()=>router.navigate('orbits');
+  qs('#gallery-shortcut').onclick=()=>router.navigate('gallery');
+  qs('#studio-shortcut').onclick=()=>router.navigate('studio');
+  qs('#capture-universe').onclick=async event=>{const button=event.currentTarget;button.disabled=true;const before=button.textContent;button.textContent='…';try{await captureCurrentView({galaxy});toast('Tangkapan semesta disimpan sebagai PNG.');}catch(error){toast(`Tangkapan gagal: ${error.message}`,{type:'error',duration:6500});}finally{button.disabled=false;button.textContent=before;}};
   qs('#studio-fab').onclick=()=>openTypePicker({onChoose:type=>openComposer({type,onSaved:handleDataChanged})});
   document.addEventListener('click',event=>{if(event.target.closest('[data-open-composer]'))openTypePicker({onChoose:type=>openComposer({type,onSaved:handleDataChanged})});});
   qs('#profile-button').onclick=()=>openProfileMenu({onRefresh:refreshContext,onNavigate:route=>router.navigate(route),onSignOut:showAccessGate});
