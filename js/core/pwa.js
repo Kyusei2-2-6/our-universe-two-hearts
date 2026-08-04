@@ -3,8 +3,17 @@ import { events } from './event-bus.js';
 export async function registerPWA() {
   if (!('serviceWorker' in navigator)) return;
   try {
-    const registration = await navigator.serviceWorker.register('./sw.js', { scope:'./' });
+    const hadController=Boolean(navigator.serviceWorker.controller);
+    const registration = await navigator.serviceWorker.register('./sw.js', { scope:'./', updateViaCache:'none' });
     registration.addEventListener('updatefound', () => events.emit('pwa:update', { registration }));
+    if(hadController){
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        if(sessionStorage.getItem('our-universe-sw-reloaded')==='1')return;
+        sessionStorage.setItem('our-universe-sw-reloaded','1');
+        location.reload();
+      },{once:true});
+      window.setTimeout(()=>sessionStorage.removeItem('our-universe-sw-reloaded'),12000);
+    }
   } catch (error) {
     console.warn('Service Worker tidak dapat didaftarkan:', error);
   }

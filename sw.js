@@ -1,12 +1,12 @@
-const CACHE='our-universe-v4-1-profile-settings';
+const CACHE='our-universe-v4-1-1-fast-stable';
 const SHELL=[
   './','./index.html','./404.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png',
   './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/memory-experience.css','./css/notifications.css','./css/v4-universe.css',
-  './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/screenshot.js','./js/core/notifications.js','./js/components/planet-deck.js','./js/components/planet-composer.js','./js/components/story-composer.js','./js/components/rebuild-gate.js','./js/worlds/planet.js','./music/romantic-chime.wav','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
+  './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/pwa.js','./js/core/performance.js','./js/core/screenshot.js','./js/core/notifications.js','./js/components/profile-menu.js','./js/components/planet-deck.js','./js/components/planet-composer.js','./js/components/story-composer.js','./js/components/rebuild-gate.js','./js/universe/galaxy-engine.js','./js/worlds/planet.js','./music/romantic-chime.wav','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
 ];
 
 self.addEventListener('install',event=>{
-  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})))).then(()=>self.skipWaiting()));
 });
 
 self.addEventListener('activate',event=>{
@@ -16,11 +16,12 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   const url=new URL(event.request.url);
   if(url.hostname.endsWith('.supabase.co')||url.protocol==='wss:'||event.request.method!=='GET')return;
+  if(url.origin!==self.location.origin)return;
   if(event.request.destination==='script'||event.request.destination==='style'){
-    event.respondWith(fetch(event.request,{cache:'no-store'}).then(response=>{
-      if(response.ok){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));}
+    event.respondWith(caches.open(CACHE).then(cache=>cache.match(event.request).then(cached=>cached||fetch(event.request,{cache:'reload'}).then(response=>{
+      if(response.ok)cache.put(event.request,response.clone());
       return response;
-    }).catch(()=>caches.match(event.request)));
+    }))));
     return;
   }
   if(event.request.mode==='navigate'){

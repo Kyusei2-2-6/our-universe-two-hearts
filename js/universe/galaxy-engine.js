@@ -104,12 +104,12 @@ export class GalaxyEngine {
     this.stars = this.#makeStars(this.profile.stars, 1);
     this.root.add(this.stars);
 
-    this.milkyWay = this.#makeMilkyWay(Math.max(2600, Math.round(this.profile.galaxy * .82)), theme);
+    this.milkyWay = this.#makeMilkyWay(Math.max(this.mobileComfort?850:2600, Math.round(this.profile.galaxy * .72)), theme);
     this.milkyWay.rotation.set(-.26, 0, -.46);
     this.milkyWay.position.set(0, -4, -34);
     this.root.add(this.milkyWay);
 
-    this.galaxy = this.#makeGalaxy(Math.max(2400, Math.round(this.profile.galaxy * .66)), theme);
+    this.galaxy = this.#makeGalaxy(Math.max(this.mobileComfort?760:2400, Math.round(this.profile.galaxy * .58)), theme);
     this.galaxy.rotation.x = .30;
     this.galaxy.rotation.z = -.12;
     this.galaxy.position.set(0, -2, -8);
@@ -337,9 +337,9 @@ export class GalaxyEngine {
     this.scene.fog.color.set(theme.fog);
 
     const oldMilky=this.milkyWay;const oldGalaxy=this.galaxy;const oldNebula=this.nebula;const oldPlanets=this.planets;
-    this.milkyWay=this.#makeMilkyWay(Math.max(2600,Math.round(this.profile.galaxy*.82)),theme);
+    this.milkyWay=this.#makeMilkyWay(Math.max(this.mobileComfort?850:2600,Math.round(this.profile.galaxy*.72)),theme);
     this.milkyWay.rotation.set(-.26,0,-.46);this.milkyWay.position.set(0,-4,-34);
-    this.galaxy=this.#makeGalaxy(Math.max(2400,Math.round(this.profile.galaxy*.66)),theme);
+    this.galaxy=this.#makeGalaxy(Math.max(this.mobileComfort?760:2400,Math.round(this.profile.galaxy*.58)),theme);
     this.galaxy.rotation.x=.30;this.galaxy.rotation.z=-.12;this.galaxy.position.set(0,-2,-8);
     this.nebula=this.#makeNebula(theme);
     this.planets=this.#makePlanetSystem(theme);

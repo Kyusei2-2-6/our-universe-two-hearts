@@ -1,4 +1,3 @@
-import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.15.0/index.js';
 import { CONFIG } from './config.js';
 import { qs, initials, debounce } from './core/utils.js';
 import { state } from './core/state.js';
@@ -14,12 +13,10 @@ import { notificationService } from './core/notifications.js';
 import { getPerformanceProfile } from './core/performance.js';
 import { signedUrl,removeFiles } from './core/storage.js';
 import { captureCurrentView } from './core/screenshot.js';
-import { GalaxyEngine } from './universe/galaxy-engine.js';
-import { EasterEggs } from './universe/easter-eggs.js';
 import { createPlanetDeck } from './components/planet-deck.js';
 import { openPlanetComposer } from './components/planet-composer.js';
 import { openStoryComposer } from './components/story-composer.js';
-import { openProfileMenu, openMemberProfile } from './components/profile-menu.js';
+import * as profileMenu from './components/profile-menu.js';
 import { needsV4Rebuild,openRebuildGate } from './components/rebuild-gate.js';
 import { toast } from './components/toast.js';
 import { renderConfigurationGate, renderAuthGate, renderOnboarding } from './components/auth-gate.js';
@@ -33,21 +30,68 @@ const worldLoaders={
   settings:()=>import('./worlds/settings.js').then(m=>m.renderSettings),
   'about-us':()=>import('./worlds/about-us.js').then(m=>m.renderAboutUs)
 };
-let galaxy,routeStarted=false,authUnsubscribe,accessReady=false,openedNotificationEntry='',deckController=null,rebuildModal=null;
+let galaxy=createLiteGalaxy(),galaxyLoadPromise=null,routeStarted=false,authUnsubscribe,accessReady=false,openedNotificationEntry='',deckController=null,rebuildModal=null;
 const performanceProfile=getPerformanceProfile();
 
+
+function createLiteGalaxy(){
+  return {
+    isCinematic:false,
+    mode:'hub',
+    camera:{position:{set(){}}},
+    setTheme(name){document.documentElement.dataset.spaceTheme=name||'solar-system';},
+    playOpening(onReady,onDone){onReady?.();onDone?.();return Promise.resolve();},
+    enterUniverse(){return Promise.resolve();},
+    captureFrame(){return Promise.resolve(null);},
+    meteorShower(){},
+    dispose(){}
+  };
+}
+
+async function ensureGalaxy(theme=document.documentElement.dataset.spaceTheme||'solar-system'){
+  if(galaxy?.isCinematic){galaxy.setTheme(theme);return galaxy;}
+  if(galaxyLoadPromise)return galaxyLoadPromise;
+  galaxyLoadPromise=import('./universe/galaxy-engine.js')
+    .then(async({GalaxyEngine})=>{
+      const next=new GalaxyEngine(qs('#universe-canvas'),performanceProfile);
+      next.isCinematic=true;
+      next.mode='hub';
+      next.setTheme(theme);
+      galaxy=next;
+      document.documentElement.dataset.galaxyEngine='cinematic';
+      try{
+        const {EasterEggs}=await import('./universe/easter-eggs.js');
+        new EasterEggs({galaxyEngine:galaxy,canvas:qs('#universe-canvas'),initials:'♡'});
+      }catch(error){console.warn('Easter egg visual tidak dimuat:',error);}
+      return galaxy;
+    })
+    .catch(error=>{
+      document.documentElement.dataset.galaxyEngine='lite';
+      console.warn('Mode galaksi ringan dipakai agar aplikasi tetap responsif:',error);
+      galaxyLoadPromise=null;
+      return galaxy;
+    });
+  return galaxyLoadPromise;
+}
+
 async function init(){
-  document.title=CONFIG.APP_NAME;const soundEnabled=localStorage.getItem('our-universe-sound')==='on';audioEngine.configure({ambientElement:qs('#ambient-audio'),volume:.18,enabled:soundEnabled});
-  galaxy=new GalaxyEngine(qs('#universe-canvas'),performanceProfile);setupControls();setupEvents();new EasterEggs({galaxyEngine:galaxy,canvas:qs('#universe-canvas'),initials:'♡'});if(CONFIG.ENABLE_PWA)registerPWA();await openingExperience();
+  document.title=CONFIG.APP_NAME;
+  document.documentElement.dataset.galaxyEngine='lite';
+  const soundEnabled=localStorage.getItem('our-universe-sound')==='on';
+  audioEngine.configure({ambientElement:qs('#ambient-audio'),volume:.18,enabled:soundEnabled});
+  setupControls();
+  setupEvents();
+  if(CONFIG.ENABLE_PWA)registerPWA();
+  openingExperience();
 }
 
 function setupControls(){
   qs('#home-button').onclick=()=>router.navigate('home');qs('#global-search').onclick=()=>router.navigate('search');qs('#capture-universe').onclick=async event=>{const button=event.currentTarget;button.disabled=true;try{await captureCurrentView({galaxy});toast('Tangkapan semesta disimpan.');}catch(error){toast(error.message,{type:'error'});}finally{button.disabled=false;}};
   qs('#dock-home').onclick=()=>router.navigate('home');qs('#dock-search').onclick=()=>router.navigate('search');qs('#dock-add').onclick=()=>openCreateFlow();qs('#dock-notifications').onclick=()=>router.navigate('settings',{section:'notifications'});qs('#dock-profile').onclick=()=>openProfile();document.querySelectorAll('[data-create-planet]').forEach(button=>button.onclick=()=>openPlanetComposer({onSaved:renderHome}));
   qs('#profile-button').onclick=openProfile;const sound=qs('#sound-toggle');sound.textContent=audioEngine.enabled?'◉':'○';sound.onclick=async()=>{await audioEngine.setEnabled(!audioEngine.enabled);localStorage.setItem('our-universe-sound',audioEngine.enabled?'on':'off');sound.textContent=audioEngine.enabled?'◉':'○';toast(audioEngine.enabled?'Suara latar dinyalakan.':'Suara latar dimatikan.');};
-  qs('#skip-intro').onclick=()=>completeIntro(true);qs('#enter-universe').onclick=async()=>{qs('#enter-universe').disabled=true;await galaxy.enterUniverse();completeIntro(false);};
+  qs('#skip-intro').onclick=()=>completeIntro(true);qs('#enter-universe').onclick=()=>{qs('#enter-universe').disabled=true;completeIntro(false);};
 }
-function openProfile(){openProfileMenu({onRefresh:refreshContext,onNavigate:(route)=>router.navigate(route),onSignOut:showAccessGate,onPlanetCreated:renderHome});}
+function openProfile(){profileMenu.openProfileMenu({onRefresh:refreshContext,onNavigate:(route)=>router.navigate(route),onSignOut:showAccessGate,onPlanetCreated:renderHome});}
 async function openCreateFlow(){try{const planets=await repository.listPlanets();if(!planets.length){openPlanetComposer({onSaved:()=>renderHome()});return;}openStoryComposer({onSaved:async()=>{if(state.get('route')==='home')await renderHome();else await renderRoute(state.get('route'));}});}catch(error){toast(error.message,{type:'error'});}}
 
 function setupEvents(){
@@ -58,8 +102,17 @@ function setupEvents(){
   events.on('presence:sync',event=>{state.set('presence',event.detail.state||{});renderMembers();});
 }
 
-async function openingExperience(){qs('#intro-quote').textContent=CONFIG.INTRO_QUOTE;await galaxy.playOpening(()=>{gsap.to('#intro-kicker',{opacity:1,duration:1.1});gsap.to('#intro-quote',{opacity:1,duration:1.7});},()=>gsap.to('#enter-universe',{opacity:1,y:0,duration:1}));}
-function completeIntro(skipped){if(state.get('introComplete'))return;state.set('introComplete',true);if(skipped){galaxy.mode='hub';galaxy.camera.position.set(0,5,28);}qs('#intro').classList.add('is-leaving');setTimeout(()=>{qs('#intro').hidden=true;showAccessGate();},460);}
+function openingExperience(){
+  qs('#intro-quote').textContent=CONFIG.INTRO_QUOTE;
+  requestAnimationFrame(()=>{
+    qs('#intro-kicker').style.opacity='1';
+    qs('#intro-quote').style.opacity='1';
+    const enter=qs('#enter-universe');
+    enter.style.opacity='1';
+    enter.style.transform='translateY(0)';
+  });
+}
+function completeIntro(skipped){if(state.get('introComplete'))return;state.set('introComplete',true);galaxy.mode='hub';galaxy.camera?.position?.set?.(0,5,28);qs('#intro').classList.add('is-leaving');setTimeout(()=>{qs('#intro').hidden=true;showAccessGate();},260);}
 
 async function showAccessGate(){
   accessReady=false;qs('#app-shell').hidden=true;const root=qs('#auth-root');root.hidden=false;
@@ -73,6 +126,7 @@ async function activateUniverse(context){
   qs('#auth-root').hidden=true;qs('#auth-root').innerHTML='';qs('#app-shell').hidden=false;accessReady=true;await realtime.connect({universeId:context.universe.id,user:context.user,profile:context.profile});renderMembers();cleanupExpiredStories().catch(error=>console.warn('Pembersihan story tertunda:',error));
   if(needsV4Rebuild()&&!rebuildModal){rebuildModal=openRebuildGate({onComplete:async()=>{rebuildModal=null;await refreshContext();}});}
   if(!routeStarted){router.start();routeStarted=true;}else await renderRoute(state.get('route')||'home');
+  window.setTimeout(()=>void ensureGalaxy(settings.space_theme||'solar-system'),900);
 }
 
 
@@ -91,7 +145,7 @@ async function renderMembers(){
     const node=document.createElement('button');node.type='button';node.className='presence-avatar';node.title=`Lihat profil ${member.profile?.display_name||'anggota'}`;node.setAttribute('aria-label',node.title);node.textContent=initials(member.profile?.display_name);
     if(member.profile?.avatar_path)signedUrl(member.profile.avatar_path).then(url=>{const img=document.createElement('img');img.src=url;img.alt='';node.textContent='';node.append(img);node.append(createPresenceDot(member,presence));}).catch(()=>{});
     else node.append(createPresenceDot(member,presence));
-    node.onclick=()=>openMemberProfile(member,{onRefresh:refreshContext});host.append(node);
+    node.onclick=()=>{if(typeof profileMenu.openMemberProfile==='function')profileMenu.openMemberProfile(member,{onRefresh:refreshContext});else openProfile();};host.append(node);
   }
   const profile=state.get('profile');const button=qs('#profile-button');button.innerHTML='';
   if(profile?.avatar_path){try{const img=document.createElement('img');img.src=await signedUrl(profile.avatar_path);img.alt='';button.append(img);}catch{button.textContent=initials(profile?.display_name);}}else button.textContent=initials(profile?.display_name);

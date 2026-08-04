@@ -1,9 +1,9 @@
 import { CONFIG } from '../config.js';
 
 const MODES = {
-  cinematic: { stars:10500, galaxy:18000, asteroids:160, pixelRatio:1.8, fps:60, bloom:true, afterimage:true, nebula:8 },
-  balanced: { stars:6500, galaxy:10500, asteroids:90, pixelRatio:1.45, fps:45, bloom:true, afterimage:false, nebula:6 },
-  saver: { stars:3200, galaxy:5200, asteroids:45, pixelRatio:1.1, fps:30, bloom:false, afterimage:false, nebula:4 }
+  cinematic: { stars:9000, galaxy:14500, asteroids:120, pixelRatio:1.6, fps:55, bloom:true, afterimage:false, nebula:7 },
+  balanced: { stars:4200, galaxy:6800, asteroids:52, pixelRatio:1.2, fps:36, bloom:false, afterimage:false, nebula:4 },
+  saver: { stars:1500, galaxy:2600, asteroids:20, pixelRatio:.9, fps:24, bloom:false, afterimage:false, nebula:2 }
 };
 
 function detectMode() {
