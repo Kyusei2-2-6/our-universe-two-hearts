@@ -8,15 +8,36 @@ const ACCENTS={memory:'#8eb9ff',gallery:'#9cecff',letter:'#f2caa7',note:'#c5b4ff
 const pending=new WeakMap();
 const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
 const economy=getDataMode()==='economy'||connection?.saveData;
+const mediaQueue=[];
+let activeMediaJobs=0;
+const maxMediaJobs=economy?2:4;
+
+function runMediaQueue(){
+  while(activeMediaJobs<maxMediaJobs&&mediaQueue.length){
+    const job=mediaQueue.shift();
+    activeMediaJobs+=1;
+    Promise.resolve().then(job).catch(()=>{}).finally(()=>{
+      activeMediaJobs=Math.max(0,activeMediaJobs-1);
+      runMediaQueue();
+    });
+  }
+}
+
+function enqueueMediaJob(job){
+  if(typeof job!=='function')return;
+  mediaQueue.push(job);
+  runMediaQueue();
+}
+
 const observer='IntersectionObserver' in window?new IntersectionObserver(entries=>{
   for(const item of entries){
     if(!item.isIntersecting)continue;
     observer.unobserve(item.target);
     const job=pending.get(item.target);
     pending.delete(item.target);
-    job?.();
+    if(job)enqueueMediaJob(job);
   }
-},{rootMargin:economy?'100px 0px':'420px 0px',threshold:.01}):null;
+},{rootMargin:economy?'80px 0px':'260px 0px',threshold:.01}):null;
 
 export function createEntryCard(entry,{onOpen,onEdit,onDelete,profileMap=new Map()}={}){
   const card=document.createElement('article');
@@ -71,7 +92,7 @@ function queueCover(host,attachment){
   }
   host.classList.add('is-awaiting-media');
   const load=()=>loadImageCover(host,attachment);
-  if(!observer){load();return;}
+  if(!observer){enqueueMediaJob(load);return;}
   pending.set(host,load);
   observer.observe(host);
 }

@@ -9,7 +9,7 @@ import { openPlanetComposer } from '../components/planet-composer.js';
 import { openEntryDetail,deleteEntry,emptyState,profileMap } from './shared.js';
 import { toast } from '../components/toast.js';
 import { listPlanetEntryPage } from '../core/content-feed.js';
-import { preferredPageSize } from '../core/data-mode.js';
+import { preferredPageSize,getDataMode } from '../core/data-mode.js';
 
 export async function renderPlanet(container){
   const id=state.get('routeParams')?.id;
@@ -34,8 +34,9 @@ export async function renderPlanet(container){
   const loadMore=root.querySelector('[data-load-more]');
   const feedStatus=root.querySelector('[data-feed-status]');
   const pageSize=preferredPageSize();
+  const searchDelay=getDataMode()==='economy'?500:320;
   let timer,page=0,total=0,loading=false,requestToken=0;
-  search.oninput=()=>{clearTimeout(timer);timer=setTimeout(()=>load(true),300);};
+  search.oninput=()=>{clearTimeout(timer);timer=setTimeout(()=>load(true),searchDelay);};
   filter.onchange=()=>load(true);
   loadMore.onclick=()=>load(false);
   container.replaceChildren(root);
@@ -51,7 +52,7 @@ export async function renderPlanet(container){
     loadMore.disabled=true;
     loadMore.textContent='Membaca orbit…';
     try{
-      const result=await listPlanetEntryPage(planet.id,{query:search.value.trim(),type:filter.value,page,pageSize});
+      const result=await listPlanetEntryPage(planet.id,{query:search.value.trim(),type:filter.value,page,pageSize,knownCount:page===0?null:total});
       if(token!==requestToken)return;
       total=result.count;
       if(reset)grid.innerHTML='';

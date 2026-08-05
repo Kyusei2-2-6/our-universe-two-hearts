@@ -6,14 +6,15 @@ function escapeFilter(value=''){
   return String(value).replace(/[,%()]/g,' ').trim().slice(0,120);
 }
 
-export async function listPlanetEntryPage(planetId,{query='',type='',page=0,pageSize=preferredPageSize()}={}){
+export async function listPlanetEntryPage(planetId,{query='',type='',page=0,pageSize=preferredPageSize(),knownCount=null}={}){
   if(!repository.universeId)throw new Error('Semesta belum aktif.');
   const safePage=Math.max(0,Number(page)||0);
   const safeSize=Math.max(1,Math.min(24,Number(pageSize)||preferredPageSize()));
   const from=safePage*safeSize;
   const to=from+safeSize-1;
+  const hasKnownCount=knownCount!==null&&Number.isFinite(Number(knownCount));
   let request=supabase().from('planet_entries')
-    .select('entry_id,sort_order,created_at,entries!inner(*)',{count:'exact'})
+    .select('entry_id,sort_order,created_at,entries!inner(*)',hasKnownCount?{}:{count:'exact'})
     .eq('planet_id',planetId)
     .eq('universe_id',repository.universeId)
     .eq('entries.universe_id',repository.universeId)
@@ -28,12 +29,13 @@ export async function listPlanetEntryPage(planetId,{query='',type='',page=0,page
   const {data,error,count}=await request;
   if(error)throw error;
   const ordered=(data||[]).map(row=>row.entries).filter(Boolean);
-  const entries=await repository.attachMedia(ordered);
+  const entries=ordered.length?await repository.attachMedia(ordered):[];
+  const total=hasKnownCount?Math.max(0,Number(knownCount)||0):Math.max(0,Number(count)||0);
   return {
     entries,
-    count:count||0,
+    count:total,
     page:safePage,
     pageSize:safeSize,
-    hasMore:from+entries.length<(count||0)
+    hasMore:from+entries.length<total
   };
 }

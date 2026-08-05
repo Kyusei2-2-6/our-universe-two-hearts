@@ -2,8 +2,21 @@ import { CONFIG } from '../config.js';
 import { supabase } from './supabase.js';
 
 const signedCache=new Map();
+const SIGNED_CACHE_MAX=240;
 const OPTIMIZE_MIN_BYTES=1.4*1024*1024;
 const OPTIMIZE_MAX_EDGE=2560;
+
+function pruneSignedCache(){
+  const now=Date.now();
+  for(const [key,value] of signedCache){
+    if(!value||value.expiresAt<=now+30000)signedCache.delete(key);
+  }
+  while(signedCache.size>SIGNED_CACHE_MAX){
+    const oldest=signedCache.keys().next().value;
+    if(oldest===undefined)break;
+    signedCache.delete(oldest);
+  }
+}
 
 export function detectFileKind(fileOrMime=''){
   const mime=typeof fileOrMime==='string'?fileOrMime:fileOrMime.type;
@@ -103,6 +116,7 @@ export async function signedUrl(path,{download=false,force=false}={}){
   const{data,error}=await supabase().storage.from(CONFIG.STORAGE_BUCKET).createSignedUrl(path,CONFIG.SIGNED_URL_TTL_SECONDS,download?{download:true}:undefined);
   if(error)throw error;
   signedCache.set(cacheKey,{url:data.signedUrl,expiresAt:Date.now()+CONFIG.SIGNED_URL_TTL_SECONDS*1000});
+  pruneSignedCache();
   return data.signedUrl;
 }
 

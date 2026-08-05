@@ -1,4 +1,4 @@
-const CACHE='our-universe-v4-3-lightspeed-connect';
+const CACHE='our-universe-v4-3-1-active-lightspeed';
 const STATIC_CACHE=`${CACHE}-static`;
 const PAGE_CACHE=`${CACHE}-pages`;
 const SHELL=[
