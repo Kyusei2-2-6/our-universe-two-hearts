@@ -11,3 +11,4 @@ supabase/allowlist.local.sql
 
 # Private Web Push keys
 supabase/.notification-secrets.local.env
+.backup-*
