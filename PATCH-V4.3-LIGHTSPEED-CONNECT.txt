@@ -1,0 +1,25 @@
+OUR UNIVERSE v4.3.0 · LIGHTSPEED + COUPLE CONNECT
+Tanggal: 5 Agustus 2026
+
+FOKUS UPDATE
+1. PWA installable dari Chrome dan terbuka sebagai aplikasi standalone.
+2. Planet memakai pagination progresif. Hanya 6 isi pada mode hemat data atau 12 isi pada mode seimbang yang diminta per halaman.
+3. Foto kartu baru dimuat saat mendekati layar. Video dan audio tidak diberi URL sampai pengguna membuka kenangannya.
+4. Viewer hanya memuat media pada slide aktif. Pada mode hemat, video/audio dilepas lagi ketika slide ditinggalkan.
+5. Foto baru JPEG/PNG/WebP yang besar diperkecil secara aman dan dikonversi ke WebP sebelum upload apabila hasilnya benar-benar lebih kecil.
+6. Beranda memakai ringkasan jumlah isi di database, bukan mengunduh seluruh relasi planet_entries.
+7. Statistik profil memakai count-only query.
+8. Couple Connect: chat realtime, indikator mengetik, status dibaca, unread badge, popup pesan, Colek, Kirim Hati, Aku Kangen, animasi, dan vibrasi Android.
+9. Web Push diperluas untuk pesan dan sinyal Couple Connect saat PWA sedang tidak aktif.
+10. Mode data dapat dipilih dari Pengaturan > Tampilan.
+
+KEAMANAN
+- RLS membatasi Couple Connect pada anggota universe yang sama.
+- Pengirim dan penerima wajib merupakan dua anggota universe.
+- Installer tidak menghapus akun, planet, kenangan, lampiran, atau bucket Storage.
+- Backup dibuat di luar repository agar tidak ikut ter-push ke GitHub.
+
+WAJIB SETELAH INSTALLER
+- Jalankan supabase/migrations/2026-08-05-v4-3-couple-connect.sql di Supabase SQL Editor.
+- Deploy ulang Edge Function send-romantic-push.
+- Tes lokal, baru commit dan push.

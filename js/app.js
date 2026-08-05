@@ -152,7 +152,7 @@ async function activateUniverse(context){
   qs('#auth-root').hidden=true;qs('#auth-root').innerHTML='';qs('#app-shell').hidden=false;accessReady=true;await realtime.connect({universeId:context.universe.id,user:context.user,profile:context.profile});renderMembers();showRefreshFlash();cleanupExpiredStories().catch(error=>console.warn('Pembersihan story tertunda:',error));
   if(needsV4Rebuild()&&!rebuildModal){rebuildModal=openRebuildGate({onComplete:async()=>{rebuildModal=null;await refreshContext();}});}
   if(!routeStarted){router.start();routeStarted=true;}else await renderRoute(state.get('route')||'home');
-  window.setTimeout(()=>void ensureGalaxy(settings.space_theme||'solar-system'),900);
+  if(document.documentElement.dataset.dataMode!=='economy')window.setTimeout(()=>void ensureGalaxy(settings.space_theme||'solar-system'),1200);
 }
 
 

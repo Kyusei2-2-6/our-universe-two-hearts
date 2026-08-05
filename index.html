@@ -6,6 +6,10 @@
   <meta name="theme-color" content="#03050d">
   <meta name="description" content="OUR UNIVERSE, semesta digital privat yang diciptakan dan diisi oleh dua orang.">
   <meta name="color-scheme" content="dark">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Our Universe">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://esm.sh; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net https://esm.sh; font-src 'self' data:; object-src 'none'; frame-src 'self' blob:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
   <meta property="og:title" content="OUR UNIVERSE">
   <meta property="og:description" content="Di alam semesta yang begitu luas, aku tetap menemukanmu.">
@@ -25,6 +29,7 @@
   <link rel="stylesheet" href="css/v4-universe.css">
   <link rel="stylesheet" href="css/database-music-player.css?v=4.2.0">
   <link rel="stylesheet" href="css/mobile-solid-ui.css?v=4.2.1">
+  <link rel="stylesheet" href="css/v4.3-lightspeed-connect.css?v=4.3.0">
   <title>OUR UNIVERSE</title>
 </head>
 <body>
@@ -103,7 +108,10 @@
   <audio id="ambient-audio" src="music/ambient-space.wav" loop preload="none" muted></audio>
   <noscript>OUR UNIVERSE membutuhkan JavaScript.</noscript>
   <script src="js/bootstrap-fallback.js"></script>
-  <script type="module" src="js/app.js?v=4.2.1"></script>
+  <script type="module" src="js/app.js?v=4.3.0"></script>
   <script type="module" src="js/components/database-music-player.js?v=4.2.0"></script>
+  <script type="module" src="js/core/data-mode.js?v=4.3.0"></script>
+  <script type="module" src="js/features/pwa-install.js?v=4.3.0"></script>
+  <script type="module" src="js/features/couple-connect.js?v=4.3.0"></script>
 </body>
 </html>

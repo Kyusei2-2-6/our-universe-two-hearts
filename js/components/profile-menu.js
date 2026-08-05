@@ -162,12 +162,12 @@ function createMemberButton(member, { currentUserId, onOpen }) {
 
 async function loadMemberStats(userId, host) {
   try {
-    const [planets, entries] = await Promise.all([
-      repository.listPlanets(),
-      repository.listEntries({ limit:10000 })
+    const [planetCount, entryCount] = await Promise.all([
+      repository.countPlanetsByCreator(userId),
+      repository.countEntriesByCreator(userId)
     ]);
-    host.querySelector('[data-planets]').textContent = String(planets.filter(item => item.created_by === userId).length);
-    host.querySelector('[data-entries]').textContent = String(entries.filter(item => item.created_by === userId).length);
+    host.querySelector('[data-planets]').textContent = String(planetCount);
+    host.querySelector('[data-entries]').textContent = String(entryCount);
   } catch {
     host.querySelector('[data-planets]').textContent = '—';
     host.querySelector('[data-entries]').textContent = '—';

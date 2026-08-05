@@ -2,6 +2,7 @@ import { state } from '../core/state.js';
 import { auth } from '../core/auth.js';
 import { repository } from '../core/repository.js';
 import { setPerformanceMode } from '../core/performance.js';
+import { setDataMode } from '../core/data-mode.js';
 import { downloadBlob } from '../core/utils.js';
 import { worldHeader } from './shared.js';
 import { toast } from '../components/toast.js';
@@ -84,11 +85,13 @@ function createAppearanceForm(snapshot) {
     <div class="field"><label>Warna antarmuka</label><select class="select" name="theme"><option value="violet">Violet</option><option value="rose">Rose</option><option value="aurora">Aurora</option><option value="gold">Golden</option></select></div>
     <div class="field"><label>Background alam semesta</label><select class="select" name="space_theme"><option value="solar-system">Solar System Journey</option><option value="milky-way">Milky Way</option><option value="saturn-dream">Saturn Dream</option><option value="lunar-ocean">Lunar Ocean</option><option value="rose-cosmos">Rose Cosmos</option></select><small class="muted">Planet tata surya hanya menjadi background, bukan tombol menu.</small></div>
     <div class="field"><label>Mode animasi</label><select class="select" name="performance"><option value="auto">Otomatis</option><option value="cinematic">Sinematik penuh</option><option value="balanced">Seimbang</option><option value="saver">Hemat daya</option></select></div>
+    <div class="field"><label>Penggunaan data media</label><select class="select" name="data_mode"><option value="auto">Otomatis sesuai HP dan jaringan</option><option value="economy">Hemat data</option><option value="balanced">Seimbang</option></select><small class="muted">Media hanya dimuat ketika terlihat. Mode hemat menampilkan 6 kenangan per halaman.</small></div>
     <button class="button button--primary" type="submit">Simpan tampilan</button>
   `;
   form.elements.theme.value = snapshot.universe?.settings?.theme || 'violet';
   form.elements.space_theme.value = snapshot.universe?.settings?.space_theme || 'solar-system';
   form.elements.performance.value = localStorage.getItem('our-universe-performance') || 'auto';
+  form.elements.data_mode.value = localStorage.getItem('our-universe-data-mode') || 'auto';
   form.onsubmit = async event => {
     event.preventDefault();
     const save = form.querySelector('[type=submit]');
@@ -102,6 +105,7 @@ function createAppearanceForm(snapshot) {
       };
       await auth.updateUniverse({ id:snapshot.universe.id, settings });
       setPerformanceMode(form.elements.performance.value);
+      setDataMode(form.elements.data_mode.value);
       toast('Tampilan disimpan. Memuat ulang…');
       setTimeout(() => location.reload(), 450);
     } catch (error) {
@@ -245,6 +249,8 @@ async function createNotificationSettings() {
     <label class="notification-option"><input type="checkbox" data-pref="entry_created"><span><strong>Isi planet baru</strong><small>Foto, video, musik, surat, catatan, dan file.</small></span></label>
     <label class="notification-option"><input type="checkbox" data-pref="comment_created"><span><strong>Komentar baru</strong><small>Pesan baru dari pasangan.</small></span></label>
     <label class="notification-option"><input type="checkbox" data-pref="reaction_created"><span><strong>Reaksi baru</strong><small>Hati dan reaksi kecil.</small></span></label>
+    <label class="notification-option"><input type="checkbox" data-pref="couple_message"><span><strong>Pesan Couple Connect</strong><small>Chat baru dari pasangan.</small></span></label>
+    <label class="notification-option"><input type="checkbox" data-pref="couple_signal"><span><strong>Colek dan sinyal cinta</strong><small>Colek, hati, dan pesan kangen.</small></span></label>
     <label class="notification-option"><input type="checkbox" data-pref="foreground_sound"><span><strong>Nada romantis saat web aktif</strong><small>Chime khusus OUR UNIVERSE.</small></span></label>
   `;
   const toolbar = document.createElement('div');

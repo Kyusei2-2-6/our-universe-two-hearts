@@ -6,9 +6,9 @@ class Repository {
   setContext({ universeId, userId }) { this.universeId = universeId; this.userId = userId; }
   requireContext() { if (!this.universeId || !this.userId) throw new Error('Semesta belum aktif.'); }
 
-  async listEntries({ type, query, status, favorite, periodId, unassigned = false, limit = 100, ascending = false } = {}) {
+  async listEntries({ type, query, status, favorite, periodId, unassigned = false, limit = 100, ascending = false, offset = 0, includeAttachments = true } = {}) {
     this.requireContext();
-    let request = supabase().from('entries').select('*').eq('universe_id', this.universeId).order('event_date', { ascending, nullsFirst:false }).order('created_at', { ascending:false }).limit(limit);
+    let request = supabase().from('entries').select('*').eq('universe_id', this.universeId).order('event_date', { ascending, nullsFirst:false }).order('created_at', { ascending:false }).range(Math.max(0,offset), Math.max(0,offset) + Math.max(1,limit) - 1);
     if (type) request = request.eq('type', type);
     if (status) request = request.eq('status', status);
     if (typeof favorite === 'boolean') request = request.eq('favorite', favorite);
@@ -17,7 +17,7 @@ class Repository {
     if (query) request = request.or(`title.ilike.%${this.escapeFilter(query)}%,body.ilike.%${this.escapeFilter(query)}%,location.ilike.%${this.escapeFilter(query)}%`);
     const { data, error } = await request;
     if (error) throw error;
-    return this.attachMedia(data || []);
+    return includeAttachments ? this.attachMedia(data || []) : (data || []);
   }
 
   escapeFilter(value) { return String(value).replace(/[,%()]/g, ' ').trim().slice(0,120); }
@@ -36,6 +36,16 @@ class Repository {
   }
 
 
+  async countEntriesByCreator(userId) {
+    this.requireContext();
+    const {count,error}=await supabase().from('entries').select('id',{count:'exact',head:true}).eq('universe_id',this.universeId).eq('created_by',userId);
+    if(error)throw error;return count||0;
+  }
+  async countPlanetsByCreator(userId) {
+    this.requireContext();
+    const {count,error}=await supabase().from('planets').select('id',{count:'exact',head:true}).eq('universe_id',this.universeId).eq('created_by',userId);
+    if(error)throw error;return count||0;
+  }
   async listPeriods() {
     this.requireContext();
     const { data, error } = await supabase().from('memory_periods').select('*').eq('universe_id',this.universeId).order('sort_order').order('start_date',{ascending:true,nullsFirst:false}).order('created_at',{ascending:true});
@@ -197,19 +207,12 @@ class Repository {
 
   async listPlanets() {
     this.requireContext();
-    const {data,error}=await supabase().from('planets').select('*').eq('universe_id',this.universeId).order('is_favorite',{ascending:false}).order('sort_order').order('created_at');
-    if(error)throw error;
-    const planets=data||[];
-    if(!planets.length)return [];
-    const ids=planets.map(item=>item.id);
-    const {data:links,error:linkError}=await supabase().from('planet_entries').select('planet_id,entry_id').in('planet_id',ids);
-    if(linkError)throw linkError;
-    const counts=new Map();for(const link of links||[])counts.set(link.planet_id,(counts.get(link.planet_id)||0)+1);
-    const now=new Date().toISOString();
-    const {data:stories,error:storyError}=await supabase().from('stories').select('planet_id,id').in('planet_id',ids).gt('expires_at',now);
-    if(storyError)throw storyError;
-    const storyCounts=new Map();for(const story of stories||[])storyCounts.set(story.planet_id,(storyCounts.get(story.planet_id)||0)+1);
-    return planets.map(item=>({...item,entry_count:counts.get(item.id)||0,active_story_count:storyCounts.get(item.id)||0}));
+    const {data,error}=await supabase().rpc('list_planet_summaries_v43',{target_universe_id:this.universeId});
+    if(!error)return(data||[]).map(row=>({...row.planet,entry_count:Number(row.entry_count||0),active_story_count:Number(row.active_story_count||0)}));
+    console.warn('Ringkasan planet v4.3 belum aktif, memakai kompatibilitas lama:',error.message);
+    const {data:planetsData,error:planetError}=await supabase().from('planets').select('*').eq('universe_id',this.universeId).order('is_favorite',{ascending:false}).order('sort_order').order('created_at');
+    if(planetError)throw planetError;
+    return(planetsData||[]).map(item=>({...item,entry_count:0,active_story_count:0}));
   }
 
   async getPlanet(id) {
@@ -320,7 +323,7 @@ class Repository {
 
   async listActiveStories() {
     this.requireContext();
-    const {data,error}=await supabase().from('stories').select('*,planets(name,accent_color,planet_style),entries(title,type,metadata,created_by,created_at)').eq('universe_id',this.universeId).gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false});
+    const {data,error}=await supabase().from('stories').select('*,planets(name,accent_color,planet_style),entries(title,type,metadata,created_by,created_at)').eq('universe_id',this.universeId).gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(50);
     if(error)throw error;return data||[];
   }
 

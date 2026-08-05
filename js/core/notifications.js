@@ -36,7 +36,7 @@ class NotificationService {
     this.profile=profile||null;
     if(!this.chime){
       this.chime=new Audio(new URL('../../music/romantic-chime.wav',import.meta.url));
-      this.chime.preload='auto';this.chime.volume=.58;
+      this.chime.preload='none';this.chime.volume=.58;
     }
     if(!this.listenerBound&&'serviceWorker' in navigator){
       navigator.serviceWorker.addEventListener('message',event=>this.handleServiceWorkerMessage(event));
@@ -51,7 +51,7 @@ class NotificationService {
     if(error&&error.code!=='PGRST116')throw error;
     this.preferences=data||{
       universe_id:this.universeId,user_id:this.userId,enabled:true,
-      entry_created:true,comment_created:true,reaction_created:true,foreground_sound:true
+      entry_created:true,comment_created:true,reaction_created:true,couple_message:true,couple_signal:true,foreground_sound:true
     };
     return this.preferences;
   }
@@ -117,7 +117,7 @@ class NotificationService {
   async updatePreferences(values) {
     if(!this.universeId||!this.userId)throw new Error('Semesta belum aktif.');
     const allowed={};
-    for(const key of ['enabled','entry_created','comment_created','reaction_created','foreground_sound']){
+    for(const key of ['enabled','entry_created','comment_created','reaction_created','couple_message','couple_signal','foreground_sound']){
       if(key in values)allowed[key]=Boolean(values[key]);
     }
     const {data,error}=await supabase().from('notification_preferences').upsert({

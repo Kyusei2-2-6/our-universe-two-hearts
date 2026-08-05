@@ -1,16 +1,35 @@
 {
-  "name": "Our Universe",
+  "id": "./?app=our-universe",
+  "name": "Our Universe · Two Hearts",
   "short_name": "Our Universe",
-  "description": "Semesta digital privat yang dibangun oleh dua orang.",
-  "start_url": "./",
+  "description": "Semesta digital privat yang dibangun dan dijaga oleh dua hati.",
+  "start_url": "./?source=pwa#home",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#02030a",
   "theme_color": "#050713",
-  "categories": ["lifestyle", "photo", "music"],
+  "categories": ["lifestyle", "photo", "music", "social"],
+  "prefer_related_applications": false,
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buka Semesta",
+      "short_name": "Semesta",
+      "description": "Masuk ke beranda OUR UNIVERSE",
+      "url": "./#home",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Kirim Pesan",
+      "short_name": "Pesan",
+      "description": "Buka Couple Connect",
+      "url": "./?connect=1#home",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }
