@@ -38,12 +38,29 @@ export function createPlanetDeck({planets,onOpen,onCreate,onEdit,onIndexChange}=
     return article;
   }
 
+  // v4.2.1 · mobile cards stay inside the viewport while swipe remains smooth
   function layout(drag=0){
-    const width=Math.min(viewport.clientWidth,980);const mobile=innerWidth<700;const gap=mobile?Math.min(340,width*.78):Math.min(520,width*.59);
+    const width=Math.min(viewport.clientWidth,980);
+    const mobile=window.matchMedia?.('(max-width:700px)')?.matches??innerWidth<700;
+    const gap=mobile?Math.max(320,width*1.08):Math.min(520,width*.59);
     cards.forEach((card,i)=>{
-      const distance=i-index;const x=distance*gap+drag;const abs=Math.abs(distance+drag/gap);const scale=Math.max(.55,1-abs*.23);const z=-abs*190;const rotateY=Math.max(-32,Math.min(32,-distance*18-drag/gap*18));const opacity=Math.max(.18,1-abs*.29);const blur=Math.max(0,(abs-1)*2.4);
+      const distance=i-index;
+      const x=distance*gap+drag;
+      const progress=distance+drag/gap;
+      const abs=Math.abs(progress);
+      const scale=mobile?Math.max(.9,1-abs*.08):Math.max(.55,1-abs*.23);
+      const z=mobile?-abs*80:-abs*190;
+      const rotateY=mobile?Math.max(-9,Math.min(9,-distance*6-drag/gap*6)):Math.max(-32,Math.min(32,-distance*18-drag/gap*18));
+      const opacity=mobile?(abs>=.98?0:Math.max(.08,1-abs*.72)):Math.max(.18,1-abs*.29);
+      const blur=mobile?0:Math.max(0,(abs-1)*2.4);
       card.style.transform=`translate3d(calc(-50% + ${x}px),-50%,${z}px) rotateY(${rotateY}deg) scale(${scale})`;
-      card.style.opacity=String(opacity);card.style.filter=`blur(${blur}px)`;card.style.zIndex=String(100-Math.round(abs*10));card.classList.toggle('is-active',i===index&&Math.abs(drag)<8);card.setAttribute('aria-hidden',abs>1.8?'true':'false');
+      card.style.opacity=String(opacity);
+      card.style.filter=`blur(${blur}px)`;
+      card.style.visibility=mobile&&abs>1.2?'hidden':'visible';
+      card.style.pointerEvents=mobile&&abs>.55?'none':'';
+      card.style.zIndex=String(100-Math.round(abs*10));
+      card.classList.toggle('is-active',i===index&&Math.abs(drag)<8);
+      card.setAttribute('aria-hidden',abs>(mobile ? .75 : 1.8)?'true':'false');
     });
     [...dots.children].forEach((dot,i)=>dot.classList.toggle('is-active',i===index));
   }

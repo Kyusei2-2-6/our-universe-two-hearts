@@ -1,0 +1,16 @@
+OUR UNIVERSE v4.2.1 · MOBILE SOLID UI
+
+Tujuan:
+- Menahan seluruh UI Android di dalam viewport.
+- Menghilangkan kartu planet samping yang bocor keluar layar saat diam.
+- Mempertahankan swipe planet dengan transisi yang lebih ringan.
+- Mengecilkan kartu planet, planet sphere, topbar, dock, dan music player agar proporsional.
+- Mencegah horizontal overflow pada beranda, planet, story rail, modal, dan daftar memori.
+
+Tidak mengubah:
+- Supabase atau database.
+- Akun dan data pengguna.
+- Storage dan file yang telah diunggah.
+- Logika database music player.
+
+Installer membuat backup otomatis di folder proyek sebelum melakukan perubahan.
