@@ -1,0 +1,20 @@
+OUR UNIVERSE v4.4.0
+COUPLE MAP + SHARED CALENDAR
+
+FITUR BARU
+1. Ikon peta di kanan atas.
+2. Pop-up peta mini dengan dua penanda lokasi.
+3. Perhitungan jarak garis lurus real-time antara dua pasangan.
+4. Berbagi lokasi bersifat opt-in dan memerlukan izin GPS browser.
+5. Lokasi otomatis tidak terlihat sekitar 2 menit setelah aplikasi berhenti mengirim posisi.
+6. Ikon kalender di kiri atas.
+7. Kalender bulanan bersama dengan indikator jadwal milik masing-masing.
+8. Tambah, edit, dan hapus jadwal sendiri.
+9. Jadwal pasangan dapat dilihat tetapi tidak dapat diubah.
+10. Pembaruan lokasi dan kalender memakai Supabase Realtime.
+
+CATATAN
+- Peta menggunakan Leaflet 1.9.4 dan tile OpenStreetMap.
+- Geolocation browser memerlukan HTTPS.
+- Pelacakan real-time berjalan ketika website atau PWA sedang terbuka dan izin lokasi aktif.
+- Migrasi SQL v4.4 wajib dijalankan agar fitur database berfungsi.
