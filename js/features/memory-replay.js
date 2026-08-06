@@ -54,7 +54,7 @@ export function createMemoryReplay(api){
       const{data,error}=await supabase().from('bond_replays').insert({universe_id:universeId,entry_id:chosen.id,started_by:userId,mode:'surprise'}).select().single();
       if(error)throw error;
       currentEntry=chosen;currentReplay=data;history=[data,...history.filter(item=>item.id!==data.id)].slice(0,16);
-      await renderCurrent(chosen,data);renderHistory();
+      renderHistory();await renderCurrent(chosen,data);
     }catch(error){toast(friendlyError(error),{type:'error',duration:7000});}
     finally{picking=false;button.disabled=false;button.textContent='Putar kenangan acak';}
   }
@@ -62,8 +62,8 @@ export function createMemoryReplay(api){
   function weightedPick(entries){
     const now=Date.now();
     const weights=entries.map(entry=>{
-      const date=new Date(entry.event_date||entry.created_at).getTime();
-      const ageDays=Math.max(1,(now-date)/86400000);
+      const parsed=safeDate(entry.event_date||entry.created_at);
+      const ageDays=parsed?Math.max(1,(now-parsed.getTime())/86400000):1;
       const hasMedia=Boolean((entry.attachments||[]).length);
       const favorite=entry.favorite?1.4:1;
       return Math.min(12,1+Math.log10(ageDays+1))*favorite*(hasMedia?1.18:1);
@@ -75,30 +75,35 @@ export function createMemoryReplay(api){
 
   async function renderCurrent(entry,replay){
     const token=++renderToken;
-    const stage=root.querySelector('[data-replay-stage]');stage.innerHTML='';
-    const article=document.createElement('article');article.className='bond-replay-card';
-    article.innerHTML='<div class="bond-replay-media"><div class="bond-replay-glow"></div><span data-media-fallback>✦</span></div><div class="bond-replay-copy"><p class="bond-kicker">THE UNIVERSE CHOSE</p><h3></h3><small data-meta></small><blockquote></blockquote><div class="bond-replay-reactions"></div><div class="bond-replay-actions"><button type="button" class="bond-secondary" data-open-memory>Buka kenangan lengkap</button><button type="button" class="bond-primary" data-replay-again>Putar yang lain</button></div></div>';
-    article.querySelector('h3').textContent=entry.title||'Kenangan tanpa judul';
-    article.querySelector('[data-meta]').textContent=metaLabel(entry);
-    const body=String(entry.body||'').trim();article.querySelector('blockquote').textContent=body?excerpt(body,260):'Tidak semua momen membutuhkan banyak kata. Momen ini tetap tinggal di semesta kalian.';
-    const reactionHost=article.querySelector('.bond-replay-reactions');
-    for(const[value,label]of Object.entries(REACTIONS)){
-      const button=document.createElement('button');button.type='button';button.textContent=label;button.classList.toggle('is-selected',replay.reaction===value);button.onclick=()=>setReaction(value,button);reactionHost.append(button);
-    }
-    article.querySelector('[data-open-memory]').onclick=()=>{api.closePanel?.();openEntryDetail(entry);};
-    article.querySelector('[data-replay-again]').onclick=pickMemory;
-    stage.append(article);
-    const attachment=preferredAttachment(entry.attachments||[]);
-    if(attachment){
-      try{
-        const url=await signedUrl(attachment.file_path);if(token!==renderToken)return;
-        const mediaHost=article.querySelector('.bond-replay-media');mediaHost.querySelector('[data-media-fallback]')?.remove();
-        if(attachment.kind==='image'){
-          const image=document.createElement('img');image.src=url;image.alt=entry.title||'Kenangan';image.loading='eager';mediaHost.prepend(image);
-        }else if(attachment.kind==='video'){
-          const video=document.createElement('video');video.src=url;video.muted=true;video.loop=true;video.playsInline=true;video.preload='metadata';mediaHost.prepend(video);video.play().catch(()=>{});
-        }
-      }catch{}
+    const stage=root.querySelector('[data-replay-stage]');
+    try{
+      const article=document.createElement('article');article.className='bond-replay-card';
+      article.innerHTML='<div class="bond-replay-media"><div class="bond-replay-glow"></div><span data-media-fallback>✦</span></div><div class="bond-replay-copy"><p class="bond-kicker">THE UNIVERSE CHOSE</p><h3></h3><small data-meta></small><blockquote></blockquote><div class="bond-replay-reactions"></div><div class="bond-replay-actions"><button type="button" class="bond-secondary" data-open-memory>Buka kenangan lengkap</button><button type="button" class="bond-primary" data-replay-again>Putar yang lain</button></div></div>';
+      article.querySelector('h3').textContent=entry.title||'Kenangan tanpa judul';
+      article.querySelector('[data-meta]').textContent=metaLabel(entry);
+      const body=String(entry.body||'').trim();article.querySelector('blockquote').textContent=body?excerpt(body,260):'Tidak semua momen membutuhkan banyak kata. Momen ini tetap tinggal di semesta kalian.';
+      const reactionHost=article.querySelector('.bond-replay-reactions');
+      for(const[value,label]of Object.entries(REACTIONS)){
+        const button=document.createElement('button');button.type='button';button.textContent=label;button.classList.toggle('is-selected',replay?.reaction===value);button.onclick=()=>setReaction(value,button);reactionHost.append(button);
+      }
+      article.querySelector('[data-open-memory]').onclick=()=>{api.closePanel?.();openEntryDetail(entry);};
+      article.querySelector('[data-replay-again]').onclick=pickMemory;
+      stage.replaceChildren(article);
+      const attachment=preferredAttachment(entry.attachments||[]);
+      if(attachment){
+        try{
+          const url=await signedUrl(attachment.file_path);if(token!==renderToken)return;
+          const mediaHost=article.querySelector('.bond-replay-media');mediaHost.querySelector('[data-media-fallback]')?.remove();
+          if(attachment.kind==='image'){
+            const image=document.createElement('img');image.src=url;image.alt=entry.title||'Kenangan';image.loading='eager';mediaHost.prepend(image);
+          }else if(attachment.kind==='video'){
+            const video=document.createElement('video');video.src=url;video.muted=true;video.loop=true;video.playsInline=true;video.preload='metadata';mediaHost.prepend(video);video.play().catch(()=>{});
+          }
+        }catch(error){console.warn('Media replay tidak dapat dimuat:',error);}
+      }
+    }catch(error){
+      stage.innerHTML='<div class="bond-empty bond-empty--large is-error"><strong>Kenangan terpilih, tetapi kartunya gagal ditampilkan</strong><span>Tekan “Putar kenangan acak” sekali lagi. Data kenangan tetap aman.</span></div>';
+      throw error;
     }
   }
 
@@ -130,7 +135,7 @@ export function createMemoryReplay(api){
   }
 
   function renderEmpty(){if(root)root.querySelector('[data-replay-stage]').innerHTML='<div class="bond-empty bond-empty--large"><strong>Belum ada kenangan yang diputar</strong><span>Tekan tombol di atas untuk memilih satu momen dari semesta kalian.</span></div>';}
-  function renderHistoryError(error){const host=root?.querySelector('[data-replay-history]');if(host)host.innerHTML='<div class="bond-empty is-error"><strong>Jejak replay belum aktif</strong><span>Jalankan migrasi SQL v4.5.0 di Supabase.</span></div>';console.warn('Memory Replay:',error);}
+  function renderHistoryError(error){const host=root?.querySelector('[data-replay-history]');if(host)host.innerHTML='<div class="bond-empty is-error"><strong>Jejak replay belum aktif</strong><span>Jalankan SQL v4.9.3 ALL-IN-ONE di Supabase.</span></div>';console.warn('Memory Replay:',error);}
   function realtime(table,payload){if(table!=='bond_replays')return;const row=payload.new||payload.old;if(!row)return;history=payload.eventType==='DELETE'?history.filter(item=>item.id!==row.id):[row,...history.filter(item=>item.id!==row.id)].slice(0,16);renderHistory();}
   return{mount,activate,contextChanged,realtime};
 }
@@ -142,6 +147,7 @@ function isReplayable(entry){
 }
 function preferredAttachment(items){return items.find(item=>item.kind==='image')||items.find(item=>item.kind==='video')||null;}
 function excerpt(value,max){const text=String(value).replace(/\s+/g,' ').trim();return text.length>max?`${text.slice(0,max).trim()}…`:text;}
-function metaLabel(entry){const parts=[];if(entry.event_date)parts.push(new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(new Date(`${entry.event_date}T12:00:00`)));parts.push(({memory:'Memori',gallery:'Galeri',letter:'Surat',note:'Catatan',music:'Musik',file:'Berkas',wish:'Harapan',capsule:'Kapsul waktu'})[entry.type]||'Kenangan');return parts.join(' · ');}
-function relativeTime(value){const delta=Math.max(0,Date.now()-new Date(value).getTime());if(delta<60000)return'baru saja';if(delta<3600000)return`${Math.floor(delta/60000)} menit lalu`;if(delta<86400000)return`${Math.floor(delta/3600000)} jam lalu`;return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'short'}).format(new Date(value));}
-function friendlyError(error){const message=String(error?.message||error||'');if(message.includes('bond_replays')||message.includes('schema cache'))return'Memory Replay belum aktif di database. Jalankan migrasi SQL v4.5.0.';return message||'Kenangan belum dapat diputar.';}
+function metaLabel(entry){const parts=[];const date=safeDate(entry.event_date||entry.created_at);if(date)parts.push(new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(date));parts.push(({memory:'Memori',gallery:'Galeri',letter:'Surat',note:'Catatan',music:'Musik',file:'Berkas',wish:'Harapan',capsule:'Kapsul waktu'})[entry.type]||'Kenangan');return parts.join(' · ');}
+function relativeTime(value){const date=safeDate(value);if(!date)return'waktu tidak tersedia';const delta=Math.max(0,Date.now()-date.getTime());if(delta<60000)return'baru saja';if(delta<3600000)return`${Math.floor(delta/60000)} menit lalu`;if(delta<86400000)return`${Math.floor(delta/3600000)} jam lalu`;return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'short'}).format(date);}
+function safeDate(value){const raw=String(value||'').trim();if(!raw)return null;const date=new Date(raw);return Number.isFinite(date.getTime())?date:null;}
+function friendlyError(error){const message=String(error?.message||error||'');if(message.includes('bond_replays')||message.includes('schema cache'))return'Memory Replay belum aktif di database. Jalankan SQL v4.9.3 ALL-IN-ONE.';return message||'Kenangan belum dapat diputar.';}

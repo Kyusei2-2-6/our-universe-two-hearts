@@ -134,11 +134,11 @@ export function createSecretRoom(api){
     if(shouldRefresh)refresh();
   }
 
-  function renderDatabaseError(error){const host=root.querySelector('[data-secret-list]');host.innerHTML='<div class="bond-empty is-error"><strong>Secret Room belum aktif</strong><span>Jalankan migrasi SQL v4.5.0 di Supabase, lalu muat ulang aplikasi.</span></div>';console.warn('Secret Room:',error);}
+  function renderDatabaseError(error){const host=root.querySelector('[data-secret-list]');host.innerHTML='<div class="bond-empty is-error"><strong>Secret Room belum aktif</strong><span>Jalankan SQL v4.9.3 ALL-IN-ONE di Supabase, lalu muat ulang aplikasi.</span></div>';console.warn('Secret Room:',error);}
   function realtime(table,payload){if(table!=='bond_capsules')return;const row=payload.new||payload.old;if(!row)return;capsules=payload.eventType==='DELETE'?capsules.filter(item=>item.id!==row.id):[row,...capsules.filter(item=>item.id!==row.id)].sort((a,b)=>new Date(a.unlock_at)-new Date(b.unlock_at));renderList();}
   return{mount,activate,deactivate,destroy,contextChanged,realtime};
 }
 
 function toLocalInput(date){const pad=value=>String(value).padStart(2,'0');return`${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;}
 function formatDate(value){return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'short',year:'numeric'}).format(new Date(value));}
-function friendlyError(error){const message=String(error?.message||error||'');if(message.includes('bond_capsule')||message.includes('schema cache'))return'Secret Room belum aktif di database. Jalankan migrasi SQL v4.5.0.';return message||'Kapsul belum dapat diproses.';}
+function friendlyError(error){const message=String(error?.message||error||'');if(message.includes('bond_capsule')||message.includes('schema cache'))return'Secret Room belum aktif di database. Jalankan SQL v4.9.3 ALL-IN-ONE.';return message||'Kapsul belum dapat diproses.';}

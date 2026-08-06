@@ -61,7 +61,7 @@ export function createRelationshipStats(api){
     try{
       const client=supabase();
       const results=await Promise.all([
-        client.from('couple_relationship_profiles').select('*').eq('universe_id',universeId).maybeSingle(),
+        client.from('couple_relationship_profiles').select('universe_id,started_on,first_met_on,anniversary_title,connection_title,connected_on,first_chat_on,first_date_on,relationship_story,updated_by,created_at,updated_at').eq('universe_id',universeId).maybeSingle(),
         client.from('entries').select('id,type,event_date,created_at,favorite,created_by',{count:'exact'}).eq('universe_id',universeId).limit(2000),
         client.from('attachments').select('id,kind,created_at',{count:'exact'}).eq('universe_id',universeId).limit(2000),
         client.from('planets').select('id,created_at,created_by',{count:'exact'}).eq('universe_id',universeId).limit(1000),
@@ -71,9 +71,12 @@ export function createRelationshipStats(api){
         client.from('couple_messages').select('id,sender_id,created_at',{count:'exact'}).eq('universe_id',universeId).limit(2000),
         client.from('comments').select('id,user_id,created_at',{count:'exact'}).eq('universe_id',universeId).limit(2000)
       ]);
-      const firstError=results.find(result=>result.error)?.error;if(firstError)throw firstError;
+      if(results[0].error)throw results[0].error;
+      const optionalErrors=results.slice(1).map((result,index)=>result.error?{index:index+1,error:result.error}:null).filter(Boolean);
+      const safeResults=results.map((result,index)=>index===0||!result.error?result:{data:[],count:0,error:null});
+      if(optionalErrors.length)console.warn('Relationship Journey memakai data parsial:',optionalErrors);
       if(current!==token)return;
-      snapshot=buildSnapshot(results);
+      snapshot=buildSnapshot(safeResults);
       render();
     }catch(error){if(current!==token)return;isSchemaSetupError(error)?renderSetupRequired():renderError(error);}
     finally{if(current===token)loading=false;}
@@ -128,12 +131,12 @@ export function createRelationshipStats(api){
   function renderSetupRequired(){
     const days=host?.querySelector('[data-stats-days]');if(days)days.textContent='∞';
     const label=host?.querySelector('[data-stats-days-label]');if(label)label.textContent='menunggu aktivasi';
-    const since=host?.querySelector('[data-stats-since]');if(since)since.innerHTML='<strong>Journey belum diaktifkan</strong><span>Jalankan RUN-THIS-IN-SUPABASE-V4.9.2-RESCUE.sql satu kali. Tidak ada data lama yang dihapus.</span>';
+    const since=host?.querySelector('[data-stats-since]');if(since)since.innerHTML='<strong>Journey belum diaktifkan</strong><span>Jalankan RUN-THIS-IN-SUPABASE-V4.9.3-ALL-IN-ONE.sql satu kali. Tidak ada data lama yang dihapus.</span>';
     const duration=host?.querySelector('[data-stats-duration]');if(duration)duration.innerHTML='';
-    const journey=host?.querySelector('[data-stats-journey]');if(journey)journey.innerHTML='<article class="relationship-journey-setup"><span>✦</span><div><small>SAFE DATABASE RESCUE</small><strong>Satu langkah untuk menyalakan perjalanan kalian</strong><p>SQL Rescue membuat tabel yang belum ada, menambahkan kolom baru, mempertahankan data versi lama, lalu memuat ulang schema Supabase.</p></div></article>';
+    const journey=host?.querySelector('[data-stats-journey]');if(journey)journey.innerHTML='<article class="relationship-journey-setup"><span>✦</span><div><small>SAFE DATABASE RESCUE</small><strong>Satu langkah untuk menyalakan perjalanan kalian</strong><p>SQL ALL-IN-ONE membuat tabel yang belum ada, menambahkan kolom baru, mempertahankan data versi lama, lalu memuat ulang schema Supabase.</p></div></article>';
     const grid=host?.querySelector('[data-stats-grid]');if(grid)grid.innerHTML='<div class="bond-empty bond-empty--large"><strong>Fitur lama tetap aman</strong><span>Connect, lokasi, kalender, musik, planet, dan seluruh kenangan tidak disentuh.</span></div>';
     const insights=host?.querySelector('[data-stats-insights]');if(insights)insights.innerHTML='';
-    const edit=host?.querySelector('[data-stats-edit]');if(edit){edit.disabled=true;edit.textContent='Aktifkan lewat SQL Rescue';}
+    const edit=host?.querySelector('[data-stats-edit]');if(edit){edit.disabled=true;edit.textContent='Aktifkan lewat SQL ALL-IN-ONE';}
   }
 
   function renderLoading(){
@@ -260,7 +263,7 @@ export function createRelationshipStats(api){
   }
 
   function renderError(error){
-    host.querySelector('[data-stats-journey]').innerHTML='<div class="bond-empty bond-empty--large is-error"><strong>Relationship Journey belum tersambung</strong><span>Jalankan migration v4.9.0 di Supabase, lalu muat ulang aplikasi.</span></div>';
+    host.querySelector('[data-stats-journey]').innerHTML='<div class="bond-empty bond-empty--large is-error"><strong>Relationship Journey belum tersambung</strong><span>Jalankan SQL v4.9.3 ALL-IN-ONE di Supabase, lalu muat ulang aplikasi.</span></div>';
     host.querySelector('[data-stats-grid]').innerHTML='';
     host.querySelector('[data-stats-insights]').innerHTML='';
     console.warn('Relationship Journey:',error);
@@ -355,4 +358,5 @@ function toDateOnly(value){const date=new Date(value);if(!Number.isFinite(date.g
 function formatDate(value){return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(new Date(value));}
 function formatDateOnly(value){return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(parseDateOnly(value));}
 function formatNumber(value){return new Intl.NumberFormat('id-ID').format(value||0);}
-function friendlyError(error){const message=String(error?.message||error||'');if(/connected_on|first_chat_on|first_date_on|relationship_story|connection_title|couple_relationship_profiles|love_timeline|schema cache|relation|column/i.test(message))return'Relationship Journey membutuhkan migration v4.9.0 di Supabase.';return message||'Perjalanan belum dapat disimpan.';}
+function isSchemaSetupError(error){const message=String(error?.message||error?.details||error||'');return /couple_relationship_profiles|connected_on|first_chat_on|first_date_on|relationship_story|connection_title|schema cache|relation .* does not exist|column .* does not exist|PGRST20[45]|42P01|42703/i.test(message);}
+function friendlyError(error){const message=String(error?.message||error||'');if(isSchemaSetupError(error)||/love_timeline/i.test(message))return'Relationship Journey membutuhkan SQL v4.9.3 ALL-IN-ONE di Supabase.';return message||'Perjalanan belum dapat disimpan.';}

@@ -1,4 +1,4 @@
-# OUR UNIVERSE v4.9.2
+# OUR UNIVERSE v4.9.3
 
 OUR UNIVERSE adalah semesta digital privat untuk tepat dua orang. Versi 4 tidak memakai menu Gallery, Music, Notes, atau Files sebagai planet bawaan. Semesta dimulai kosong dan kedua pengguna menciptakan planet sendiri.
 
@@ -79,14 +79,14 @@ v4.8.1 memperbaiki beranda yang sebelumnya terlalu mirip dengan versi lama. Rili
 Tidak ada migration SQL baru. Panduan Android tersedia di `INSTALL-V4.8.1-ANDROID.md`. Setelah deployment, buka `refresh-481.html` sekali pada setiap HP.
 
 
-## Cosmic Identity dan Relationship Journey v4.9.2
+## Cosmic Identity, Relationship Journey, dan Our Bond Repair v4.9.3
 
-v4.9.2 membuat hubungan dan identitas kedua pengguna terasa lebih personal tanpa mengubah arsitektur utama. Beranda kini menampilkan jumlah hari kalian telah terhubung. Profil memuat tanggal lahir, hitung mundur ulang tahun, nama panggilan, kota, love language, hal favorit, dan kalimat pribadi. Tab Journey di Our Bond menyusun tanggal komunikasi pertama, pertemuan pertama, kencan pertama, mulai bersama, jejak aplikasi, hari jadi berikutnya, dan cerita hubungan.
+v4.9.3 memperbaiki Memory Replay dan Love Cinema yang dapat berhenti pada layar kosong ketika kenangan memakai timestamp lengkap. Versi ini juga menjaga portal beranda tetap 2 × 2 pada Android, menampilkan seluruh tab Our Bond tanpa tersembunyi, serta mempertahankan Cosmic Identity dan Relationship Journey. Beranda kini menampilkan jumlah hari kalian telah terhubung. Profil memuat tanggal lahir, hitung mundur ulang tahun, nama panggilan, kota, love language, hal favorit, dan kalimat pribadi. Tab Journey di Our Bond menyusun tanggal komunikasi pertama, pertemuan pertama, kencan pertama, mulai bersama, jejak aplikasi, hari jadi berikutnya, dan cerita hubungan.
 
 Rilis ini membutuhkan migration tambahan yang aman dan tidak menghapus data:
 
 ```text
-RUN-THIS-IN-SUPABASE-V4.9.0.sql
+RUN-THIS-IN-SUPABASE-V4.9.3-ALL-IN-ONE.sql
 ```
 
-Panduan Android dan Termux tersedia di `INSTALL-V4.9.0-ANDROID.md`. Setelah deployment, buka `refresh-490.html` sekali pada kedua HP.
+Panduan Android dan Termux tersedia di `INSTALL-V4.9.3-ANDROID.md`. Setelah deployment, buka `refresh-493.html` sekali pada kedua HP.

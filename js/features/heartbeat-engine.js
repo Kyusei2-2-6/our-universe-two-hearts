@@ -172,7 +172,7 @@ export function createHeartbeatEngine(api){
 
   function renderDatabaseError(error){
     const host=root.querySelector('[data-pulse-history]');
-    if(host)host.innerHTML='<div class="bond-empty is-error"><strong>Heartbeat belum tersambung</strong><span>Jalankan migrasi SQL v4.5.0 di Supabase, lalu muat ulang aplikasi.</span></div>';
+    if(host)host.innerHTML='<div class="bond-empty is-error"><strong>Heartbeat belum tersambung</strong><span>Jalankan SQL v4.9.3 ALL-IN-ONE di Supabase, lalu muat ulang aplikasi.</span></div>';
     console.warn('Heartbeat Presence:',error);
   }
 
@@ -203,6 +203,6 @@ function relativeTime(value){
 }
 function friendlyError(error){
   const message=String(error?.message||error||'');
-  if(message.includes('bond_')||message.includes('schema cache'))return'Our Bond belum aktif di database. Jalankan migrasi SQL v4.5.0.';
+  if(message.includes('bond_')||message.includes('schema cache'))return'Our Bond belum aktif di database. Jalankan SQL v4.9.3 ALL-IN-ONE.';
   return message||'Detak belum dapat disimpan.';
 }

@@ -3,7 +3,7 @@ import { events } from '../core/event-bus.js';
 import { supabase } from '../core/supabase.js';
 import { toast } from '../components/toast.js';
 
-const VERSION='4.9.2';
+const VERSION='4.9.3';
 let initialized=false;
 let lastSummary={planets:0,memories:0,stories:0};
 let relationshipProfile=null;
@@ -132,7 +132,7 @@ function renderConnectionClock(){
     setText('[data-home-connection-kicker]','RELATIONSHIP JOURNEY');
     setText('[data-home-connected-value]','Belum aktif');
     setText('[data-home-connected-label]','siapkan perjalanan kalian');
-    setText('[data-home-connected-date]','Jalankan satu SQL Rescue. Seluruh data dan fitur lama tetap aman.');
+    setText('[data-home-connected-date]','Jalankan SQL v4.9.3 ALL-IN-ONE. Seluruh data dan fitur lama tetap aman.');
     return;
   }
   if(profile.__unavailable){
@@ -211,8 +211,8 @@ function formatDuration(parts){
   if(parts.days||!values.length)values.push(`${parts.days} hari`);
   return values.join(' ');
 }
-function parseDateOnly(value){const date=new Date(`${value}T12:00:00`);return Number.isFinite(date.getTime())?date:null;}
-function formatDateOnly(value){return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(parseDateOnly(value));}
+function parseDateOnly(value){const raw=String(value||'').trim();if(!raw)return null;const day=raw.slice(0,10);const date=/^\d{4}-\d{2}-\d{2}$/.test(day)?new Date(`${day}T12:00:00`):new Date(raw);return Number.isFinite(date.getTime())?date:null;}
+function formatDateOnly(value){const date=parseDateOnly(value);return date?new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(date):'tanggal belum valid';}
 function initials(value){return String(value||'♡').trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'♡';}
 function formatNumber(value){return new Intl.NumberFormat('id-ID').format(Number(value)||0);}
 function setText(selector,value){const node=document.querySelector(selector);if(node)node.textContent=value;}

@@ -148,7 +148,7 @@ export function createLoveTimeline(api){
 
   function renderError(error){
     const stage=host.querySelector('[data-timeline-stage]');
-    stage.innerHTML='<div class="bond-empty bond-empty--large is-error"><strong>Love Timeline belum tersambung</strong><span>Jalankan migration v4.7.0 di Supabase, lalu muat ulang aplikasi.</span></div>';
+    stage.innerHTML='<div class="bond-empty bond-empty--large is-error"><strong>Love Timeline belum tersambung</strong><span>Jalankan SQL v4.9.3 ALL-IN-ONE di Supabase, lalu muat ulang aplikasi.</span></div>';
     console.warn('Love Timeline:',error);
   }
 
@@ -242,4 +242,4 @@ function formatDate(timestamp,allDay=false){
   return new Intl.DateTimeFormat('id-ID',options).format(new Date(timestamp));
 }
 function toLocalInput(date){const pad=value=>String(value).padStart(2,'0');return`${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;}
-function friendlyError(error){const message=String(error?.message||error||'');if(/love_timeline|timeline_enabled|schema cache|relation/i.test(message))return'Love Timeline membutuhkan migration v4.7.0 di Supabase.';return message||'Momen belum dapat disimpan.';}
+function friendlyError(error){const message=String(error?.message||error||'');if(/love_timeline|timeline_enabled|schema cache|relation/i.test(message))return'Love Timeline membutuhkan SQL v4.9.3 ALL-IN-ONE di Supabase.';return message||'Momen belum dapat disimpan.';}

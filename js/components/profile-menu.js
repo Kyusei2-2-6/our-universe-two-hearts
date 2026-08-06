@@ -346,6 +346,6 @@ function openProfileEditor({ onRefresh } = {}) {
 
 function friendlyProfileError(error){
   const message=String(error?.message||error||'');
-  if(/nickname|birth_date|hometown|love_language|favorite_things|personal_quote|schema cache|column/i.test(message))return'Cosmic Identity membutuhkan migration v4.9.0 di Supabase.';
+  if(/nickname|birth_date|hometown|love_language|favorite_things|personal_quote|schema cache|column/i.test(message))return'Cosmic Identity membutuhkan SQL v4.9.3 ALL-IN-ONE di Supabase.';
   return message||'Profil belum dapat disimpan.';
 }

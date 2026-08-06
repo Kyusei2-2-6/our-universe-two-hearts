@@ -228,7 +228,7 @@ async function refreshMonth(){
     eventsCache=[];
     renderCalendar();
     const host=sheet.querySelector('[data-list]');
-    host.innerHTML='<div class="couple-calendar-empty is-error"><strong>Kalender perlu diperbaiki</strong><span>Jalankan migration v4.7.0 di Supabase, lalu muat ulang aplikasi.</span></div>';
+    host.innerHTML='<div class="couple-calendar-empty is-error"><strong>Kalender perlu diperbaiki</strong><span>Jalankan SQL v4.9.3 ALL-IN-ONE di Supabase, lalu muat ulang aplikasi.</span></div>';
     console.warn('Couple Calendar:',error);
   }
 }
@@ -374,7 +374,7 @@ function renderMeetingCard(options={}){
   if(options.error){
     kicker.textContent='COUNTDOWN REPAIR';
     title.textContent='Countdown belum tersambung';
-    meta.textContent='Jalankan migration v4.7.0 di Supabase.';
+    meta.textContent='Jalankan SQL v4.9.3 ALL-IN-ONE di Supabase.';
     timer.hidden=true;
     action.textContent='Buka kalender';
     launcherCopy.textContent='Perlu repair SQL';
@@ -589,8 +589,8 @@ function isMissingCalendarRpc(error){const message=String(error?.message||error|
 function isMissingTimelineColumn(error){const message=String(error?.message||error||'');return /timeline_enabled/i.test(message);}
 function friendlyError(error){
   const message=String(error?.message||error||'');
-  if(message.includes('timeline_enabled')||message.includes('save_couple_calendar_event_v470'))return'Jalankan migration v4.7.0 agar kalender dan Love Timeline tersambung penuh.';
-  if(message.includes('event_type')||message.includes('countdown_enabled')||message.includes('start_at')||message.includes('couple_calendar_events')||message.includes('schema cache'))return'Kalender membutuhkan migration repair v4.5.2 atau migration v4.7.0 di Supabase.';
+  if(message.includes('timeline_enabled')||message.includes('save_couple_calendar_event_v470'))return'Jalankan SQL v4.9.3 ALL-IN-ONE agar kalender dan Love Timeline tersambung penuh.';
+  if(message.includes('event_type')||message.includes('countdown_enabled')||message.includes('start_at')||message.includes('couple_calendar_events')||message.includes('schema cache'))return'Kalender membutuhkan SQL v4.9.3 ALL-IN-ONE di Supabase.';
   return message||'Kegiatan belum dapat disimpan.';
 }
 

@@ -55,9 +55,9 @@ export function createLoveCinema(api){
       slides=nextSlides;index=0;
       const{error}=await supabase().from('bond_replays').insert({universe_id:universeId,entry_id:slides[0].entry.id,started_by:userId,mode:'cinema'});
       if(error)throw error;
-      root.querySelector('[data-cinema-controls]').hidden=false;
-      await show(0,1,true);play();
-    }catch(error){toast(friendlyError(error),{type:'error',duration:7000});}
+      await show(0,1,true);
+      root.querySelector('[data-cinema-controls]').hidden=false;play();
+    }catch(error){renderIdle();toast(friendlyError(error),{type:'error',duration:7000});}
     finally{loading=false;startButton.disabled=false;startButton.textContent='Mulai film kita';}
   }
 
@@ -128,6 +128,7 @@ function isCinemaEligible(entry){
   return hasVisual||String(entry.body||'').trim().length>20;
 }
 function captionText(entry){const body=String(entry.body||'').replace(/\s+/g,' ').trim();if(!body)return'Beberapa momen tidak membutuhkan penjelasan. Cukup diputar kembali dan dirasakan bersama.';return body.length>220?`${body.slice(0,220).trim()}…`:body;}
-function dateLabel(entry){if(entry.event_date)return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(new Date(`${entry.event_date}T12:00:00`));return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(new Date(entry.created_at));}
+function dateLabel(entry){const date=safeDate(entry.event_date||entry.created_at);return date?new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(date):'Tanggal tidak tersedia';}
 function shuffle(items){const copy=[...items];for(let index=copy.length-1;index>0;index-=1){const target=Math.floor(Math.random()*(index+1));[copy[index],copy[target]]=[copy[target],copy[index]];}return copy;}
-function friendlyError(error){const message=String(error?.message||error||'');if(message.includes('bond_replays')||message.includes('schema cache'))return'Love Cinema belum aktif di database. Jalankan migrasi SQL v4.5.0.';return message||'Film belum dapat diputar.';}
+function safeDate(value){const raw=String(value||'').trim();if(!raw)return null;const date=new Date(raw);return Number.isFinite(date.getTime())?date:null;}
+function friendlyError(error){const message=String(error?.message||error||'');if(message.includes('bond_replays')||message.includes('schema cache'))return'Love Cinema belum aktif di database. Jalankan SQL v4.9.3 ALL-IN-ONE.';return message||'Film belum dapat diputar.';}
