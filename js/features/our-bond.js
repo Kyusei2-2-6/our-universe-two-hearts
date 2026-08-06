@@ -2,11 +2,14 @@ import { supabase } from '../core/supabase.js';
 import { state } from '../core/state.js';
 import { events } from '../core/event-bus.js';
 import { createHeartbeatEngine } from './heartbeat-engine.js';
-import { createMemoryReplay } from './memory-replay.js';
-import { createLoveCinema } from './love-cinema.js';
+import { createMemoryReplay } from './memory-replay.js?v=4.9.5';
+import { createLoveCinema } from './love-cinema.js?v=4.9.5';
 import { createSecretRoom } from './secret-room.js';
 import { createLoveTimeline } from './love-timeline.js';
 import { createRelationshipStats } from './relationship-stats.js';
+
+const BOND_RUNTIME_VERSION='4.9.5';
+console.info(`[OUR UNIVERSE] Our Bond runtime ${BOND_RUNTIME_VERSION}`);
 
 const TAB_DEFINITIONS=[
   {id:'heartbeat',label:'Heartbeat',icon:'♡'},

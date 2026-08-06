@@ -1,8 +1,8 @@
-const CACHE='our-universe-v4-9-4-replay-cinema-runtime';
+const CACHE='our-universe-v4-9-5-replay-cinema-final';
 const STATIC_CACHE=`${CACHE}-static`;
 const PAGE_CACHE=`${CACHE}-pages`;
 const SHELL=[
-  './','./index.html','./404.html','./refresh-494.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png',
+  './','./index.html','./404.html','./refresh-495.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png',
   './css/tokens.css','./css/base.css','./css/layout.css','./css/components.css','./css/animations.css','./css/responsive.css','./css/readability.css','./css/memory-experience.css','./css/notifications.css','./css/v4-universe.css','./css/mobile-solid-ui.css','./css/database-music-player.css','./css/v4.3-lightspeed-connect.css','./css/v4.4-couple-map-calendar.css','./css/our-bond.css','./css/planet-profile.css','./css/love-timeline-stats.css','./css/v4.8-cinematic-polish.css','./css/v4.8.1-living-home.css','./css/v4.9-cosmic-identity-journey.css',
   './js/bootstrap-fallback.js','./js/app.js','./js/config.js','./js/core/pwa.js','./js/core/performance.js','./js/core/router.js','./js/core/repository.js','./js/core/storage.js','./js/core/screenshot.js','./js/core/notifications.js','./js/core/data-mode.js','./js/core/content-feed.js','./js/components/profile-menu.js','./js/components/planet-deck.js','./js/components/planet-composer.js','./js/components/story-composer.js','./js/components/rebuild-gate.js','./js/components/database-music-player.js','./js/components/entry-card.js','./js/components/planet-profile-tile.js','./js/components/memory-viewer.js','./js/features/pwa-install.js','./js/features/couple-connect.js','./js/features/couple-location-map.js','./js/features/couple-calendar.js','./js/features/our-bond.js','./js/features/heartbeat-engine.js','./js/features/memory-replay.js','./js/features/love-cinema.js','./js/features/secret-room.js','./js/features/love-timeline.js','./js/features/relationship-stats.js','./js/features/cinematic-polish.js','./js/features/living-home.js','./js/universe/galaxy-engine.js','./js/worlds/planet.js','./js/worlds/settings.js','./images/paper-texture.svg','./images/nebula-blue.svg','./images/nebula-rose.svg'
 ];
@@ -38,7 +38,11 @@ self.addEventListener('fetch',event=>{
     event.respondWith(networkFirstPage(request));
     return;
   }
-  if(['script','style','worker','font','image'].includes(request.destination)){
+  if(['script','style','worker'].includes(request.destination)){
+    event.respondWith(networkFirstAsset(request));
+    return;
+  }
+  if(['font','image'].includes(request.destination)){
     event.respondWith(staleWhileRevalidate(request));
   }
 });
@@ -54,9 +58,20 @@ async function networkFirstPage(request){
   }
 }
 
+async function networkFirstAsset(request){
+  const cache=await caches.open(STATIC_CACHE);
+  try{
+    const response=await fetch(request,{cache:'no-store'});
+    if(response.ok&&response.type==='basic')await cache.put(request,response.clone());
+    return response;
+  }catch{
+    return(await cache.match(request))||(await cache.match(request,{ignoreSearch:true}))||Response.error();
+  }
+}
+
 async function staleWhileRevalidate(request){
   const cache=await caches.open(STATIC_CACHE);
-  const cached=await cache.match(request,{ignoreSearch:true});
+  const cached=(await cache.match(request))||(await cache.match(request,{ignoreSearch:true}));
   const network=fetch(request,{cache:'no-cache'}).then(async response=>{
     if(response.ok&&response.type==='basic')await cache.put(request,response.clone());
     return response;

@@ -4,7 +4,7 @@ export async function registerPWA() {
   if (!('serviceWorker' in navigator)) return;
   try {
     const hadController=Boolean(navigator.serviceWorker.controller);
-    const registration = await navigator.serviceWorker.register('./sw.js', { scope:'./', updateViaCache:'none' });
+    const registration = await navigator.serviceWorker.register('./sw.js?v=4.9.5', { scope:'./', updateViaCache:'none' });
     registration.addEventListener('updatefound', () => events.emit('pwa:update', { registration }));
     if(hadController){
       navigator.serviceWorker.addEventListener('controllerchange',()=>{

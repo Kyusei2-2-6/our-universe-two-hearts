@@ -26,7 +26,7 @@
 @media(max-width:560px){body #couple-life-dock .couple-life-button--bond{display:inline-flex!important}}
 @media(prefers-reduced-motion:reduce){.our-bond-panel,.bond-heart-orbit>i,.bond-heart-orbit>b,.bond-replay-symbol i,.bond-cinema-visual img,.bond-cinema-visual video{animation:none!important}.bond-cinema-scene{transition:none}}
 
-/* v4.9.4 Replay + Cinema runtime guard */
+/* v4.9.5 Replay + Cinema final guard */
 .bond-replay-stage[data-state="ready"]{display:block;min-height:0}
 .bond-replay-card.is-runtime-ready{opacity:1!important;visibility:visible!important;transform:none!important;animation:bondReveal .32s ease}
 .bond-runtime-status{margin:12px 0 0;color:#b9bbcc;font-size:10px;line-height:1.5}
@@ -40,3 +40,12 @@
   .bond-replay-stage[data-state="ready"]{min-height:0!important}
   .bond-cinema-scene.is-runtime-ready{display:block!important}
 }
+
+/* v4.9.5 hard visibility and interaction guard */
+.bond-replay-stage[data-state="loading"],.bond-replay-stage[data-state="error"],.bond-replay-stage[data-state="ready"]{display:block!important;position:relative!important;height:auto!important;overflow:visible!important}
+.bond-replay-card[data-runtime-version="4.9.5"]{display:grid!important;position:relative!important;inset:auto!important;opacity:1!important;visibility:visible!important;transform:none!important;z-index:1!important}
+.bond-cinema-screen[data-state="loading"] .bond-cinema-idle,.bond-cinema-screen[data-state="error"] .bond-cinema-idle{display:grid!important}
+.bond-cinema-screen[data-state="playing"]>.bond-cinema-scene[data-runtime-version="4.9.5"]{display:block!important;position:absolute!important;inset:0!important;opacity:1!important;visibility:visible!important;transform:none!important;pointer-events:auto!important;z-index:4!important}
+.bond-cinema-screen[data-state="playing"]>.bond-cinema-scene .bond-cinema-visual{z-index:1!important}
+.bond-cinema-screen[data-state="playing"]>.bond-cinema-scene .bond-cinema-caption{z-index:5!important}
+.bond-cinema-error small{display:block;margin-top:12px;color:#8f92aa;font-size:9px}

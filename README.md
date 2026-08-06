@@ -1,3 +1,5 @@
+> Current stable runtime: **v4.9.5**, with final Replay and Love Cinema cache/runtime repair.
+
 # OUR UNIVERSE v4.9.4
 
 OUR UNIVERSE adalah semesta digital privat untuk tepat dua orang. Versi 4 tidak memakai menu Gallery, Music, Notes, atau Files sebagai planet bawaan. Semesta dimulai kosong dan kedua pengguna menciptakan planet sendiri.
