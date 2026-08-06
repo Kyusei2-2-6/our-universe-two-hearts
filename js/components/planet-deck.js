@@ -8,7 +8,7 @@ export function createPlanetDeck({planets,onOpen,onCreate,onEdit,onIndexChange}=
   const track=document.createElement('div');track.className='planet-deck__track';viewport.append(track);
   const footer=document.createElement('div');footer.className='planet-deck__footer';
   const dots=document.createElement('div');dots.className='planet-deck__dots';
-  const hint=document.createElement('p');hint.className='planet-deck__hint';hint.textContent='Geser untuk berpindah · ketuk Buka Planet untuk masuk';
+  const hint=document.createElement('p');hint.className='planet-deck__hint';hint.textContent='Geser perlahan untuk menjelajahi orbit planet kalian';
   footer.append(dots,hint);root.append(viewport,footer);
 
   if(!planets?.length){
@@ -24,7 +24,7 @@ export function createPlanetDeck({planets,onOpen,onCreate,onEdit,onIndexChange}=
 
   function createCard(planet,i){
     const article=document.createElement('article');article.className='planet-slide';article.tabIndex=0;article.dataset.index=String(i);article.dataset.style=planet.planet_style||'ocean';article.style.setProperty('--planet-accent',planet.accent_color||'#7C8CFF');
-    article.innerHTML=`<div class="planet-slide__halo"></div><button class="planet-slide__sphere" type="button" aria-label="Buka ${escapeHtml(planet.name)}"><span class="planet-slide__surface"></span><span class="planet-slide__clouds"></span><span class="planet-slide__ring" aria-hidden="true"></span></button><div class="planet-slide__copy"><p class="eyebrow"></p><h2></h2><p class="planet-slide__description"></p><div class="planet-slide__meta"><span data-count></span><span data-story hidden></span></div><div class="planet-slide__actions"><button class="button button--primary" data-open type="button">Buka Planet</button><button class="icon-button" data-edit type="button" aria-label="Atur planet">✎</button></div></div>`;
+    article.innerHTML=`<div class="planet-slide__visual"><div class="planet-slide__halo"></div><span class="planet-slide__sequence">${String(i+1).padStart(2,'0')}</span><span class="planet-slide__orbit planet-slide__orbit--outer" aria-hidden="true"></span><span class="planet-slide__orbit planet-slide__orbit--inner" aria-hidden="true"></span><button class="planet-slide__sphere" type="button" aria-label="Buka ${escapeHtml(planet.name)}"><span class="planet-slide__surface"></span><span class="planet-slide__clouds"></span><span class="planet-slide__ring" aria-hidden="true"></span></button><span class="planet-slide__signal"><i></i><b>PLANET AKTIF</b></span></div><div class="planet-slide__copy"><p class="eyebrow"></p><h2></h2><p class="planet-slide__description"></p><div class="planet-slide__meta"><span data-count></span><span data-story hidden></span></div><p class="planet-slide__invitation">Sebuah dunia privat yang hanya dapat dijelajahi oleh dua hati di semesta ini.</p><div class="planet-slide__actions"><button class="button button--primary" data-open type="button"><span>Masuki Planet</span><b aria-hidden="true">↗</b></button><button class="icon-button" data-edit type="button" aria-label="Atur planet">✎</button></div></div>`;
     article.querySelector('.eyebrow').textContent=`PLANET ${String(i+1).padStart(2,'0')} · ${STYLE_LABELS[planet.planet_style]||'Dunia'}`;
     article.querySelector('h2').textContent=planet.name;
     article.querySelector('.planet-slide__description').textContent=planet.description||'Sebuah dunia yang kalian ciptakan bersama.';

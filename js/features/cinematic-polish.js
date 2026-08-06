@@ -1,7 +1,7 @@
 import { state } from '../core/state.js';
 import { events } from '../core/event-bus.js';
 
-const VERSION='4.8.0';
+const VERSION='4.8.1';
 const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches??false;
 let initialized=false;
 let minuteTimer=0;

@@ -21,6 +21,7 @@ import { needsV4Rebuild,openRebuildGate } from './components/rebuild-gate.js';
 import { toast } from './components/toast.js';
 import { renderConfigurationGate, renderAuthGate, renderOnboarding } from './components/auth-gate.js';
 import { initCinematicPolish, syncCinematicPolish, setCinematicView } from './features/cinematic-polish.js';
+import { initLivingHome, updateLivingHome, setLivingPlanetFocus, syncLivingHomeIdentity } from './features/living-home.js';
 
 document.documentElement.dataset.ourUniverseBooted='true';window.dispatchEvent(new Event('our-universe:booted'));
 
@@ -85,6 +86,7 @@ async function init(){
   setupControls();
   setupEvents();
   initCinematicPolish();
+  initLivingHome();
   if(CONFIG.ENABLE_PWA)registerPWA();
   openingExperience();
 }
@@ -103,7 +105,7 @@ function setupEvents(){
   const refresh=debounce(async()=>{if(!accessReady)return;if(state.get('route')==='home')await renderHome();else await renderRoute(state.get('route'));},420);
   const refreshContextRealtime=debounce(()=>refreshContext(),650);
   events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail.table))refreshContextRealtime();else refresh();});
-  events.on('presence:sync',event=>{state.set('presence',event.detail.state||{});renderMembers();});
+  events.on('presence:sync',event=>{state.set('presence',event.detail.state||{});renderMembers();syncLivingHomeIdentity();});
   events.on('data:changed',event=>scheduleViewRefresh({source:'content',message:event.detail?.message||'Perubahan berhasil disimpan.'}));
   addEventListener('our-universe:refresh',event=>scheduleViewRefresh(event.detail||{}));
 }
@@ -201,9 +203,28 @@ function createPresenceDot(member,presence){const dot=document.createElement('sp
 async function renderHome(){
   setCinematicView('home');
   const hub=qs('#galaxy-hub'),stage=qs('#world-stage');stage.hidden=true;hub.hidden=false;qs('#dock-home').classList.add('is-active');
-  qs('#hub-title').textContent=state.get('universe')?.name||'OUR UNIVERSE';qs('#hub-subtitle').textContent='Kalian menciptakan planet, memberi nama, lalu mengisinya bersama.';
-  const host=qs('#planet-deck-host');host.innerHTML='<div class="planet-deck-loading"><span></span><p>Membaca tata surya kalian…</p></div>';
-  try{const planets=await repository.listPlanets();qs('#hub-empty').hidden=planets.length>0;document.querySelectorAll('[data-create-planet]').forEach((button,index)=>{button.hidden=index===0?planets.length>0:!planets.length;});deckController?.destroy?.();deckController=createPlanetDeck({planets,onOpen:planet=>router.navigate('planet',{id:planet.id}),onCreate:()=>openPlanetComposer({onSaved:renderHome}),onEdit:planet=>openPlanetComposer({planet,onSaved:renderHome,onDeleted:renderHome})});host.replaceChildren(deckController.element);await renderStoryRail();}catch(error){host.innerHTML=`<section class="world-panel glass-panel"><h2>Planet belum dapat dimuat.</h2><p class="muted"></p></section>`;host.querySelector('p').textContent=error.message;}
+  qs('#hub-title').textContent=state.get('universe')?.name||'OUR UNIVERSE';qs('#hub-subtitle').textContent='Satu semesta privat tempat dua hati menyimpan perjalanan mereka.';
+  const host=qs('#planet-deck-host');host.innerHTML='<div class="planet-deck-loading"><span></span><p>Membaca orbit kenangan kalian…</p></div>';
+  try{
+    const planets=await repository.listPlanets();
+    updateLivingHome(planets);
+    qs('#hub-empty').hidden=planets.length>0;
+    document.querySelectorAll('[data-create-planet]').forEach((button,index)=>{button.hidden=index===0?planets.length>0:!planets.length;});
+    deckController?.destroy?.();
+    deckController=createPlanetDeck({
+      planets,
+      onOpen:planet=>router.navigate('planet',{id:planet.id}),
+      onCreate:()=>openPlanetComposer({onSaved:renderHome}),
+      onEdit:planet=>openPlanetComposer({planet,onSaved:renderHome,onDeleted:renderHome}),
+      onIndexChange:(planet,index)=>setLivingPlanetFocus(planet,index,planets.length)
+    });
+    host.replaceChildren(deckController.element);
+    if(!planets.length)setLivingPlanetFocus(null,0,0);
+    await renderStoryRail();
+  }catch(error){
+    updateLivingHome([]);setLivingPlanetFocus(null,0,0);
+    host.innerHTML=`<section class="world-panel glass-panel"><h2>Planet belum dapat dimuat.</h2><p class="muted"></p></section>`;host.querySelector('p').textContent=error.message;
+  }
 }
 async function renderStoryRail(){const host=qs('#home-stories');try{const stories=await repository.listActiveStories();host.innerHTML='';host.hidden=!stories.length;if(!stories.length)return;const label=document.createElement('p');label.className='eyebrow';label.textContent='STORY YANG MASIH BERSINAR';host.append(label);const row=document.createElement('div');row.className='home-story-row';for(const story of stories){const button=document.createElement('button');button.type='button';button.className='home-story';button.style.setProperty('--planet-accent',story.planets?.accent_color||'#7C8CFF');button.innerHTML='<span>✦</span><strong></strong><small></small>';button.querySelector('strong').textContent=story.entries?.title||'Story';button.querySelector('small').textContent=story.planets?.name||'Planet';button.onclick=async()=>{const entry=await repository.getEntry(story.entry_id);const {openEntryDetail}=await import('./worlds/shared.js');await openEntryDetail(entry);};row.append(button);}host.append(row);}catch(error){host.hidden=true;}}
 

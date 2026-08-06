@@ -1,4 +1,4 @@
-# OUR UNIVERSE v4.8.0
+# OUR UNIVERSE v4.8.1
 
 OUR UNIVERSE adalah semesta digital privat untuk tepat dua orang. Versi 4 tidak memakai menu Gallery, Music, Notes, atau Files sebagai planet bawaan. Semesta dimulai kosong dan kedua pengguna menciptakan planet sendiri.
 
@@ -69,4 +69,11 @@ Peningkatan utama:
 
 Versi ini tidak memerlukan migration SQL baru. Data lama dan RLS Supabase tetap digunakan.
 
-Panduan pemasangan Android dan Termux tersedia di `INSTALL-V4.8.0-ANDROID.md`.
+Panduan pemasangan Android dan Termux tersedia di `INSTALL-V4.8.1-ANDROID.md`.
+
+
+## Living Home v4.8.1
+
+v4.8.1 memperbaiki beranda yang sebelumnya terlalu mirip dengan versi lama. Rilis ini menambahkan Living Observatory, statistik berbasis data nyata, empat portal fitur, header Living Galaxy, dan desain ulang planet focus. Seluruh fitur lama, database, RLS, dan data pengguna tetap dipertahankan.
+
+Tidak ada migration SQL baru. Panduan Android tersedia di `INSTALL-V4.8.1-ANDROID.md`. Setelah deployment, buka `refresh-481.html` sekali pada setiap HP.

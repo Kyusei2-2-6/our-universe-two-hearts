@@ -2,7 +2,7 @@
   "id": "./?app=our-universe",
   "name": "Our Universe · Two Hearts",
   "short_name": "Our Universe",
-  "description": "Semesta digital privat untuk dua hati dengan Living Galaxy, Love Timeline, Relationship Stats, Our Bond, dan kenangan sinematik.",
+  "description": "Semesta digital privat untuk dua hati dengan Living Home, Living Galaxy, Love Timeline, Relationship Stats, Our Bond, dan kenangan sinematik.",
   "start_url": "./?source=pwa#home",
   "scope": "./",
   "display": "standalone",
