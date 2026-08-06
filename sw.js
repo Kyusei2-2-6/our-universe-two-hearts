@@ -1,4 +1,4 @@
-const CACHE='our-universe-v4-7-0-love-timeline-stats';
+const CACHE='our-universe-v4-7-1-mobile-calendar';
 const STATIC_CACHE=`${CACHE}-static`;
 const PAGE_CACHE=`${CACHE}-pages`;
 const SHELL=[
