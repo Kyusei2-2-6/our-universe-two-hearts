@@ -30,6 +30,7 @@ let activeTab='heartbeat';
 let controllers=new Map();
 let contextSignature='';
 let starting=false;
+let startupTimer=0;
 
 function context(){
   const snapshot=state.snapshot;
@@ -42,6 +43,11 @@ function context(){
 function appReady(){
   const shell=document.querySelector('#app-shell');
   return Boolean(shell&&!shell.hidden);
+}
+
+function scheduleStart(delay=0){
+  clearTimeout(startupTimer);
+  startupTimer=window.setTimeout(()=>ensureStarted().catch(()=>{}),delay);
 }
 
 function ensureDock(){
@@ -221,8 +227,11 @@ async function setTab(tab){
 
 window.addEventListener('our-universe:calendar-updated',()=>{controllers.get('timeline')?.realtime?.('couple_calendar_events');controllers.get('stats')?.realtime?.('couple_calendar_events');});
 events.on('presence:sync',()=>controllers.get('heartbeat')?.presenceChanged?.());
-events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))setTimeout(()=>ensureStarted().catch(()=>{}),100);});
-events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))setTimeout(()=>ensureStarted().catch(()=>{}),350);});
-window.addEventListener('pagehide',()=>{disconnectChannel();for(const controller of controllers.values())controller.destroy?.();});
-setInterval(()=>ensureStarted().catch(()=>{}),1200);
-ensureStarted().catch(()=>{});
+events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))scheduleStart(80);});
+events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))scheduleStart(320);});
+window.addEventListener('our-universe:context-ready',()=>scheduleStart(0));
+window.addEventListener('our-universe:context-cleared',()=>{clearTimeout(startupTimer);closeBond();activeUniverseId='';activeUserId='';partner=null;contextSignature='';void disconnectChannel();if(launcher)launcher.hidden=true;});
+window.addEventListener('online',()=>scheduleStart(250));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleStart(180);});
+window.addEventListener('pagehide',()=>{clearTimeout(startupTimer);disconnectChannel();for(const controller of controllers.values())controller.destroy?.();});
+scheduleStart(0);

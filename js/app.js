@@ -20,6 +20,7 @@ import * as profileMenu from './components/profile-menu.js';
 import { needsV4Rebuild,openRebuildGate } from './components/rebuild-gate.js';
 import { toast } from './components/toast.js';
 import { renderConfigurationGate, renderAuthGate, renderOnboarding } from './components/auth-gate.js';
+import { initCinematicPolish, syncCinematicPolish, setCinematicView } from './features/cinematic-polish.js';
 
 document.documentElement.dataset.ourUniverseBooted='true';window.dispatchEvent(new Event('our-universe:booted'));
 
@@ -33,7 +34,7 @@ const worldLoaders={
 let galaxy=createLiteGalaxy(),galaxyLoadPromise=null,routeStarted=false,authUnsubscribe,accessReady=false,openedNotificationEntry='',deckController=null,rebuildModal=null;
 const performanceProfile=getPerformanceProfile();
 const REFRESH_FLASH_KEY='our-universe-refresh-flash';
-let hardRefreshScheduled=false;
+let viewRefreshScheduled=false;
 
 
 function createLiteGalaxy(){
@@ -83,6 +84,7 @@ async function init(){
   audioEngine.configure({ambientElement:qs('#ambient-audio'),volume:.18,enabled:soundEnabled});
   setupControls();
   setupEvents();
+  initCinematicPolish();
   if(CONFIG.ENABLE_PWA)registerPWA();
   openingExperience();
 }
@@ -102,13 +104,13 @@ function setupEvents(){
   const refreshContextRealtime=debounce(()=>refreshContext(),650);
   events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail.table))refreshContextRealtime();else refresh();});
   events.on('presence:sync',event=>{state.set('presence',event.detail.state||{});renderMembers();});
-  events.on('data:changed',event=>scheduleHardRefresh({source:'content',message:event.detail?.message||'Perubahan berhasil disimpan.'}));
-  addEventListener('our-universe:refresh',event=>scheduleHardRefresh(event.detail||{}));
+  events.on('data:changed',event=>scheduleViewRefresh({source:'content',message:event.detail?.message||'Perubahan berhasil disimpan.'}));
+  addEventListener('our-universe:refresh',event=>scheduleViewRefresh(event.detail||{}));
 }
 
-function scheduleHardRefresh(detail={}){
-  if(hardRefreshScheduled)return;
-  hardRefreshScheduled=true;
+function scheduleViewRefresh(detail={}){
+  if(viewRefreshScheduled)return;
+  viewRefreshScheduled=true;
   const message=detail.message||({
     entry:'Isi baru berhasil disimpan.',
     planet:'Planet berhasil disimpan.',
@@ -118,8 +120,25 @@ function scheduleHardRefresh(detail={}){
     'settings-partner':'Data pasangan berhasil diperbarui.',
     content:'Perubahan berhasil disimpan.'
   })[detail.source]||'Perubahan berhasil disimpan.';
-  try{sessionStorage.setItem(REFRESH_FLASH_KEY,message);}catch{}
-  setTimeout(()=>location.reload(),520);
+  window.setTimeout(async()=>{
+    try{
+      const requiresContext=['profile','settings-name','settings-partner'].includes(detail.source);
+      if(requiresContext)await refreshContext();
+      else if(accessReady){
+        const route=state.get('route')||'home';
+        if(route==='home')await renderHome();
+        else await renderRoute(route);
+      }
+      toast(message,{type:'success',duration:4200});
+      window.dispatchEvent(new CustomEvent('our-universe:view-refreshed',{detail}));
+    }catch(error){
+      console.warn('Refresh tampilan gagal, memuat ulang sebagai fallback aman:',error);
+      try{sessionStorage.setItem(REFRESH_FLASH_KEY,message);}catch{}
+      location.reload();
+    }finally{
+      viewRefreshScheduled=false;
+    }
+  },180);
 }
 
 function showRefreshFlash(){
@@ -141,15 +160,15 @@ function openingExperience(){
 function completeIntro(skipped){if(state.get('introComplete'))return;state.set('introComplete',true);galaxy.mode='hub';galaxy.camera?.position?.set?.(0,5,28);qs('#intro').classList.add('is-leaving');setTimeout(()=>{qs('#intro').hidden=true;showAccessGate();},260);}
 
 async function showAccessGate(){
-  accessReady=false;qs('#app-shell').hidden=true;const root=qs('#auth-root');root.hidden=false;
+  accessReady=false;qs('#app-shell').hidden=true;window.dispatchEvent(new Event('our-universe:context-cleared'));const root=qs('#auth-root');root.hidden=false;
   if(!isSupabaseConfigured()){renderConfigurationGate(root,showAccessGate);return;}
   if(!authUnsubscribe)authUnsubscribe=auth.onChange(event=>{if(['SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED'].includes(event))refreshContext();if(event==='SIGNED_OUT'){realtime.disconnect();showAccessGate();}});
   try{const context=await auth.context();if(!context.session){renderAuthGate(root,{onAuthenticated:refreshContext});return;}if(!context.membership){renderOnboarding(root,context,{onComplete:refreshContext,onSignOut:async()=>{await auth.signOut();showAccessGate();}});return;}await activateUniverse(context);}catch(error){renderAuthGate(root,{onAuthenticated:refreshContext});toast(error.message,{type:'error',duration:6500});}
 }
 async function refreshContext(){try{const context=await auth.context();if(!context.session||!context.membership){showAccessGate();return;}await activateUniverse(context);}catch(error){toast(error.message,{type:'error'});}}
 async function activateUniverse(context){
-  state.patch(context);repository.setContext({universeId:context.universe.id,userId:context.user.id});notificationService.configure({universeId:context.universe.id,userId:context.user.id,profile:context.profile});const settings=context.universe.settings||{};document.documentElement.dataset.theme=settings.theme||'violet';document.documentElement.dataset.spaceTheme=settings.space_theme||'solar-system';galaxy.setTheme(settings.space_theme||'solar-system');
-  qs('#auth-root').hidden=true;qs('#auth-root').innerHTML='';qs('#app-shell').hidden=false;accessReady=true;await realtime.connect({universeId:context.universe.id,user:context.user,profile:context.profile});renderMembers();showRefreshFlash();cleanupExpiredStories().catch(error=>console.warn('Pembersihan story tertunda:',error));
+  state.patch(context);syncCinematicPolish();repository.setContext({universeId:context.universe.id,userId:context.user.id});notificationService.configure({universeId:context.universe.id,userId:context.user.id,profile:context.profile});const settings=context.universe.settings||{};document.documentElement.dataset.theme=settings.theme||'violet';document.documentElement.dataset.spaceTheme=settings.space_theme||'solar-system';galaxy.setTheme(settings.space_theme||'solar-system');
+  qs('#auth-root').hidden=true;qs('#auth-root').innerHTML='';qs('#app-shell').hidden=false;accessReady=true;await realtime.connect({universeId:context.universe.id,user:context.user,profile:context.profile});renderMembers();window.dispatchEvent(new CustomEvent('our-universe:context-ready',{detail:{universeId:context.universe.id,userId:context.user.id}}));showRefreshFlash();cleanupExpiredStories().catch(error=>console.warn('Pembersihan story tertunda:',error));
   if(needsV4Rebuild()&&!rebuildModal){rebuildModal=openRebuildGate({onComplete:async()=>{rebuildModal=null;await refreshContext();}});}
   if(!routeStarted){router.start();routeStarted=true;}else await renderRoute(state.get('route')||'home');
   if(document.documentElement.dataset.dataMode!=='economy')window.setTimeout(()=>void ensureGalaxy(settings.space_theme||'solar-system'),1200);
@@ -180,6 +199,7 @@ async function renderMembers(){
 function createPresenceDot(member,presence){const dot=document.createElement('span');dot.className=`status-dot${presence[member.user_id]?.length?' is-online':''}`;return dot;}
 
 async function renderHome(){
+  setCinematicView('home');
   const hub=qs('#galaxy-hub'),stage=qs('#world-stage');stage.hidden=true;hub.hidden=false;qs('#dock-home').classList.add('is-active');
   qs('#hub-title').textContent=state.get('universe')?.name||'OUR UNIVERSE';qs('#hub-subtitle').textContent='Kalian menciptakan planet, memberi nama, lalu mengisinya bersama.';
   const host=qs('#planet-deck-host');host.innerHTML='<div class="planet-deck-loading"><span></span><p>Membaca tata surya kalian…</p></div>';
@@ -188,6 +208,7 @@ async function renderHome(){
 async function renderStoryRail(){const host=qs('#home-stories');try{const stories=await repository.listActiveStories();host.innerHTML='';host.hidden=!stories.length;if(!stories.length)return;const label=document.createElement('p');label.className='eyebrow';label.textContent='STORY YANG MASIH BERSINAR';host.append(label);const row=document.createElement('div');row.className='home-story-row';for(const story of stories){const button=document.createElement('button');button.type='button';button.className='home-story';button.style.setProperty('--planet-accent',story.planets?.accent_color||'#7C8CFF');button.innerHTML='<span>✦</span><strong></strong><small></small>';button.querySelector('strong').textContent=story.entries?.title||'Story';button.querySelector('small').textContent=story.planets?.name||'Planet';button.onclick=async()=>{const entry=await repository.getEntry(story.entry_id);const {openEntryDetail}=await import('./worlds/shared.js');await openEntryDetail(entry);};row.append(button);}host.append(row);}catch(error){host.hidden=true;}}
 
 async function renderRoute(route){
+  setCinematicView(route);
   document.querySelectorAll('.app-dock button').forEach(button=>button.classList.remove('is-active'));
   if(route==='home'){await renderHome();return;}
   if(route==='search')qs('#dock-search').classList.add('is-active');

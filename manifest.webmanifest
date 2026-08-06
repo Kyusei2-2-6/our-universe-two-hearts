@@ -2,7 +2,7 @@
   "id": "./?app=our-universe",
   "name": "Our Universe · Two Hearts",
   "short_name": "Our Universe",
-  "description": "Semesta digital privat untuk dua hati, lengkap dengan Love Timeline, Relationship Stats, Our Bond, dan countdown ketemuan.",
+  "description": "Semesta digital privat untuk dua hati dengan Living Galaxy, Love Timeline, Relationship Stats, Our Bond, dan kenangan sinematik.",
   "start_url": "./?source=pwa#home",
   "scope": "./",
   "display": "standalone",
@@ -13,7 +13,7 @@
   ],
   "orientation": "any",
   "background_color": "#02030a",
-  "theme_color": "#050713",
+  "theme_color": "#07091b",
   "categories": [
     "lifestyle",
     "photo",

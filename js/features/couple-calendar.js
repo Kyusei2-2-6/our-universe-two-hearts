@@ -37,6 +37,11 @@ function appReady(){
   return Boolean(shell&&!shell.hidden);
 }
 
+function scheduleStart(delay=0){
+  clearTimeout(startupTimer);
+  startupTimer=window.setTimeout(()=>ensureStarted().catch(()=>{}),delay);
+}
+
 function ensureDock(){
   let dock=document.querySelector('#couple-life-dock');
   if(!dock){
@@ -589,9 +594,12 @@ function friendlyError(error){
   return message||'Kegiatan belum dapat disimpan.';
 }
 
-events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))setTimeout(()=>ensureStarted().catch(()=>{}),350);});
-events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))setTimeout(()=>ensureStarted().catch(()=>{}),120);});
+events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))scheduleStart(320);});
+events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))scheduleStart(90);});
+window.addEventListener('our-universe:context-ready',()=>scheduleStart(0));
+window.addEventListener('our-universe:context-cleared',()=>{clearTimeout(startupTimer);closeCalendar();activeUniverseId='';activeUserId='';partner=null;eventsCache=[];nextMeeting=null;stopCountdown();void disconnectChannel();if(launcher)launcher.hidden=true;});
 window.addEventListener('our-universe:open-calendar',event=>openCalendar(event.detail||{}));
-window.addEventListener('pagehide',()=>{disconnectChannel();stopCountdown();clearInterval(startupTimer);});
-startupTimer=setInterval(()=>ensureStarted().catch(()=>{}),1600);
-ensureStarted().catch(()=>{});
+window.addEventListener('online',()=>scheduleStart(250));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleStart(180);});
+window.addEventListener('pagehide',()=>{disconnectChannel();stopCountdown();clearTimeout(startupTimer);});
+scheduleStart(0);

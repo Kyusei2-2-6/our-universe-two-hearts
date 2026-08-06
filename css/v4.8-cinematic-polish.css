@@ -1,0 +1,817 @@
+/*
+ * OUR UNIVERSE v4.8.0 · Cinematic Polish
+ * A final, isolated visual layer. It intentionally loads after legacy styles so
+ * existing features, markup, and database behavior remain untouched.
+ */
+
+:root{
+  --ou-v48-ink:#f8f7ff;
+  --ou-v48-muted:rgba(225,229,248,.7);
+  --ou-v48-deep:#02030b;
+  --ou-v48-panel:rgba(8,11,28,.78);
+  --ou-v48-panel-solid:#090d22;
+  --ou-v48-line:rgba(216,224,255,.14);
+  --ou-v48-violet:#ad91ff;
+  --ou-v48-blue:#75d8ff;
+  --ou-v48-rose:#ff8abd;
+  --ou-v48-mint:#7ce8c1;
+  --ou-v48-shadow:0 28px 90px rgba(0,0,0,.46);
+  --ou-v48-soft-shadow:0 16px 48px rgba(0,0,0,.28);
+  --ou-v48-radius:28px;
+  --ou-v48-dock-height:72px;
+  --ou-v48-dock-bottom:max(10px,env(safe-area-inset-bottom));
+  --ou-v48-dock-top:calc(var(--ou-v48-dock-height) + var(--ou-v48-dock-bottom) + 12px);
+  --ou-v48-player-height:72px;
+  --ou-v48-utility-floor:var(--ou-v48-dock-top);
+  --ou-v48-ease:cubic-bezier(.16,1,.3,1);
+}
+
+html[data-ui-polish="4.8.0"]{
+  color-scheme:dark;
+  background:#010208;
+  scroll-padding-top:96px;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html[data-ui-polish="4.8.0"] body{
+  min-height:100dvh;
+  background:
+    radial-gradient(circle at 15% -8%,rgba(99,78,195,.2),transparent 34%),
+    radial-gradient(circle at 88% 8%,rgba(255,93,158,.12),transparent 28%),
+    radial-gradient(circle at 50% 110%,rgba(49,111,191,.14),transparent 38%),
+    linear-gradient(180deg,#02030a 0%,#030510 46%,#010208 100%);
+  color:var(--ou-v48-ink);
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+}
+
+html[data-ui-polish="4.8.0"] body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.03),rgba(0,0,0,.24));
+}
+
+html[data-ui-polish="4.8.0"] ::selection{
+  color:#fff;
+  background:rgba(163,126,255,.48);
+}
+
+html[data-ui-polish="4.8.0"] *{
+  scrollbar-width:thin;
+  scrollbar-color:rgba(167,149,239,.4) rgba(255,255,255,.035);
+}
+
+html[data-ui-polish="4.8.0"] *::-webkit-scrollbar{width:7px;height:7px}
+html[data-ui-polish="4.8.0"] *::-webkit-scrollbar-track{background:rgba(255,255,255,.025)}
+html[data-ui-polish="4.8.0"] *::-webkit-scrollbar-thumb{border-radius:999px;background:rgba(174,154,243,.36)}
+
+/* Lightweight living atmosphere */
+.cosmic-atmosphere{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+  contain:strict;
+}
+
+.cosmic-atmosphere>*{position:absolute;display:block;will-change:transform,opacity}
+
+.cosmic-atmosphere__moon{
+  top:clamp(74px,10vh,128px);
+  right:clamp(-74px,4vw,54px);
+  width:clamp(170px,25vw,360px);
+  aspect-ratio:1;
+  border-radius:50%;
+  opacity:.16;
+  background:
+    radial-gradient(circle at 34% 30%,rgba(255,255,255,.96) 0 2%,rgba(216,225,255,.82) 4%,rgba(132,142,190,.5) 31%,rgba(37,44,79,.72) 65%,rgba(3,5,14,.95) 72%);
+  box-shadow:0 0 100px rgba(153,177,255,.23),0 0 220px rgba(107,87,215,.12);
+  filter:blur(.1px);
+  animation:v48-moon-breathe 12s ease-in-out infinite;
+}
+
+.cosmic-atmosphere__moon::after{
+  content:"";
+  position:absolute;
+  inset:-14%;
+  border:1px solid rgba(190,204,255,.08);
+  border-radius:50%;
+  box-shadow:0 0 0 24px rgba(150,142,255,.018),0 0 0 62px rgba(150,142,255,.012);
+}
+
+.cosmic-atmosphere__aurora{
+  width:55vw;
+  height:34vh;
+  border-radius:50%;
+  filter:blur(78px);
+  opacity:.13;
+}
+
+.cosmic-atmosphere__aurora--violet{
+  left:-16vw;
+  top:24vh;
+  background:rgba(125,89,255,.56);
+  animation:v48-aurora-a 18s ease-in-out infinite alternate;
+}
+
+.cosmic-atmosphere__aurora--rose{
+  right:-20vw;
+  bottom:12vh;
+  background:rgba(255,83,151,.38);
+  animation:v48-aurora-b 22s ease-in-out infinite alternate;
+}
+
+.cosmic-atmosphere__dust{
+  inset:0;
+  opacity:.22;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.92) 0 1px,transparent 1.3px),
+    radial-gradient(circle,rgba(175,197,255,.72) 0 1px,transparent 1.2px);
+  background-position:0 0,22px 34px;
+  background-size:73px 89px,113px 127px;
+  mask-image:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.2) 65%,transparent);
+  animation:v48-star-drift 44s linear infinite;
+}
+
+.cosmic-atmosphere__shooting-star{
+  top:18%;
+  left:-18%;
+  width:160px;
+  height:1px;
+  opacity:0;
+  transform:rotate(-22deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);
+  box-shadow:0 0 9px rgba(173,201,255,.72);
+  animation:v48-shooting-star 17s 5s ease-in-out infinite;
+}
+
+html[data-daypart="morning"] .cosmic-atmosphere__moon,
+html[data-daypart="afternoon"] .cosmic-atmosphere__moon{opacity:.08}
+html[data-daypart="dawn"] .cosmic-atmosphere__aurora--rose,
+html[data-daypart="evening"] .cosmic-atmosphere__aurora--rose{opacity:.19}
+html[data-couple-presence="together"] .cosmic-atmosphere__moon{opacity:.23;box-shadow:0 0 125px rgba(176,195,255,.32),0 0 260px rgba(160,97,238,.18)}
+html[data-couple-presence="together"] .cosmic-atmosphere__aurora{opacity:.2}
+
+/* App layers remain above atmosphere */
+#universe-canvas{z-index:0!important;opacity:.92;transition:filter .8s ease,opacity .8s ease}
+.intro,.app-shell,.auth-root,#modal-root,.toast-root{position:relative;z-index:2}
+.app-shell{isolation:isolate}
+
+/* Intro */
+html[data-ui-polish="4.8.0"] .intro{
+  position:fixed;
+  z-index:1000;
+  background:
+    radial-gradient(circle at 50% 34%,rgba(75,77,164,.24),transparent 24%),
+    radial-gradient(circle at 50% 52%,rgba(158,92,216,.12),transparent 38%),
+    linear-gradient(180deg,rgba(1,2,8,.9),rgba(0,0,4,.98));
+}
+
+html[data-ui-polish="4.8.0"] .intro::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:45%;
+  width:min(54vw,530px);
+  aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(203,216,255,.08);
+  border-radius:50%;
+  box-shadow:0 0 0 42px rgba(151,130,255,.018),0 0 0 98px rgba(151,130,255,.012),0 0 120px rgba(134,114,255,.12);
+  animation:v48-intro-orbit 16s linear infinite;
+}
+
+html[data-ui-polish="4.8.0"] .intro__content{gap:clamp(1.25rem,4vh,2.3rem)}
+html[data-ui-polish="4.8.0"] .intro__kicker{color:rgba(223,230,255,.78);letter-spacing:.58em}
+html[data-ui-polish="4.8.0"] .intro__quote{
+  max-width:900px;
+  background:linear-gradient(130deg,#fff 5%,#d9dcff 46%,#ffcee5 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:none;
+  filter:drop-shadow(0 8px 34px rgba(0,0,0,.66));
+}
+html[data-ui-polish="4.8.0"] .intro__skip{border-radius:999px;background:rgba(255,255,255,.035)}
+
+/* Shared glass and controls */
+html[data-ui-polish="4.8.0"] .glass-panel{
+  border-color:var(--ou-v48-line);
+  background:linear-gradient(145deg,rgba(18,22,47,.7),rgba(5,8,21,.72));
+  box-shadow:var(--ou-v48-soft-shadow),inset 0 1px 0 rgba(255,255,255,.055);
+  backdrop-filter:blur(22px) saturate(120%);
+  -webkit-backdrop-filter:blur(22px) saturate(120%);
+}
+
+html[data-ui-polish="4.8.0"] button,
+html[data-ui-polish="4.8.0"] .button,
+html[data-ui-polish="4.8.0"] [role="button"]{
+  position:relative;
+  touch-action:manipulation;
+}
+
+.cosmic-touch-light{
+  position:absolute;
+  z-index:0;
+  width:10px;
+  aspect-ratio:1;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(0);
+  background:rgba(255,255,255,.22);
+  animation:v48-touch-light .52s ease-out;
+}
+
+html[data-ui-polish="4.8.0"] .button{
+  min-height:48px;
+  font-weight:760;
+  letter-spacing:.01em;
+  transition:transform .24s var(--ou-v48-ease),box-shadow .24s ease,border-color .24s ease,background .24s ease;
+}
+html[data-ui-polish="4.8.0"] .button--primary{
+  color:#080a18;
+  background:linear-gradient(120deg,#d8c5ff 0%,#a99bff 42%,#79ddff 100%);
+  box-shadow:0 14px 38px rgba(111,119,255,.28),inset 0 1px rgba(255,255,255,.9);
+}
+html[data-ui-polish="4.8.0"] .button--primary:hover{box-shadow:0 18px 50px rgba(111,119,255,.38),inset 0 1px rgba(255,255,255,.92)}
+html[data-ui-polish="4.8.0"] .button--ghost{border-color:rgba(215,222,255,.15);background:rgba(255,255,255,.052)}
+html[data-ui-polish="4.8.0"] .button:focus-visible,
+html[data-ui-polish="4.8.0"] .icon-button:focus-visible,
+html[data-ui-polish="4.8.0"] input:focus-visible,
+html[data-ui-polish="4.8.0"] textarea:focus-visible,
+html[data-ui-polish="4.8.0"] select:focus-visible{outline:2px solid rgba(136,213,255,.82);outline-offset:3px}
+
+html[data-ui-polish="4.8.0"] .icon-button,
+html[data-ui-polish="4.8.0"] .avatar-button{
+  border-color:rgba(215,224,255,.1);
+  background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.025));
+  box-shadow:inset 0 1px rgba(255,255,255,.06);
+}
+html[data-ui-polish="4.8.0"] .icon-button:hover{transform:translateY(-1px);border-color:rgba(215,224,255,.24);background:rgba(255,255,255,.1)}
+
+/* Header */
+html[data-ui-polish="4.8.0"] .topbar--v4{
+  top:calc(10px + var(--safe-top));
+  width:min(1160px,calc(100% - 4px));
+  min-height:66px;
+  padding:9px 11px;
+  border-radius:26px;
+  background:linear-gradient(145deg,rgba(9,13,32,.8),rgba(3,6,18,.74))!important;
+  border-color:rgba(214,224,255,.13)!important;
+  box-shadow:0 20px 70px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.055)!important;
+  transition:min-height .3s var(--ou-v48-ease),background .3s ease,transform .3s ease,border-radius .3s ease;
+}
+html.is-page-scrolled[data-ui-polish="4.8.0"] .topbar--v4{
+  min-height:58px;
+  border-radius:22px;
+  background:rgba(5,8,22,.9)!important;
+  box-shadow:0 16px 46px rgba(0,0,0,.38)!important;
+}
+html[data-ui-polish="4.8.0"] .brand{line-height:.9}
+html[data-ui-polish="4.8.0"] .brand__eyebrow{color:rgba(221,229,255,.54);letter-spacing:.26em}
+html[data-ui-polish="4.8.0"] .brand__title{
+  background:linear-gradient(100deg,#fff,#ddd6ff 52%,#a8e8ff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  letter-spacing:.04em;
+}
+html[data-ui-polish="4.8.0"] .presence-avatar{box-shadow:0 0 0 1px rgba(255,255,255,.06),0 8px 20px rgba(0,0,0,.3)}
+html[data-couple-presence="together"] .presence-avatar{box-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 22px rgba(130,214,255,.2)}
+
+/* Home hero */
+html[data-ui-polish="4.8.0"] .galaxy-hub--v4{
+  min-height:calc(100dvh - 84px);
+  padding:clamp(34px,6vh,68px) 0 calc(var(--ou-v48-dock-top) + 34px);
+  gap:4px;
+  overflow:visible;
+}
+
+html[data-ui-polish="4.8.0"] .hub-copy--v4{
+  width:min(860px,94%);
+  padding-top:clamp(12px,3vh,30px);
+  z-index:12;
+}
+
+html[data-ui-polish="4.8.0"] .hub-copy--v4::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:50%;
+  top:52%;
+  width:min(82vw,760px);
+  height:210px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse,rgba(113,97,224,.16),transparent 66%);
+  filter:blur(30px);
+}
+
+html[data-ui-polish="4.8.0"] .hub-copy--v4>.eyebrow{
+  margin-bottom:.55rem;
+  color:rgba(216,224,255,.62);
+  font-size:.68rem;
+  letter-spacing:.26em;
+}
+
+html[data-ui-polish="4.8.0"] .hub-copy--v4 h1{
+  margin:.2rem 0 .65rem;
+  font-size:clamp(3rem,8vw,6.9rem);
+  line-height:.88;
+  letter-spacing:-.058em;
+  text-wrap:balance;
+  background:linear-gradient(115deg,#fff 0%,#e7e2ff 45%,#c4ecff 74%,#ffd1e5 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  filter:drop-shadow(0 12px 34px rgba(0,0,0,.46));
+}
+
+html[data-ui-polish="4.8.0"] .hub-copy--v4>p:last-of-type{
+  max-width:650px;
+  margin-inline:auto;
+  color:rgba(226,231,250,.7);
+  line-height:1.7;
+  text-wrap:balance;
+}
+
+.galaxy-signal{
+  width:max-content;
+  max-width:min(520px,94vw);
+  margin:17px auto 0;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:9px 14px 9px 10px;
+  border:1px solid rgba(206,216,255,.12);
+  border-radius:999px;
+  color:#f5f4ff;
+  background:linear-gradient(135deg,rgba(17,22,48,.65),rgba(7,10,26,.55));
+  box-shadow:0 14px 34px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.045);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.galaxy-signal__pulse{
+  position:relative;
+  flex:0 0 30px;
+  width:30px;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 28%,#fff 0 3%,#bfaaff 12%,#6d67cf 48%,#171b45 75%);
+  box-shadow:0 0 18px rgba(163,138,255,.38);
+}
+.galaxy-signal__pulse::before,
+.galaxy-signal__pulse::after{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border:1px solid rgba(186,174,255,.24);
+  border-radius:50%;
+  animation:v48-signal-ring 3.2s ease-out infinite;
+}
+.galaxy-signal__pulse::after{animation-delay:1.6s}
+.galaxy-signal__copy{min-width:0;display:grid;gap:2px;text-align:left;line-height:1.2}
+.galaxy-signal__copy strong{font-size:.72rem}
+.galaxy-signal__copy small{overflow:hidden;color:rgba(225,227,246,.59);font-size:.61rem;text-overflow:ellipsis;white-space:nowrap}
+html[data-couple-presence="together"] .galaxy-signal{border-color:rgba(127,231,194,.25);box-shadow:0 14px 34px rgba(0,0,0,.2),0 0 34px rgba(104,222,187,.09)}
+html[data-couple-presence="together"] .galaxy-signal__pulse{background:radial-gradient(circle at 35% 28%,#fff 0 3%,#a7f5d7 13%,#49c99f 48%,#153b3e 76%);box-shadow:0 0 24px rgba(99,231,188,.46)}
+
+/* Story rail */
+html[data-ui-polish="4.8.0"] .home-stories{margin-top:18px}
+html[data-ui-polish="4.8.0"] .home-stories>.eyebrow{color:rgba(221,226,248,.58);font-size:.64rem}
+html[data-ui-polish="4.8.0"] .home-story-row{
+  gap:10px;
+  padding:7px 5px 14px;
+  scroll-snap-type:x proximity;
+  overscroll-behavior-inline:contain;
+}
+html[data-ui-polish="4.8.0"] .home-story{min-width:112px;padding:8px;border-radius:20px;scroll-snap-align:start;transition:background .2s ease,transform .25s var(--ou-v48-ease)}
+html[data-ui-polish="4.8.0"] .home-story:hover{background:rgba(255,255,255,.035);transform:translateY(-2px)}
+html[data-ui-polish="4.8.0"] .home-story>span{width:64px;box-shadow:0 0 0 7px rgba(255,255,255,.018),0 0 28px color-mix(in srgb,var(--planet-accent) 30%,transparent)}
+
+/* Planet deck */
+html[data-ui-polish="4.8.0"] .planet-deck-host{min-height:clamp(520px,66dvh,760px)}
+html[data-ui-polish="4.8.0"] .planet-deck{min-height:560px}
+html[data-ui-polish="4.8.0"] .planet-deck::before,
+html[data-ui-polish="4.8.0"] .planet-deck::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:48%;
+  width:min(72vw,820px);
+  height:min(24vw,240px);
+  transform:translate(-50%,-50%) rotate(-7deg);
+  border:1px solid rgba(184,199,255,.07);
+  border-radius:50%;
+  pointer-events:none;
+}
+html[data-ui-polish="4.8.0"] .planet-deck::after{width:min(88vw,1020px);height:min(34vw,330px);transform:translate(-50%,-50%) rotate(8deg);opacity:.6}
+
+html[data-ui-polish="4.8.0"] .planet-slide{
+  top:49%;
+  width:min(640px,80vw);
+  min-height:480px;
+  gap:36px;
+  padding:32px;
+  border-radius:40px;
+  border-color:rgba(205,216,255,.13);
+  background:
+    radial-gradient(circle at 12% 4%,color-mix(in srgb,var(--planet-accent) 12%,transparent),transparent 32%),
+    linear-gradient(145deg,rgba(15,20,44,.84),rgba(4,7,19,.9));
+  box-shadow:0 42px 110px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.055);
+}
+html[data-ui-polish="4.8.0"] .planet-slide.is-active{
+  border-color:color-mix(in srgb,var(--planet-accent) 24%,rgba(255,255,255,.12));
+  box-shadow:0 48px 120px rgba(0,0,0,.5),0 0 74px color-mix(in srgb,var(--planet-accent) 14%,transparent),inset 0 1px rgba(255,255,255,.07);
+}
+html[data-ui-polish="4.8.0"] .planet-slide::before{opacity:.38;animation-duration:14s}
+html[data-ui-polish="4.8.0"] .planet-slide__halo{width:330px;height:330px;opacity:.68;filter:blur(28px)}
+html[data-ui-polish="4.8.0"] .planet-slide__sphere{
+  width:min(292px,32vw);
+  filter:drop-shadow(0 34px 48px rgba(0,0,0,.46));
+}
+html[data-ui-polish="4.8.0"] .planet-slide__surface{box-shadow:inset -42px -32px 66px rgba(0,0,0,.58),inset 22px 18px 38px rgba(255,255,255,.12),0 0 62px color-mix(in srgb,var(--planet-accent) 22%,transparent)}
+html[data-ui-polish="4.8.0"] .planet-slide.has-story .planet-slide__surface{animation:v48-story-glow 3.4s ease-in-out infinite}
+html[data-ui-polish="4.8.0"] .planet-slide__copy h2{font-size:clamp(2.25rem,4.5vw,4.35rem);letter-spacing:-.05em}
+html[data-ui-polish="4.8.0"] .planet-slide__description{color:rgba(218,225,244,.76)!important}
+html[data-ui-polish="4.8.0"] .planet-slide__meta span{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.08)}
+html[data-ui-polish="4.8.0"] .planet-deck__footer{bottom:3px}
+html[data-ui-polish="4.8.0"] .planet-deck__dots button{height:6px;background:rgba(255,255,255,.17)}
+html[data-ui-polish="4.8.0"] .planet-deck__dots button.is-active{width:34px;background:linear-gradient(90deg,var(--ou-v48-violet),var(--ou-v48-blue));box-shadow:0 0 16px rgba(118,208,255,.23)}
+html[data-ui-polish="4.8.0"] .planet-deck__hint{color:rgba(217,224,244,.48)}
+html[data-ui-polish="4.8.0"] .planet-deck__empty{border-color:rgba(205,216,255,.14);background:linear-gradient(145deg,rgba(14,19,43,.78),rgba(4,7,19,.9));box-shadow:var(--ou-v48-shadow)}
+html[data-ui-polish="4.8.0"] .create-planet-float{border-color:rgba(211,220,255,.14);background:rgba(7,10,25,.7)}
+
+/* Route and content transitions */
+html[data-ui-polish="4.8.0"] .world-stage--v4{margin-top:22px;padding-bottom:calc(var(--ou-v48-dock-top) + 34px)}
+html[data-ui-polish="4.8.0"] .world-stage.is-view-ready>*{animation:v48-view-enter .5s var(--ou-v48-ease) both}
+html[data-ui-polish="4.8.0"] .world-stage.is-loading::after{
+  min-height:42vh;
+  display:grid;
+  place-items:center;
+  padding:80px 20px;
+  color:rgba(224,231,250,.6);
+  letter-spacing:.04em;
+}
+html[data-ui-polish="4.8.0"] .world-panel{
+  border-color:rgba(207,219,255,.12);
+  background:linear-gradient(145deg,rgba(14,18,39,.72),rgba(5,8,20,.78));
+  box-shadow:var(--ou-v48-soft-shadow),inset 0 1px rgba(255,255,255,.045);
+}
+
+/* Saved memory cards: premium but still stable on touch */
+html[data-ui-polish="4.8.0"] .app-shell--v4 .memory-card,
+html[data-ui-polish="4.8.0"] .app-shell--v4 .planet-memory-card,
+html[data-ui-polish="4.8.0"] .entry-card,
+html[data-ui-polish="4.8.0"] .attachment-card{
+  border-color:rgba(202,213,249,.13)!important;
+  background:linear-gradient(145deg,rgba(15,19,41,.76),rgba(6,9,22,.84))!important;
+  box-shadow:0 20px 56px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.04)!important;
+}
+@media(hover:hover) and (pointer:fine){
+  html[data-ui-polish="4.8.0"] .app-shell--v4 .memory-card:hover,
+  html[data-ui-polish="4.8.0"] .app-shell--v4 .planet-memory-card:hover,
+  html[data-ui-polish="4.8.0"] .entry-card:hover{
+    border-color:rgba(171,184,245,.27)!important;
+    box-shadow:0 24px 68px rgba(0,0,0,.34),0 0 34px rgba(126,110,230,.07)!important;
+  }
+}
+
+/* Modal and sheets */
+html[data-ui-polish="4.8.0"] .modal-backdrop{
+  background:rgba(1,2,8,.72);
+  backdrop-filter:blur(18px) saturate(110%);
+  -webkit-backdrop-filter:blur(18px) saturate(110%);
+}
+html[data-ui-polish="4.8.0"] .modal{
+  border:1px solid rgba(207,218,255,.14);
+  background:
+    radial-gradient(circle at 10% 0,rgba(131,104,238,.12),transparent 34%),
+    linear-gradient(155deg,rgba(15,19,42,.98),rgba(5,8,21,.99));
+  box-shadow:0 36px 110px rgba(0,0,0,.56),inset 0 1px rgba(255,255,255,.055);
+}
+html[data-ui-polish="4.8.0"] .modal__header{background:linear-gradient(rgba(10,14,32,.98) 72%,transparent)}
+html[data-ui-polish="4.8.0"] input,
+html[data-ui-polish="4.8.0"] textarea,
+html[data-ui-polish="4.8.0"] select{
+  color:#f6f5ff;
+  border-color:rgba(204,214,247,.13);
+  background:rgba(3,6,17,.5);
+}
+html[data-ui-polish="4.8.0"] input::placeholder,
+html[data-ui-polish="4.8.0"] textarea::placeholder{color:rgba(210,216,239,.38)}
+
+/* Calendar, map and Our Bond share the same premium shell */
+html[data-ui-polish="4.8.0"] .couple-life-backdrop,
+html[data-ui-polish="4.8.0"] .our-bond-backdrop{background:rgba(1,2,9,.76);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+html[data-ui-polish="4.8.0"] .couple-life-panel,
+html[data-ui-polish="4.8.0"] .our-bond-panel{
+  border-color:rgba(213,222,255,.14);
+  background:
+    radial-gradient(circle at 8% 0,rgba(142,115,255,.18),transparent 34%),
+    radial-gradient(circle at 100% 12%,rgba(255,90,151,.13),transparent 31%),
+    linear-gradient(150deg,#12162f,#070a1b 72%);
+  box-shadow:0 36px 110px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.05);
+}
+html[data-ui-polish="4.8.0"] .couple-calendar-day,
+html[data-ui-polish="4.8.0"] .couple-agenda-card,
+html[data-ui-polish="4.8.0"] .bond-card{border-color:rgba(207,216,248,.1);background:rgba(255,255,255,.035)}
+html[data-ui-polish="4.8.0"] .couple-calendar-day.is-selected{border-color:rgba(177,148,255,.72);box-shadow:inset 0 0 0 1px rgba(177,148,255,.55),0 10px 30px rgba(111,87,255,.14)}
+html[data-ui-polish="4.8.0"] .our-bond-tabs button.is-active{background:linear-gradient(135deg,rgba(255,90,151,.17),rgba(141,115,255,.17));box-shadow:inset 0 1px rgba(255,255,255,.055)}
+
+/* Bottom navigation and floating utilities */
+html[data-ui-polish="4.8.0"] .app-shell--v4{padding-bottom:calc(var(--ou-v48-dock-top) + 26px)}
+html[data-ui-polish="4.8.0"] .app-dock{
+  bottom:var(--ou-v48-dock-bottom);
+  width:min(500px,calc(100vw - 24px));
+  height:var(--ou-v48-dock-height);
+  padding:7px 10px;
+  border-radius:25px;
+  background:linear-gradient(145deg,rgba(9,13,31,.9),rgba(3,6,17,.91))!important;
+  border-color:rgba(211,221,255,.13)!important;
+  box-shadow:0 22px 72px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.05)!important;
+}
+html[data-ui-polish="4.8.0"] .app-dock button{height:54px;border-radius:17px;transition:color .2s ease,background .2s ease,transform .2s var(--ou-v48-ease)}
+html[data-ui-polish="4.8.0"] .app-dock button.is-active{color:#fff;background:linear-gradient(145deg,rgba(179,151,255,.12),rgba(111,217,255,.06));box-shadow:inset 0 1px rgba(255,255,255,.05)}
+html[data-ui-polish="4.8.0"] .app-dock__add{
+  width:62px!important;
+  height:62px!important;
+  margin:-23px auto 0!important;
+  background:linear-gradient(135deg,#d4c1ff,#998cff 48%,#78dcff)!important;
+  box-shadow:0 15px 38px rgba(100,126,255,.38),0 0 26px rgba(130,203,255,.14),inset 0 1px rgba(255,255,255,.88)!important;
+}
+
+html[data-ui-polish="4.8.0"] .database-music-player{
+  bottom:var(--ou-v48-dock-top);
+  border-color:rgba(205,216,255,.14);
+  background:linear-gradient(145deg,rgba(11,15,36,.94),rgba(4,7,20,.96));
+  box-shadow:0 22px 70px rgba(0,0,0,.46),0 0 34px rgba(124,140,255,.09),inset 0 1px rgba(255,255,255,.05);
+}
+
+html[data-ui-polish="4.8.0"] .couple-connect-launcher{bottom:var(--ou-v48-utility-floor)}
+html[data-ui-polish="4.8.0"] .ou-install-chip{
+  right:auto;
+  left:14px;
+  bottom:calc(var(--ou-v48-utility-floor) + 58px);
+}
+html[data-ui-polish="4.8.0"] .couple-life-dock{bottom:var(--ou-v48-utility-floor)}
+
+html[data-ui-polish="4.8.0"] body:has(#database-music-player:not([hidden])) .couple-connect-launcher,
+html[data-ui-polish="4.8.0"] body:has(#database-music-player:not([hidden])) .couple-life-dock{
+  bottom:calc(var(--ou-v48-utility-floor) + var(--ou-v48-player-height) + 10px);
+}
+html[data-ui-polish="4.8.0"] body:has(#database-music-player:not([hidden])) .ou-install-chip{
+  bottom:calc(var(--ou-v48-utility-floor) + var(--ou-v48-player-height) + 68px);
+}
+
+html[data-ui-polish="4.8.0"] .couple-connect-launcher,
+html[data-ui-polish="4.8.0"] .couple-life-button,
+html[data-ui-polish="4.8.0"] .ou-install-chip{
+  border-color:rgba(211,220,255,.14);
+  background:linear-gradient(145deg,rgba(22,24,51,.92),rgba(7,10,25,.95));
+  box-shadow:0 16px 48px rgba(0,0,0,.36),inset 0 1px rgba(255,255,255,.055);
+}
+
+/* Toasts */
+html[data-ui-polish="4.8.0"] .toast-root{bottom:calc(var(--ou-v48-dock-top) + 10px)}
+html[data-ui-polish="4.8.0"] .toast{border-color:rgba(211,221,255,.15);background:linear-gradient(145deg,rgba(15,19,42,.96),rgba(5,8,21,.97));box-shadow:0 20px 65px rgba(0,0,0,.44)}
+
+/* Authentication */
+html[data-ui-polish="4.8.0"] .auth-root{
+  position:fixed;
+  z-index:900;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(95,84,198,.26),transparent 34%),
+    radial-gradient(circle at 90% 80%,rgba(255,90,151,.11),transparent 32%),
+    rgba(1,2,9,.88);
+}
+html[data-ui-polish="4.8.0"] .auth-shell{border:1px solid rgba(211,220,255,.13);box-shadow:0 40px 130px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.04)}
+html[data-ui-polish="4.8.0"] .auth-panel{background:linear-gradient(150deg,rgba(10,13,32,.95),rgba(4,7,18,.98))}
+html[data-ui-polish="4.8.0"] .auth-visual::before{box-shadow:0 0 90px rgba(149,171,255,.45),0 0 190px rgba(106,92,255,.2)}
+
+/* Keyboard handling on Android */
+html.is-keyboard-open[data-ui-polish="4.8.0"] .app-dock,
+html.is-keyboard-open[data-ui-polish="4.8.0"] .database-music-player,
+html.is-keyboard-open[data-ui-polish="4.8.0"] .couple-connect-launcher,
+html.is-keyboard-open[data-ui-polish="4.8.0"] .couple-life-dock,
+html.is-keyboard-open[data-ui-polish="4.8.0"] .ou-install-chip{
+  opacity:0!important;
+  pointer-events:none!important;
+  transform:translateY(28px)!important;
+}
+html.is-keyboard-open[data-ui-polish="4.8.0"] .modal-backdrop{align-items:start;padding-top:max(8px,var(--ou-visual-offset,0px))}
+html.is-keyboard-open[data-ui-polish="4.8.0"] .modal{max-height:calc(var(--ou-visual-height,100dvh) - 12px)}
+
+/* Mobile */
+@media(max-width:720px){
+  :root{
+    --ou-v48-dock-height:68px;
+    --ou-v48-dock-bottom:max(8px,env(safe-area-inset-bottom));
+    --ou-v48-player-height:68px;
+  }
+
+  .cosmic-atmosphere__moon{top:92px;right:-88px;width:230px;opacity:.12}
+  .cosmic-atmosphere__aurora{filter:blur(58px)}
+  .cosmic-atmosphere__dust{opacity:.15;background-size:89px 103px,131px 149px}
+
+  html[data-ui-polish="4.8.0"] .app-shell{padding-inline:8px}
+  html[data-ui-polish="4.8.0"] .topbar--v4{
+    top:calc(7px + var(--safe-top));
+    width:100%;
+    min-height:58px;
+    padding:7px 8px;
+    border-radius:21px;
+  }
+  html[data-ui-polish="4.8.0"] .topbar__actions{gap:3px}
+  html[data-ui-polish="4.8.0"] .topbar .icon-button,
+  html[data-ui-polish="4.8.0"] .topbar .avatar-button{width:39px;height:39px}
+
+  html[data-ui-polish="4.8.0"] .galaxy-hub--v4{
+    min-height:calc(100dvh - 70px);
+    padding:36px 0 calc(var(--ou-v48-dock-top) + 36px);
+  }
+  html[data-ui-polish="4.8.0"] .hub-copy--v4{width:96%;padding-top:10px}
+  html[data-ui-polish="4.8.0"] .hub-copy--v4>.eyebrow{font-size:.58rem;letter-spacing:.19em}
+  html[data-ui-polish="4.8.0"] .hub-copy--v4 h1{font-size:clamp(2.65rem,14vw,4.45rem);line-height:.9}
+  html[data-ui-polish="4.8.0"] .hub-copy--v4>p:last-of-type{max-width:92%;font-size:.82rem;line-height:1.55}
+
+  .galaxy-signal{max-width:94%;margin-top:13px;padding:8px 11px 8px 8px}
+  .galaxy-signal__pulse{flex-basis:28px;width:28px}
+  .galaxy-signal__copy strong{font-size:.66rem}
+  .galaxy-signal__copy small{max-width:68vw;font-size:.56rem}
+
+  html[data-ui-polish="4.8.0"] .home-stories{width:100%;margin-top:12px}
+  html[data-ui-polish="4.8.0"] .home-story-row{padding-inline:10px}
+  html[data-ui-polish="4.8.0"] .home-story{min-width:98px}
+
+  html[data-ui-polish="4.8.0"] .planet-deck-host,
+  html[data-ui-polish="4.8.0"] .planet-deck{min-height:620px}
+  html[data-ui-polish="4.8.0"] .planet-deck::before{width:92vw;height:34vw}
+  html[data-ui-polish="4.8.0"] .planet-deck::after{width:112vw;height:50vw}
+  html[data-ui-polish="4.8.0"] .planet-slide{
+    top:44%;
+    width:min(88vw,430px);
+    min-height:500px;
+    grid-template-columns:1fr;
+    justify-items:center;
+    gap:13px;
+    padding:20px 18px 21px;
+    border-radius:31px;
+    text-align:center;
+    backdrop-filter:blur(13px) saturate(112%);
+    -webkit-backdrop-filter:blur(13px) saturate(112%);
+  }
+  html[data-ui-polish="4.8.0"] .planet-slide__halo{left:50%;top:29%;width:245px;height:245px}
+  html[data-ui-polish="4.8.0"] .planet-slide__sphere{width:min(204px,52vw)}
+  html[data-ui-polish="4.8.0"] .planet-slide__copy{width:100%}
+  html[data-ui-polish="4.8.0"] .planet-slide__copy h2{margin:.12rem 0 .52rem;font-size:clamp(2rem,10vw,3rem)}
+  html[data-ui-polish="4.8.0"] .planet-slide__description{max-width:330px;margin-inline:auto;font-size:.8rem;line-height:1.5}
+  html[data-ui-polish="4.8.0"] .planet-slide__meta{justify-content:center;margin:10px 0}
+  html[data-ui-polish="4.8.0"] .planet-slide__actions{justify-content:center}
+  html[data-ui-polish="4.8.0"] .planet-deck__footer{bottom:4px;width:92vw}
+  html[data-ui-polish="4.8.0"] .planet-deck__hint{max-width:88vw;padding:5px 9px;border-radius:999px;background:rgba(3,6,17,.48);text-align:center;line-height:1.35}
+  html[data-ui-polish="4.8.0"] .create-planet-float{margin-right:8px}
+
+  html[data-ui-polish="4.8.0"] .app-dock{
+    width:min(430px,calc(100vw - 16px));
+    padding:6px 7px;
+    border-radius:23px;
+  }
+  html[data-ui-polish="4.8.0"] .app-dock button{height:52px;border-radius:16px}
+  html[data-ui-polish="4.8.0"] .app-dock button>small{font-size:.57rem}
+  html[data-ui-polish="4.8.0"] .app-dock__add{width:58px!important;height:58px!important;margin:-22px auto 0!important}
+
+  html[data-ui-polish="4.8.0"] .database-music-player{
+    width:calc(100vw - 18px);
+    min-height:62px;
+    padding:9px 10px;
+    border-radius:19px;
+  }
+  html[data-ui-polish="4.8.0"] .database-music-player__meta{grid-template-columns:36px minmax(0,1fr);gap:8px}
+  html[data-ui-polish="4.8.0"] .database-music-player__orb{width:36px}
+  html[data-ui-polish="4.8.0"] .database-music-player__copy strong{font-size:.78rem}
+  html[data-ui-polish="4.8.0"] .database-music-player__copy small{font-size:.61rem}
+  html[data-ui-polish="4.8.0"] .database-music-player__button{width:32px;height:32px}
+  html[data-ui-polish="4.8.0"] .database-music-player__button--play{width:39px;height:39px}
+
+  html[data-ui-polish="4.8.0"] .couple-connect-launcher,
+  html[data-ui-polish="4.8.0"] .ou-install-chip{
+    bottom:var(--ou-v48-utility-floor)!important;
+    width:46px;
+    min-width:46px;
+    height:46px;
+    min-height:46px;
+    padding:7px!important;
+    border-radius:16px;
+  }
+  html[data-ui-polish="4.8.0"] .couple-connect-launcher{left:10px}
+  html[data-ui-polish="4.8.0"] .ou-install-chip{left:64px;right:auto}
+  html[data-ui-polish="4.8.0"] .couple-connect-launcher__copy,
+  html[data-ui-polish="4.8.0"] .ou-install-chip__copy{display:none}
+
+  html[data-ui-polish="4.8.0"] body #couple-life-dock,
+  html[data-ui-polish="4.8.0"] body .couple-life-dock{
+    top:auto!important;
+    right:10px!important;
+    bottom:var(--ou-v48-utility-floor)!important;
+    left:auto!important;
+    width:auto!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    gap:7px!important;
+    transform:none!important;
+    z-index:260!important;
+  }
+  html[data-ui-polish="4.8.0"] body #couple-life-dock .couple-life-button,
+  html[data-ui-polish="4.8.0"] body .couple-life-dock .couple-life-button{
+    width:46px!important;
+    min-width:46px!important;
+    height:46px!important;
+    min-height:46px!important;
+    border-radius:16px!important;
+  }
+  html[data-ui-polish="4.8.0"] body:has(#database-music-player:not([hidden])) #couple-life-dock,
+  html[data-ui-polish="4.8.0"] body:has(#database-music-player:not([hidden])) .couple-life-dock,
+  html[data-ui-polish="4.8.0"] body:has(#database-music-player:not([hidden])) .couple-connect-launcher,
+  html[data-ui-polish="4.8.0"] body:has(#database-music-player:not([hidden])) .ou-install-chip{
+    bottom:calc(var(--ou-v48-utility-floor) + var(--ou-v48-player-height) + 8px)!important;
+  }
+
+  html[data-ui-polish="4.8.0"] .toast-root{top:calc(72px + env(safe-area-inset-top));right:8px;bottom:auto;width:calc(100vw - 16px)}
+  html[data-ui-polish="4.8.0"] .toast{border-radius:16px}
+
+  html[data-ui-polish="4.8.0"] .modal-backdrop{padding:0;align-items:end}
+  html[data-ui-polish="4.8.0"] .modal{width:100%;max-height:min(94dvh,var(--ou-visual-height,94dvh));border-radius:28px 28px 0 0;padding:16px}
+  html[data-ui-polish="4.8.0"] .couple-life-panel,
+  html[data-ui-polish="4.8.0"] .our-bond-panel{border-radius:24px 24px 0 0}
+}
+
+@media(max-width:390px){
+  html[data-ui-polish="4.8.0"] .topbar .icon-button:nth-of-type(2){display:none}
+  html[data-ui-polish="4.8.0"] .hub-copy--v4 h1{font-size:clamp(2.45rem,13.4vw,3.75rem)}
+  html[data-ui-polish="4.8.0"] .planet-slide{width:90vw;padding-inline:14px}
+  html[data-ui-polish="4.8.0"] .planet-slide__actions .button{min-width:132px}
+  html[data-ui-polish="4.8.0"] .app-dock{width:calc(100vw - 12px)}
+  html[data-ui-polish="4.8.0"] .app-dock button>small{display:none}
+  html[data-ui-polish="4.8.0"] .app-dock button>span{font-size:1.18rem}
+}
+
+@media(max-width:720px) and (max-height:690px){
+  html[data-ui-polish="4.8.0"] .galaxy-hub--v4{padding-top:22px}
+  html[data-ui-polish="4.8.0"] .hub-copy--v4 h1{font-size:clamp(2.35rem,11vw,3.45rem)}
+  html[data-ui-polish="4.8.0"] .hub-copy--v4>p:last-of-type{display:none}
+  .galaxy-signal{margin-top:9px}
+  html[data-ui-polish="4.8.0"] .planet-deck-host,
+  html[data-ui-polish="4.8.0"] .planet-deck{min-height:500px}
+  html[data-ui-polish="4.8.0"] .planet-slide{top:43%;min-height:410px;grid-template-columns:minmax(130px,.78fr) minmax(150px,1.22fr);justify-items:stretch;gap:10px;padding:16px;text-align:left}
+  html[data-ui-polish="4.8.0"] .planet-slide__halo{left:21%;top:50%;width:190px;height:190px}
+  html[data-ui-polish="4.8.0"] .planet-slide__sphere{width:min(164px,42vw)}
+  html[data-ui-polish="4.8.0"] .planet-slide__copy h2{font-size:clamp(1.65rem,7vw,2.3rem)}
+  html[data-ui-polish="4.8.0"] .planet-slide__description{font-size:.72rem}
+  html[data-ui-polish="4.8.0"] .planet-slide__meta{justify-content:flex-start}
+  html[data-ui-polish="4.8.0"] .planet-slide__actions{justify-content:flex-start}
+}
+
+/* Economy, reduced motion, and hidden-tab discipline */
+html[data-data-mode="economy"] .cosmic-atmosphere__aurora,
+html[data-data-mode="economy"] .cosmic-atmosphere__shooting-star{display:none}
+html[data-data-mode="economy"] .cosmic-atmosphere__dust{opacity:.09;animation:none}
+html[data-data-mode="economy"] .cosmic-atmosphere__moon{opacity:.08;animation:none}
+html[data-data-mode="economy"] .planet-deck::before,
+html[data-data-mode="economy"] .planet-deck::after{display:none}
+html[data-data-mode="economy"] .galaxy-signal,
+html[data-data-mode="economy"] .planet-slide,
+html[data-data-mode="economy"] .topbar--v4,
+html[data-data-mode="economy"] .app-dock{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+
+html[data-document-hidden] *,
+html[data-document-hidden] *::before,
+html[data-document-hidden] *::after{animation-play-state:paused!important}
+
+@media(prefers-reduced-motion:reduce){
+  .cosmic-atmosphere__moon,
+  .cosmic-atmosphere__aurora,
+  .cosmic-atmosphere__dust,
+  .cosmic-atmosphere__shooting-star,
+  .galaxy-signal__pulse::before,
+  .galaxy-signal__pulse::after,
+  html[data-ui-polish="4.8.0"] .planet-slide.has-story .planet-slide__surface{animation:none!important}
+  html[data-ui-polish="4.8.0"] .world-stage.is-view-ready>*{animation:none!important}
+}
+
+@keyframes v48-moon-breathe{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-5px,8px,0) scale(1.025)}}
+@keyframes v48-aurora-a{0%{transform:translate3d(-3vw,-2vh,0) scale(.95)}100%{transform:translate3d(9vw,4vh,0) scale(1.08)}}
+@keyframes v48-aurora-b{0%{transform:translate3d(3vw,2vh,0) scale(1)}100%{transform:translate3d(-8vw,-5vh,0) scale(1.12)}}
+@keyframes v48-star-drift{to{transform:translate3d(-73px,89px,0)}}
+@keyframes v48-shooting-star{0%,76%,100%{opacity:0;transform:translate3d(0,0,0) rotate(-22deg)}80%{opacity:.8}88%{opacity:0;transform:translate3d(128vw,48vh,0) rotate(-22deg)}}
+@keyframes v48-intro-orbit{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes v48-touch-light{0%{opacity:.32;transform:translate(-50%,-50%) scale(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(18)}}
+@keyframes v48-signal-ring{0%{opacity:.5;transform:scale(.72)}75%,100%{opacity:0;transform:scale(1.55)}}
+@keyframes v48-story-glow{0%,100%{outline-color:color-mix(in srgb,var(--planet-accent) 68%,#fff);filter:brightness(1)}50%{outline-color:#fff;filter:brightness(1.08)}}
+@keyframes v48-view-enter{from{opacity:0;transform:translateY(13px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}

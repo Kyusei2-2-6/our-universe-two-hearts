@@ -10,7 +10,7 @@ const MAX_HISTORY=50;
 const SIGNAL_LABELS={poke:'👉 Colek',heart:'❤️ Mengirim hati',miss_you:'🌙 Bilang kangen'};
 let launcher=null,sheet=null,messagesHost=null,typingHost=null,compose=null,channel=null;
 let activeUniverseId='',activeUserId='',partner=null,unread=0,isOpen=false,subscribed=false;
-let typingTimer=null,lastTypingSent=0,popupTimer=null,signalCooldownUntil=0,retryAt=0;
+let typingTimer=null,lastTypingSent=0,popupTimer=null,signalCooldownUntil=0,retryAt=0,startupTimer=0;
 let lastPartnerSignature='';
 const seenIds=new Set();
 
@@ -23,6 +23,11 @@ function context(){
 }
 
 function appReady(){const shell=document.querySelector('#app-shell');return shell&&!shell.hidden;}
+
+function scheduleStart(delay=0){
+  clearTimeout(startupTimer);
+  startupTimer=window.setTimeout(()=>ensureStarted().catch(error=>console.warn('Couple Connect menunggu konteks:',error)),delay);
+}
 
 async function ensureStarted(){
   const next=context();
@@ -261,9 +266,13 @@ function scrollToLatest(){requestAnimationFrame(()=>{if(messagesHost)messagesHos
 function friendlyError(error){const message=String(error?.message||error||'');if(message.includes('couple_messages')||message.includes('schema cache'))return'Couple Connect belum dipasang di database. Jalankan migrasi SQL v4.3.';return message||'Sinyal belum dapat dikirim.';}
 
 events.on('presence:sync',()=>refreshPartnerUI());
-events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))setTimeout(ensureStarted,500);});
+events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))scheduleStart(90);});
+events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))scheduleStart(400);});
+window.addEventListener('our-universe:context-ready',()=>scheduleStart(0));
+window.addEventListener('our-universe:context-cleared',()=>{clearTimeout(startupTimer);closeConnect();activeUniverseId='';activeUserId='';partner=null;void disconnectChannel();if(launcher)launcher.hidden=true;});
 window.addEventListener('our-universe:romantic-push',event=>{if(['couple_message','couple_signal'].includes(event.detail?.event_type))openConnect();});
-window.addEventListener('pagehide',()=>disconnectChannel());
+window.addEventListener('online',()=>scheduleStart(250));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleStart(180);});
+window.addEventListener('pagehide',()=>{clearTimeout(startupTimer);disconnectChannel();});
 
-setInterval(()=>ensureStarted().catch(error=>console.warn('Couple Connect menunggu konteks:',error)),900);
-ensureStarted().catch(()=>{});
+scheduleStart(0);

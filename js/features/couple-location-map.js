@@ -24,6 +24,7 @@ let lastSentAt=0;
 let lastSentPosition=null;
 let sharing=false;
 let leafletPromise=null;
+let startupTimer=0;
 
 function context(){
   const snapshot=state.snapshot;
@@ -33,6 +34,11 @@ function context(){
   return{snapshot,universeId,userId,partner:other};
 }
 function appReady(){const shell=document.querySelector('#app-shell');return Boolean(shell&&!shell.hidden);}
+
+function scheduleStart(delay=0){
+  clearTimeout(startupTimer);
+  startupTimer=window.setTimeout(()=>ensureStarted().catch(()=>{}),delay);
+}
 function ensureDock(){let dock=document.querySelector('#couple-life-dock');if(!dock){dock=document.createElement('div');dock.id='couple-life-dock';dock.className='couple-life-dock';dock.setAttribute('data-capture-ignore','true');document.body.append(dock);}return dock;}
 
 function ensureUI(){
@@ -228,7 +234,11 @@ function friendlyError(error){const message=String(error?.message||error||'');if
 function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));}
 
 events.on('presence:sync',()=>updateUI());
-events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))setTimeout(ensureStarted,350);});
-window.addEventListener('pagehide',()=>{disconnectChannel();if(watchId!==null)navigator.geolocation?.clearWatch(watchId);});
-setInterval(()=>ensureStarted().catch(()=>{}),1200);
-ensureStarted().catch(()=>{});
+events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))scheduleStart(90);});
+events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))scheduleStart(320);});
+window.addEventListener('our-universe:context-ready',()=>scheduleStart(0));
+window.addEventListener('our-universe:context-cleared',()=>{clearTimeout(startupTimer);closeMap();activeUniverseId='';activeUserId='';partner=null;locationRows=[];if(watchId!==null)navigator.geolocation?.clearWatch(watchId);watchId=null;sharing=false;void disconnectChannel();clearMapObjects();if(launcher)launcher.hidden=true;});
+window.addEventListener('online',()=>scheduleStart(250));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleStart(180);});
+window.addEventListener('pagehide',()=>{clearTimeout(startupTimer);disconnectChannel();if(watchId!==null)navigator.geolocation?.clearWatch(watchId);});
+scheduleStart(0);
