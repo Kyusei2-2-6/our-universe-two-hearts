@@ -1,4 +1,4 @@
-const CACHE='our-universe-v4-4-8-map-canvas-fix';
+const CACHE='our-universe-v4-4-9-leaflet-csp';
 const STATIC_CACHE=`${CACHE}-static`;
 const PAGE_CACHE=`${CACHE}-pages`;
 const SHELL=[

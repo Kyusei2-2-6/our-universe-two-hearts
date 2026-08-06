@@ -154,3 +154,44 @@
 
 
 /* OUR UNIVERSE V4.4.8 MAP CANVAS FIX */
+
+
+/* OUR UNIVERSE EXACT MAP CANVAS FIX V4.4.8 */
+.couple-map-stage {
+    position: relative !important;
+}
+
+.couple-map-stage > .couple-map-canvas,
+.couple-map-stage > .couple-map-canvas[data-map] {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    z-index: 1 !important;
+    touch-action: pan-x pan-y !important;
+}
+
+
+/* OUR UNIVERSE V4.4.9 LEAFLET CANVAS FINAL */
+.couple-map-stage {
+    position: relative !important;
+}
+
+.couple-map-stage > .couple-map-canvas,
+.couple-map-stage > .couple-map-canvas[data-map] {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    z-index: 1 !important;
+    touch-action: pan-x pan-y !important;
+}
+
+.couple-map-stage > .couple-map-canvas.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+}
