@@ -1,0 +1,11 @@
+OUR UNIVERSE v4.6.0 · PLANET PROFILE
+
+Perubahan utama:
+- Planet sekarang dibuka seperti sebuah profil privat ala galeri sosial.
+- Header menampilkan cover, avatar planet, nama, bio, jumlah postingan, dua hati, dan story aktif.
+- Postingan tampil sebagai grid 3 kolom di mobile, bukan feed panjang seperti Twitter.
+- Foto tampil sebagai thumbnail, video memiliki penanda play, dan tulisan memiliki kartu visual khusus.
+- Klik satu kotak untuk membuka detail lengkap, komentar, edit, favorit, dan hapus yang sudah ada.
+- Filter kategori dan pencarian tetap tersedia tanpa menambah tombol mengambang baru.
+- Data lama, Supabase, komentar, attachment, Our Bond, kalender, peta, dan musik tidak diubah.
+- Tidak membutuhkan migration SQL baru.
