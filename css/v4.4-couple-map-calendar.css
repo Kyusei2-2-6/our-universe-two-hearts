@@ -8,3 +8,132 @@
 @media(max-width:820px){.couple-life-panel{inset:0;width:100%;border:0;border-radius:0}.couple-life-header{padding:17px 16px}.couple-life-header small{display:block;max-width:290px;font-size:10px}.couple-calendar-layout{display:block;height:calc(100% - 144px);overflow:auto}.couple-calendar-main{padding:11px 9px 16px;border-right:0;border-bottom:1px solid var(--couple-line);overflow:visible}.couple-calendar-day{min-height:78px;padding:6px;border-radius:12px}.couple-calendar-pill{font-size:0;height:5px;padding:0;border:0;border-radius:5px}.couple-calendar-more{display:none}.couple-calendar-agenda{overflow:visible}.couple-map-stage{min-height:370px;margin:10px 10px 0}.couple-map-stats{grid-template-columns:1fr;padding:10px}.couple-map-stats article{grid-template-columns:95px 1fr;align-items:center}.couple-map-stats article span{grid-column:2}.couple-map-actions{padding:0 10px 10px}.couple-map-privacy{margin:0 10px 10px}.couple-event-editor__row{grid-template-columns:1fr}}
 @media(max-width:560px){.couple-life-dock{right:10px;left:10px;bottom:82px;flex-direction:row;justify-content:flex-end}.couple-life-button{min-width:0;width:52px;height:52px;padding:7px;border-radius:17px}.couple-life-button__icon{width:36px;height:36px}.couple-life-button__copy{display:none}.couple-calendar-toolbar{grid-template-columns:38px 1fr 38px;padding:10px}.couple-calendar-today{grid-column:1/-1}.couple-calendar-weekdays,.couple-calendar-grid{gap:4px}.couple-calendar-day{min-height:66px}.couple-calendar-day__number{width:23px;height:23px}.couple-agenda-card{grid-template-columns:58px minmax(0,1fr)}.couple-agenda-card__edit{grid-column:2;justify-self:start}.couple-event-editor{padding:8px}.couple-event-editor form{padding:16px;border-radius:19px}.couple-event-editor__actions{grid-template-columns:auto 1fr auto}.couple-event-editor__actions .primary{grid-column:1/-1}.couple-map-stage{min-height:310px}.couple-map-panel{overflow:auto}.couple-map-stats strong{font-size:15px}}
 @media(prefers-reduced-motion:reduce){.couple-life-panel,.couple-life-button{animation:none;transition:none}}
+
+/* =========================================================
+   OUR UNIVERSE V4.4.6
+   STABLE MOBILE MAP AND CALENDAR DOCK
+   ========================================================= */
+
+.couple-life-backdrop {
+    z-index: 590 !important;
+}
+
+.couple-life-sheet,
+.couple-map-sheet,
+.couple-calendar-sheet {
+    z-index: 600 !important;
+}
+
+.couple-life-panel,
+.couple-map-panel,
+.couple-calendar-panel {
+    position: relative !important;
+    z-index: 601 !important;
+}
+
+.couple-map-stage,
+.couple-map-canvas,
+.couple-map-canvas[data-map] {
+    position: relative !important;
+    z-index: 1 !important;
+    touch-action: pan-x pan-y !important;
+}
+
+/*
+ * Dock hanya untuk tombol peta dan kalender.
+ * Diletakkan vertikal di kanan dan di atas music player.
+ */
+@media (max-width: 560px) {
+    body #couple-life-dock,
+    body .couple-life-dock {
+        position: fixed !important;
+
+        top: auto !important;
+        left: auto !important;
+        right: max(14px, env(safe-area-inset-right)) !important;
+
+        bottom: calc(
+            clamp(230px, 21vh, 300px) +
+            env(safe-area-inset-bottom)
+        ) !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        justify-content: flex-end !important;
+        gap: 10px !important;
+
+        width: auto !important;
+        height: auto !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        transform: none !important;
+        z-index: 260 !important;
+        pointer-events: none !important;
+    }
+
+    body #couple-life-dock .couple-life-button,
+    body .couple-life-dock .couple-life-button {
+        position: relative !important;
+
+        inset: auto !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+
+        width: 48px !important;
+        min-width: 48px !important;
+        height: 48px !important;
+        min-height: 48px !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        border-radius: 50% !important;
+        transform: none !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    body #couple-life-dock .couple-life-button__copy,
+    body .couple-life-dock .couple-life-button__copy {
+        display: none !important;
+    }
+
+    body #couple-life-dock .couple-life-button__icon,
+    body .couple-life-dock .couple-life-button__icon {
+        width: 24px !important;
+        height: 24px !important;
+        margin: 0 !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+}
+
+/* Layar pendek atau landscape */
+@media (max-width: 560px) and (max-height: 650px) {
+    body #couple-life-dock,
+    body .couple-life-dock {
+        right: max(12px, env(safe-area-inset-right)) !important;
+        bottom: calc(150px + env(safe-area-inset-bottom)) !important;
+    }
+
+    body #couple-life-dock .couple-life-button,
+    body .couple-life-dock .couple-life-button {
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+    }
+}
+
