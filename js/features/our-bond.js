@@ -5,14 +5,18 @@ import { createHeartbeatEngine } from './heartbeat-engine.js';
 import { createMemoryReplay } from './memory-replay.js';
 import { createLoveCinema } from './love-cinema.js';
 import { createSecretRoom } from './secret-room.js';
+import { createLoveTimeline } from './love-timeline.js';
+import { createRelationshipStats } from './relationship-stats.js';
 
 const TAB_DEFINITIONS=[
   {id:'heartbeat',label:'Heartbeat',icon:'♡'},
   {id:'replay',label:'Replay',icon:'↻'},
   {id:'cinema',label:'Love Cinema',icon:'▶'},
-  {id:'secret',label:'Secret Room',icon:'☾'}
+  {id:'secret',label:'Secret Room',icon:'☾'},
+  {id:'timeline',label:'Timeline',icon:'⌁'},
+  {id:'stats',label:'Stats',icon:'◉'}
 ];
-const BOND_TABLES=new Set(['bond_pulses','bond_emotions','bond_replays','bond_capsules']);
+const BOND_TABLES=new Set(['bond_pulses','bond_emotions','bond_replays','bond_capsules','love_timeline_moments','couple_relationship_profiles','couple_calendar_events','entries','attachments','comments','couple_messages','planets']);
 
 let launcher=null;
 let sheet=null;
@@ -100,7 +104,9 @@ function ensureUI(){
     ['heartbeat',createHeartbeatEngine(api)],
     ['replay',createMemoryReplay(api)],
     ['cinema',createLoveCinema(api)],
-    ['secret',createSecretRoom(api)]
+    ['secret',createSecretRoom(api)],
+    ['timeline',createLoveTimeline(api)],
+    ['stats',createRelationshipStats(api)]
   ]);
   for(const [id,controller] of controllers){
     const section=document.createElement('section');
@@ -165,9 +171,18 @@ async function disconnectChannel(){
 }
 
 function handleRealtime(table,payload){
-  const target={bond_pulses:'heartbeat',bond_emotions:'heartbeat',bond_replays:'replay',bond_capsules:'secret'}[table];
-  controllers.get(target)?.realtime?.(table,payload);
-  if(!isOpen||activeTab!==target)launcher?.classList.add('has-update');
+  const targets={
+    bond_pulses:['heartbeat','stats'],
+    bond_emotions:['heartbeat'],
+    bond_replays:['replay'],
+    bond_capsules:['secret'],
+    love_timeline_moments:['timeline','stats'],
+    couple_relationship_profiles:['stats'],
+    couple_calendar_events:['timeline','stats'],
+    entries:['stats'],attachments:['stats'],comments:['stats'],couple_messages:['stats'],planets:['stats']
+  }[table]||[];
+  for(const target of targets)controllers.get(target)?.realtime?.(table,payload);
+  if(targets.length&&(!isOpen||!targets.includes(activeTab)))launcher?.classList.add('has-update');
 }
 
 async function openBond(tab=activeTab){
@@ -204,6 +219,7 @@ async function setTab(tab){
   }
 }
 
+window.addEventListener('our-universe:calendar-updated',()=>{controllers.get('timeline')?.realtime?.('couple_calendar_events');controllers.get('stats')?.realtime?.('couple_calendar_events');});
 events.on('presence:sync',()=>controllers.get('heartbeat')?.presenceChanged?.());
 events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))setTimeout(()=>ensureStarted().catch(()=>{}),100);});
 events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))setTimeout(()=>ensureStarted().catch(()=>{}),350);});

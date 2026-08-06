@@ -1,4 +1,4 @@
-# OUR UNIVERSE v4.5.0
+# OUR UNIVERSE v4.7.0
 
 OUR UNIVERSE adalah semesta digital privat untuk tepat dua orang. Versi 4 tidak memakai menu Gallery, Music, Notes, atau Files sebagai planet bawaan. Semesta dimulai kosong dan kedua pengguna menciptakan planet sendiri.
 
@@ -42,3 +42,10 @@ Database baru memakai tabel `bond_pulses`, `bond_emotions`, `bond_replays`, `bon
 
 Lihat `INSTALL-V4.5-OUR-BOND.md` untuk pemasangan patch dan migrasi Supabase.
 
+
+
+## Love Timeline dan Relationship Stats v4.7.0
+
+Panel Our Bond sekarang memiliki tab Timeline dan Stats. Love Timeline menggabungkan momen manual dengan agenda kalender yang dipilih melalui opsi “Masukkan ke Love Timeline”. Relationship Stats menghitung data nyata dari planet, cerita, media, agenda, timeline, Heartbeat, pesan, dan komentar tanpa menilai kualitas hubungan.
+
+Jalankan `RUN-THIS-IN-SUPABASE-V4.7.0.sql` melalui Supabase SQL Editor. Panduan termudah tersedia di `INSTALL-V4.7.0-EASY.md`.

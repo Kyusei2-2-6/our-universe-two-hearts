@@ -22,6 +22,7 @@ let meetingToken=0;
 let isOpen=false;
 let countdownTimer=null;
 let startupTimer=null;
+let requestedEventId='';
 
 function context(){
   const snapshot=state.snapshot;
@@ -109,10 +110,11 @@ function ensureUI(){
         <div class="couple-event-editor__row"><label>Mulai<input name="start_at" type="datetime-local" required></label><label>Selesai<input name="end_at" type="datetime-local"></label></div>
         <label class="couple-event-check"><input name="all_day" type="checkbox"> Seharian</label>
         <label class="couple-event-meeting"><input name="countdown_enabled" type="checkbox"><span><strong>Jadwal ketemuan</strong><small>Tampilkan countdown hari, jam, menit, dan detik untuk kalian berdua.</small></span></label>
+        <label class="couple-event-timeline"><input name="timeline_enabled" type="checkbox"><span><strong>Masukkan ke Love Timeline</strong><small>Agenda ini ikut muncul sebagai momen pada perjalanan galaxy kalian.</small></span></label>
         <label>Lokasi<input name="location" maxlength="160" placeholder="Opsional"></label>
         <label>Catatan<textarea name="notes" maxlength="1500" rows="3" placeholder="Detail yang perlu pasangan ketahui"></textarea></label>
         <fieldset><legend>Warna agenda</legend><div class="couple-event-colors">${EVENT_COLORS.map((color,index)=>`<label><input type="radio" name="color" value="${color}" ${index===0?'checked':''}><span class="is-${color}"></span></label>`).join('')}</div></fieldset>
-        <div class="couple-event-editor__actions"><button type="button" class="danger" data-delete hidden>Hapus</button><span></span><button type="button" data-cancel>Batal</button><button type="submit" class="primary">Simpan</button></div>
+        <div class="couple-event-editor__actions"><button type="button" class="danger" data-delete hidden>Hapus</button><small data-save-status></small><button type="button" data-cancel>Batal</button><button type="submit" class="primary">Simpan</button></div>
       </form>
     </div>
   </div>`;
@@ -129,6 +131,7 @@ function ensureUI(){
   sheet.querySelector('[data-form]').onsubmit=saveEvent;
   sheet.querySelector('[data-delete]').onclick=deleteCurrentEvent;
   sheet.querySelector('[name="all_day"]').onchange=syncAllDayInputs;
+  sheet.querySelector('[name="countdown_enabled"]').onchange=event=>{if(event.currentTarget.checked)sheet.querySelector('[name="timeline_enabled"]').checked=true;};
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&isOpen){if(!sheet.querySelector('[data-editor]').hidden)closeEditor();else closeCalendar();}});
   renderMeetingCard();
 }
@@ -178,9 +181,11 @@ async function disconnectChannel(){
   try{await supabase().removeChannel(old);}catch{}
 }
 
-async function openCalendar(){
+async function openCalendar(options={}){
   await ensureStarted();
   if(!sheet)return;
+  if(options?.date){const date=new Date(options.date);if(!Number.isNaN(date.getTime())){monthCursor=startOfMonth(date);selectedDate=dateKey(date);}}
+  requestedEventId=options?.eventId||'';
   sheet.hidden=false;
   isOpen=true;
   launcher?.classList.remove('has-update');
@@ -212,12 +217,13 @@ async function refreshMonth(){
     if(token!==refreshToken)return;
     eventsCache=data||[];
     renderCalendar();
+    focusRequestedEvent();
   }catch(error){
     if(token!==refreshToken)return;
     eventsCache=[];
     renderCalendar();
     const host=sheet.querySelector('[data-list]');
-    host.innerHTML='<div class="couple-calendar-empty is-error"><strong>Kalender perlu diperbaiki</strong><span>Jalankan migration repair v4.5.2 di Supabase, lalu muat ulang aplikasi.</span></div>';
+    host.innerHTML='<div class="couple-calendar-empty is-error"><strong>Kalender perlu diperbaiki</strong><span>Jalankan migration v4.7.0 di Supabase, lalu muat ulang aplikasi.</span></div>';
     console.warn('Couple Calendar:',error);
   }
 }
@@ -363,7 +369,7 @@ function renderMeetingCard(options={}){
   if(options.error){
     kicker.textContent='COUNTDOWN REPAIR';
     title.textContent='Countdown belum tersambung';
-    meta.textContent='Jalankan migration repair v4.5.2 di Supabase.';
+    meta.textContent='Jalankan migration v4.7.0 di Supabase.';
     timer.hidden=true;
     action.textContent='Buka kalender';
     launcherCopy.textContent='Perlu repair SQL';
@@ -451,6 +457,7 @@ function openEditor(item=null,options={}){
   form.elements.notes.value=item?.notes||'';
   form.elements.all_day.checked=Boolean(item?.all_day);
   form.elements.countdown_enabled.checked=Boolean(options.meeting||isMeeting(item));
+  form.elements.timeline_enabled.checked=Boolean(item?.timeline_enabled||options.meeting);
   const color=safeColor(item?.color||'rose');
   const radio=form.querySelector(`[name="color"][value="${color}"]`);
   if(radio)radio.checked=true;
@@ -481,9 +488,11 @@ async function saveEvent(event){
   const title=form.elements.title.value.trim();
   const allDay=form.elements.all_day.checked;
   const meeting=form.elements.countdown_enabled.checked;
+  const timelineEnabled=form.elements.timeline_enabled.checked;
   let start=new Date(form.elements.start_at.value);
   let end=form.elements.end_at.value?new Date(form.elements.end_at.value):null;
-  if(!title||Number.isNaN(start.getTime()))return;
+  if(!form.reportValidity())return;
+  if(!title||Number.isNaN(start.getTime())){toast('Judul dan waktu mulai wajib diisi.',{type:'error'});return;}
   if(allDay){start=new Date(start.getFullYear(),start.getMonth(),start.getDate(),0,0,0,0);end=new Date(start.getFullYear(),start.getMonth(),start.getDate(),23,59,59,999);}
   if(end&&end<start){toast('Waktu selesai tidak boleh lebih awal dari waktu mulai.',{type:'error'});return;}
   if(meeting&&start.getTime()<=Date.now()){toast('Countdown ketemuan membutuhkan waktu mulai di masa depan.',{type:'error'});return;}
@@ -498,19 +507,36 @@ async function saveEvent(event){
     all_day:allDay,
     color:safeColor(form.elements.color.value),
     event_type:meeting?'meetup':'personal',
-    countdown_enabled:meeting
+    countdown_enabled:meeting,
+    timeline_enabled:timelineEnabled
   };
   submit.disabled=true;
   submit.textContent='Menyimpan…';
   try{
-    let response;
-    if(eventId)response=await supabase().from('couple_calendar_events').update(payload).eq('id',eventId).eq('owner_id',activeUserId).select().single();
-    else response=await supabase().from('couple_calendar_events').insert(payload).select().single();
+    const rpcArgs={
+      p_event_id:eventId||null,p_universe_id:activeUniverseId,p_title:payload.title,p_notes:payload.notes,p_location:payload.location,
+      p_start_at:payload.start_at,p_end_at:payload.end_at,p_all_day:payload.all_day,p_color:payload.color,p_event_type:payload.event_type,
+      p_countdown_enabled:payload.countdown_enabled,p_timeline_enabled:payload.timeline_enabled
+    };
+    let response=await supabase().rpc('save_couple_calendar_event_v470',rpcArgs);
+    if(response.error&&isMissingCalendarRpc(response.error)){
+      response=eventId
+        ?await supabase().from('couple_calendar_events').update(payload).eq('id',eventId).eq('owner_id',activeUserId).select().single()
+        :await supabase().from('couple_calendar_events').insert(payload).select().single();
+      if(response.error&&isMissingTimelineColumn(response.error)){
+        const legacyPayload={...payload};delete legacyPayload.timeline_enabled;
+        response=eventId
+          ?await supabase().from('couple_calendar_events').update(legacyPayload).eq('id',eventId).eq('owner_id',activeUserId).select().single()
+          :await supabase().from('couple_calendar_events').insert(legacyPayload).select().single();
+      }
+    }
     if(response.error)throw response.error;
     closeEditor();
     selectedDate=dateKey(start);
     monthCursor=startOfMonth(start);
     await Promise.all([refreshMonth(),refreshNextMeeting()]);
+    const savedRow=Array.isArray(response.data)?response.data[0]:response.data;
+    window.dispatchEvent(new CustomEvent('our-universe:calendar-updated',{detail:{eventId:savedRow?.id||eventId||null,timelineEnabled}}));
     toast(meeting?'Countdown ketemuan berhasil disimpan.':(eventId?'Kegiatan berhasil diperbarui.':'Kegiatan berhasil ditambahkan.'),{type:'success'});
   }catch(error){toast(friendlyError(error),{type:'error',duration:7000});}
   finally{submit.disabled=false;submit.textContent='Simpan';}
@@ -527,6 +553,7 @@ async function deleteCurrentEvent(){
     if(error)throw error;
     closeEditor();
     await Promise.all([refreshMonth(),refreshNextMeeting()]);
+    window.dispatchEvent(new CustomEvent('our-universe:calendar-updated',{detail:{eventId,deleted:true}}));
     toast('Kegiatan berhasil dihapus.',{type:'success'});
   }catch(error){toast(friendlyError(error),{type:'error'});}
   finally{button.disabled=false;}
@@ -549,14 +576,22 @@ function timeRange(item){const formatter=new Intl.DateTimeFormat('id-ID',{hour:'
 function formatMeetingDate(value){return new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(value));}
 function countdownParts(ms){return{days:Math.floor(ms/86400000),hours:Math.floor(ms%86400000/3600000),minutes:Math.floor(ms%3600000/60000),seconds:Math.floor(ms%60000/1000)};}
 function compactCountdown(ms){if(ms<=0)return'Sudah waktunya';const parts=countdownParts(ms);if(parts.days>0)return`${parts.days} hari ${parts.hours} jam lagi`;if(parts.hours>0)return`${parts.hours} jam ${parts.minutes} menit lagi`;return`${Math.max(1,parts.minutes)} menit lagi`;}
+function focusRequestedEvent(){
+  if(!requestedEventId||!sheet)return;
+  requestAnimationFrame(()=>{const card=sheet.querySelector(`[data-event-id="${CSS.escape(requestedEventId)}"]`);if(!card)return;card.classList.add('is-focus');card.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>card.classList.remove('is-focus'),2200);requestedEventId='';});
+}
+function isMissingCalendarRpc(error){const message=String(error?.message||error||'');return /save_couple_calendar_event_v470|function.*not found|schema cache/i.test(message);}
+function isMissingTimelineColumn(error){const message=String(error?.message||error||'');return /timeline_enabled/i.test(message);}
 function friendlyError(error){
   const message=String(error?.message||error||'');
-  if(message.includes('event_type')||message.includes('countdown_enabled')||message.includes('start_at')||message.includes('couple_calendar_events')||message.includes('schema cache'))return'Kalender dan countdown perlu migration repair v4.5.2 di Supabase.';
+  if(message.includes('timeline_enabled')||message.includes('save_couple_calendar_event_v470'))return'Jalankan migration v4.7.0 agar kalender dan Love Timeline tersambung penuh.';
+  if(message.includes('event_type')||message.includes('countdown_enabled')||message.includes('start_at')||message.includes('couple_calendar_events')||message.includes('schema cache'))return'Kalender membutuhkan migration repair v4.5.2 atau migration v4.7.0 di Supabase.';
   return message||'Kegiatan belum dapat disimpan.';
 }
 
 events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))setTimeout(()=>ensureStarted().catch(()=>{}),350);});
 events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))setTimeout(()=>ensureStarted().catch(()=>{}),120);});
+window.addEventListener('our-universe:open-calendar',event=>openCalendar(event.detail||{}));
 window.addEventListener('pagehide',()=>{disconnectChannel();stopCountdown();clearInterval(startupTimer);});
 startupTimer=setInterval(()=>ensureStarted().catch(()=>{}),1600);
 ensureStarted().catch(()=>{});
