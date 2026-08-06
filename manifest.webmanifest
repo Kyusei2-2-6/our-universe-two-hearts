@@ -2,7 +2,7 @@
   "id": "./?app=our-universe",
   "name": "Our Universe · Two Hearts",
   "short_name": "Our Universe",
-  "description": "Semesta digital privat untuk dua hati dengan Living Home, Living Galaxy, Love Timeline, Relationship Stats, Our Bond, dan kenangan sinematik.",
+  "description": "Semesta digital privat untuk dua hati dengan Cosmic Identity, Relationship Journey, Living Galaxy, Our Bond, dan kenangan sinematik.",
   "start_url": "./?source=pwa#home",
   "scope": "./",
   "display": "standalone",
@@ -65,7 +65,7 @@
     {
       "name": "Buka Our Bond",
       "short_name": "Our Bond",
-      "description": "Buka Heartbeat, Replay, Cinema, Secret Room, Timeline, dan Stats",
+      "description": "Buka Heartbeat, Replay, Cinema, Secret Room, Timeline, dan Journey",
       "url": "./?bond=1#home",
       "icons": [
         {

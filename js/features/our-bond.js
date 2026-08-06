@@ -14,7 +14,7 @@ const TAB_DEFINITIONS=[
   {id:'cinema',label:'Love Cinema',icon:'▶'},
   {id:'secret',label:'Secret Room',icon:'☾'},
   {id:'timeline',label:'Timeline',icon:'⌁'},
-  {id:'stats',label:'Stats',icon:'◉'}
+  {id:'stats',label:'Journey',icon:'∞'}
 ];
 const BOND_TABLES=new Set(['bond_pulses','bond_emotions','bond_replays','bond_capsules','love_timeline_moments','couple_relationship_profiles','couple_calendar_events','entries','attachments','comments','couple_messages','planets']);
 
@@ -225,6 +225,7 @@ async function setTab(tab){
   }
 }
 
+window.addEventListener('our-universe:open-bond',event=>{void openBond(event.detail?.tab||activeTab);});
 window.addEventListener('our-universe:calendar-updated',()=>{controllers.get('timeline')?.realtime?.('couple_calendar_events');controllers.get('stats')?.realtime?.('couple_calendar_events');});
 events.on('presence:sync',()=>controllers.get('heartbeat')?.presenceChanged?.());
 events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))scheduleStart(80);});

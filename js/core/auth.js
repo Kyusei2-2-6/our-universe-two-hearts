@@ -93,9 +93,18 @@ class AuthService {
   async updateProfile(values) {
     const user = (await this.session())?.user;
     if (!user) throw new Error('Sesi sudah berakhir.');
+    const cleanOptional=(value,max)=>String(value||'').trim().slice(0,max)||null;
+    const birthDate=String(values.birth_date||'').trim()||null;
+    if(birthDate&&new Date(`${birthDate}T12:00:00`).getTime()>Date.now())throw new Error('Tanggal lahir tidak boleh berada di masa depan.');
     const allowed = {
       display_name:String(values.display_name || '').trim().slice(0,80),
       bio:String(values.bio || '').trim().slice(0,500),
+      nickname:cleanOptional(values.nickname,60),
+      birth_date:birthDate,
+      hometown:cleanOptional(values.hometown,100),
+      love_language:cleanOptional(values.love_language,80),
+      favorite_things:cleanOptional(values.favorite_things,300),
+      personal_quote:cleanOptional(values.personal_quote,240),
       avatar_path:values.avatar_path || null,
       accent:values.accent || 'violet'
     };

@@ -1,9 +1,9 @@
 {
   "name": "our-universe-two-hearts",
-  "version": "4.8.1",
+  "version": "4.9.1",
   "private": true,
   "type": "module",
-  "description": "A private two-person living galaxy with cinematic memories, Love Timeline, Relationship Stats, realtime presence, and shared worlds.",
+  "description": "A private two-person living galaxy with Cosmic Identity, Relationship Journey, realtime presence, and cinematic shared memories.",
   "scripts": {
     "configure": "node scripts/configure.mjs",
     "test": "node tests/validate.mjs",

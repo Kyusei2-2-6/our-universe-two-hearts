@@ -88,37 +88,44 @@ export function openMemberProfile(member, { onRefresh } = {}) {
   const online = Boolean((snapshot.presence || {})[member.user_id]?.length);
   const profile = member.profile || {};
   const content = document.createElement('div');
-  content.className = 'member-profile';
+  content.className = 'member-profile member-profile--cosmic';
 
   const hero = document.createElement('section');
-  hero.className = 'member-profile__hero';
+  hero.className = 'member-profile__hero member-profile__hero--cosmic';
   hero.innerHTML = `
+    <div class="member-profile__constellation" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="member-profile__avatar" data-avatar></div>
     <p class="eyebrow" data-role></p>
     <h2 data-name></h2>
+    <p class="member-profile__nickname" data-nickname hidden></p>
     <p class="member-profile__bio" data-bio></p>
     <div class="member-profile__status"><span></span><strong></strong></div>
   `;
-  hero.querySelector('[data-role]').textContent = isSelf ? 'PROFIL KAMU' : 'PROFIL PASANGAN';
+  hero.querySelector('[data-role]').textContent = isSelf ? 'COSMIC IDENTITY · KAMU' : 'COSMIC IDENTITY · PASANGAN';
   hero.querySelector('[data-name]').textContent = profile.display_name || 'Seseorang';
+  const nickname=hero.querySelector('[data-nickname]');
+  if(profile.nickname){nickname.hidden=false;nickname.textContent=`“${profile.nickname}”`;}
   hero.querySelector('[data-bio]').textContent = profile.bio || (isSelf ? 'Belum ada bio. Ceritakan sedikit tentang dirimu.' : 'Pasanganmu belum menulis bio.');
   hero.querySelector('.member-profile__status').classList.toggle('is-online', online);
   hero.querySelector('.member-profile__status strong').textContent = online ? 'Sedang online' : 'Sedang jauh dari layar';
-  const avatar = hero.querySelector('[data-avatar]');
-  fillAvatar(avatar, profile);
+  fillAvatar(hero.querySelector('[data-avatar]'), profile);
 
   const facts = document.createElement('div');
-  facts.className = 'member-profile__facts';
-  facts.innerHTML = `
-    <div><small>Bergabung</small><strong>${formatDate(member.joined_at)}</strong></div>
-    <div><small>Planet dibuat</small><strong data-planets>…</strong></div>
-    <div><small>Isi dibagikan</small><strong data-entries>…</strong></div>
-  `;
+  facts.className = 'member-profile__facts member-profile__facts--cosmic';
+  facts.append(
+    createFact('Bergabung',formatDate(member.joined_at),'✦'),
+    createFact('Ulang tahun',birthdayLabel(profile.birth_date),'🎂','birthday'),
+    createFact('Menuju ultah',birthdayCountdown(profile.birth_date),'☾','birthday-countdown'),
+    createFact('Planet dibuat','…','◉','planets'),
+    createFact('Isi dibagikan','…','⌁','entries')
+  );
+
+  const identity = createIdentitySection(profile,isSelf);
 
   const actions = document.createElement('div');
   actions.className = 'member-profile__actions';
   if (isSelf) {
-    const edit = button('✎ Edit profil', 'button--primary');
+    const edit = button('✎ Edit Cosmic Identity', 'button--primary');
     edit.onclick = () => {
       modal.close();
       openProfileEditor({ onRefresh });
@@ -127,14 +134,49 @@ export function openMemberProfile(member, { onRefresh } = {}) {
   } else {
     const note = document.createElement('p');
     note.className = 'member-profile__private-note';
-    note.textContent = 'Profil ini hanya dapat diubah oleh pasanganmu.';
+    note.textContent = 'Identitas ini hanya dapat diubah oleh pasanganmu.';
     actions.append(note);
   }
 
-  content.append(hero, facts, actions);
+  content.append(hero, facts, identity, actions);
   const modal = openModal({ title:isSelf ? 'Profil saya' : 'Profil pasangan', content });
   loadMemberStats(member.user_id, facts);
   return modal;
+}
+
+function createIdentitySection(profile,isSelf){
+  const section=document.createElement('section');
+  section.className='member-profile__identity-card';
+  const header=document.createElement('header');
+  header.innerHTML='<div><small>PERSONAL CONSTELLATION</small><strong>Hal kecil yang membentuk dirinya</strong></div><span>✧</span>';
+  const grid=document.createElement('div');grid.className='member-profile__identity-grid';
+  const items=[
+    ['Nama panggilan',profile.nickname,'♡'],
+    ['Asal atau kota',profile.hometown,'⌖'],
+    ['Love language',profile.love_language,'∞'],
+    ['Hal favorit',profile.favorite_things,'✦']
+  ].filter(([,value])=>value);
+  for(const [label,value,icon] of items){
+    const article=document.createElement('article');
+    const mark=document.createElement('span');mark.textContent=icon;
+    const copy=document.createElement('div');const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;copy.append(small,strong);article.append(mark,copy);grid.append(article);
+  }
+  if(!items.length){
+    const empty=document.createElement('p');empty.className='member-profile__identity-empty';empty.textContent=isSelf?'Lengkapi identitasmu agar pasanganmu mengenal semesta kecil di dalam dirimu.':'Pasanganmu belum mengisi detail identitasnya.';grid.append(empty);
+  }
+  section.append(header,grid);
+  if(profile.personal_quote){const quote=document.createElement('blockquote');quote.textContent=profile.personal_quote;section.append(quote);}
+  return section;
+}
+
+function createFact(label,value,icon,key=''){
+  const node=document.createElement('div');
+  if(key)node.dataset.profileFact=key;
+  const mark=document.createElement('span');mark.textContent=icon;
+  const small=document.createElement('small');small.textContent=label;
+  const strong=document.createElement('strong');strong.textContent=value;
+  node.append(mark,small,strong);
+  return node;
 }
 
 function createMemberButton(member, { currentUserId, onOpen }) {
@@ -149,7 +191,7 @@ function createMemberButton(member, { currentUserId, onOpen }) {
     <span class="profile-person-card__copy">
       <small>${isSelf ? 'KAMU' : 'PASANGAN'}</small>
       <strong></strong>
-      <em>${online ? 'Online sekarang' : 'Lihat profil'}</em>
+      <em>${online ? 'Online sekarang' : (profile.nickname ? `Dipanggil ${profile.nickname}` : 'Lihat profil')}</em>
     </span>
     <span class="profile-person-card__arrow">›</span>
   `;
@@ -166,11 +208,11 @@ async function loadMemberStats(userId, host) {
       repository.countPlanetsByCreator(userId),
       repository.countEntriesByCreator(userId)
     ]);
-    host.querySelector('[data-planets]').textContent = String(planetCount);
-    host.querySelector('[data-entries]').textContent = String(entryCount);
+    host.querySelector('[data-profile-fact="planets"] strong').textContent = String(planetCount);
+    host.querySelector('[data-profile-fact="entries"] strong').textContent = String(entryCount);
   } catch {
-    host.querySelector('[data-planets]').textContent = '—';
-    host.querySelector('[data-entries]').textContent = '—';
+    host.querySelector('[data-profile-fact="planets"] strong').textContent = '—';
+    host.querySelector('[data-profile-fact="entries"] strong').textContent = '—';
   }
 }
 
@@ -195,6 +237,37 @@ function formatDate(value) {
   }
 }
 
+function birthdayLabel(value){
+  const date=parseDateOnly(value);if(!date)return'Belum diisi';
+  const age=calculateAge(date);
+  const dayMonth=new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long'}).format(date);
+  return age===null?dayMonth:`${dayMonth} · ${age} th`;
+}
+
+function birthdayCountdown(value){
+  const birth=parseDateOnly(value);if(!birth)return'Belum diisi';
+  const today=startOfDay(new Date());
+  let next=new Date(today.getFullYear(),birth.getMonth(),birth.getDate());
+  if(next<today)next=new Date(today.getFullYear()+1,birth.getMonth(),birth.getDate());
+  const days=Math.round((next-today)/86400000);
+  if(days===0)return'Hari ini 🎉';
+  if(days===1)return'Besok';
+  return`${days} hari lagi`;
+}
+
+function calculateAge(birth){
+  const today=new Date();if(birth>today)return null;
+  let age=today.getFullYear()-birth.getFullYear();
+  const beforeBirthday=today.getMonth()<birth.getMonth()||(today.getMonth()===birth.getMonth()&&today.getDate()<birth.getDate());
+  if(beforeBirthday)age-=1;
+  return Math.max(0,age);
+}
+
+function parseDateOnly(value){
+  if(!value)return null;const date=new Date(`${value}T12:00:00`);return Number.isFinite(date.getTime())?date:null;
+}
+function startOfDay(date){const copy=new Date(date);copy.setHours(0,0,0,0);return copy;}
+
 function button(label, variant = 'button--ghost') {
   const node = document.createElement('button');
   node.type = 'button';
@@ -205,39 +278,74 @@ function button(label, variant = 'button--ghost') {
 
 function openProfileEditor({ onRefresh } = {}) {
   const snapshot = state.snapshot;
+  const profile=snapshot.profile||{};
   const form = document.createElement('form');
-  form.className = 'auth-form';
+  form.className = 'auth-form profile-editor profile-editor--cosmic';
   form.innerHTML = `
-    <div class="field"><label>Nama tampilan</label><input class="input" name="display_name" required maxlength="80"></div>
-    <div class="field"><label>Bio singkat</label><textarea class="textarea" name="bio" maxlength="500"></textarea></div>
-    <div class="field"><label>Foto profil</label><input class="input" name="avatar" type="file" accept="image/*"></div>
-    <button class="button button--primary" type="submit">Simpan profil</button>
+    <section class="profile-editor__section">
+      <header><span>✦</span><div><small>IDENTITAS UTAMA</small><strong>Bagaimana kamu dikenal di semesta ini</strong></div></header>
+      <div class="profile-editor__grid">
+        <div class="field"><label>Nama tampilan</label><input class="input" name="display_name" required maxlength="80"></div>
+        <div class="field"><label>Nama panggilan</label><input class="input" name="nickname" maxlength="60" placeholder="Nama kesayangan atau panggilan"></div>
+        <div class="field"><label>Tanggal lahir</label><input class="input" name="birth_date" type="date"></div>
+        <div class="field"><label>Asal atau kota</label><input class="input" name="hometown" maxlength="100" placeholder="Contoh: Jambi"></div>
+      </div>
+    </section>
+    <section class="profile-editor__section">
+      <header><span>♡</span><div><small>PERSONAL CONSTELLATION</small><strong>Hal kecil yang penting tentang dirimu</strong></div></header>
+      <div class="field"><label>Love language</label><input class="input" name="love_language" maxlength="80" list="love-language-options" placeholder="Contoh: Quality time"></div>
+      <datalist id="love-language-options"><option value="Quality time"><option value="Words of affirmation"><option value="Acts of service"><option value="Physical touch"><option value="Receiving gifts"></datalist>
+      <div class="field"><label>Hal favorit</label><textarea class="textarea" name="favorite_things" maxlength="300" rows="3" placeholder="Makanan, musik, tempat, warna, atau hal kecil yang kamu suka"></textarea></div>
+      <div class="field"><label>Kalimat yang menggambarkanmu</label><textarea class="textarea" name="personal_quote" maxlength="240" rows="3" placeholder="Satu kalimat yang terasa seperti dirimu"></textarea></div>
+      <div class="field"><label>Bio singkat</label><textarea class="textarea" name="bio" maxlength="500" rows="4"></textarea></div>
+    </section>
+    <section class="profile-editor__section profile-editor__section--avatar">
+      <header><span>☾</span><div><small>WAJAH DI SEMESTA</small><strong>Foto profil</strong></div></header>
+      <div class="field"><input class="input" name="avatar" type="file" accept="image/*"></div>
+    </section>
+    <button class="button button--primary profile-editor__save" type="submit">Simpan Cosmic Identity</button>
   `;
-  form.elements.display_name.value = snapshot.profile?.display_name || '';
-  form.elements.bio.value = snapshot.profile?.bio || '';
-  const modal = openModal({ title:'Edit profil', content:form });
+  for(const field of ['display_name','nickname','birth_date','hometown','love_language','favorite_things','personal_quote','bio']){
+    if(form.elements[field])form.elements[field].value=profile[field]||'';
+  }
+  form.elements.birth_date.max=new Date().toISOString().slice(0,10);
+  const modal = openModal({ title:'Edit Cosmic Identity', content:form });
   form.onsubmit = async event => {
     event.preventDefault();
-    const save = form.querySelector('button');
+    const save = form.querySelector('button[type="submit"]');
     save.disabled = true;
+    save.textContent='Menyimpan identitas…';
     try {
-      let avatarPath = snapshot.profile?.avatar_path || null;
+      let avatarPath = profile.avatar_path || null;
       const file = form.elements.avatar.files[0];
       if (file) avatarPath = await uploadAvatar({ universeId:snapshot.universe.id, userId:snapshot.user.id, file });
       await auth.updateProfile({
         display_name:form.elements.display_name.value,
+        nickname:form.elements.nickname.value,
+        birth_date:form.elements.birth_date.value,
+        hometown:form.elements.hometown.value,
+        love_language:form.elements.love_language.value,
+        favorite_things:form.elements.favorite_things.value,
+        personal_quote:form.elements.personal_quote.value,
         bio:form.elements.bio.value,
         avatar_path:avatarPath,
-        accent:snapshot.profile?.accent
+        accent:profile.accent
       });
-      toast('Profil diperbarui.', { type:'success' });
+      toast('Cosmic Identity berhasil diperbarui.', { type:'success' });
       modal.close();
       await onRefresh?.();
       window.dispatchEvent(new CustomEvent('our-universe:refresh',{detail:{source:'profile'}}));
     } catch (error) {
-      toast(error.message, { type:'error' });
+      toast(friendlyProfileError(error), { type:'error',duration:6500 });
     } finally {
       save.disabled = false;
+      save.textContent='Simpan Cosmic Identity';
     }
   };
+}
+
+function friendlyProfileError(error){
+  const message=String(error?.message||error||'');
+  if(/nickname|birth_date|hometown|love_language|favorite_things|personal_quote|schema cache|column/i.test(message))return'Cosmic Identity membutuhkan migration v4.9.0 di Supabase.';
+  return message||'Profil belum dapat disimpan.';
 }

@@ -24,10 +24,22 @@ create table if not exists public.profiles (
   email text not null,
   display_name text not null default 'Seseorang',
   bio text not null default '',
+  nickname text,
+  birth_date date,
+  hometown text,
+  love_language text,
+  favorite_things text,
+  personal_quote text,
   avatar_path text,
   accent text not null default 'violet',
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint profiles_nickname_length_v490 check(nickname is null or char_length(trim(nickname))<=60),
+  constraint profiles_birth_date_range_v490 check(birth_date is null or birth_date>=date '1900-01-01'),
+  constraint profiles_hometown_length_v490 check(hometown is null or char_length(trim(hometown))<=100),
+  constraint profiles_love_language_length_v490 check(love_language is null or char_length(trim(love_language))<=80),
+  constraint profiles_favorite_things_length_v490 check(favorite_things is null or char_length(trim(favorite_things))<=300),
+  constraint profiles_personal_quote_length_v490 check(personal_quote is null or char_length(trim(personal_quote))<=240)
 );
 
 create table if not exists public.universes (
@@ -2005,13 +2017,20 @@ grant execute on function public.touch_love_timeline_v470() to authenticated;
 -- Tanggal hubungan disimpan terpisah agar statistik tidak menebak dari tanggal akun.
 create table if not exists public.couple_relationship_profiles (
   universe_id uuid primary key references public.universes(id) on delete cascade,
-  started_on date,
+  connection_title text not null default 'Terhubung Sejak',
+  connected_on date,
+  first_chat_on date,
   first_met_on date,
+  first_date_on date,
+  started_on date,
   anniversary_title text not null default 'Hari Kita',
+  relationship_story text not null default '',
   updated_by uuid not null references public.profiles(id) on delete restrict,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint couple_relationship_title_v470 check(char_length(trim(anniversary_title)) between 1 and 80),
+  constraint couple_relationship_connection_title_v490 check(char_length(trim(connection_title)) between 1 and 80),
+  constraint couple_relationship_story_length_v490 check(char_length(relationship_story)<=2400),
   constraint couple_relationship_date_order_v470 check(first_met_on is null or started_on is null or first_met_on<=started_on)
 );
 

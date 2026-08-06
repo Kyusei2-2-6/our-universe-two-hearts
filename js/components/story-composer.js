@@ -17,6 +17,8 @@ const ACTIONS=[
 
 export async function openStoryComposer({planetId=null,onSaved}={}){
   let files=[];
+  let previewUrls=[];
+  let lastFileAction=ACTIONS.find(action=>action.key==='gallery');
   let chosenPlanet=planetId;
   let inferredType='memory';
   let planets=[];
@@ -29,6 +31,10 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
     </header>
     <div class="story-composer__actions" data-actions aria-label="Pilih jenis isi"></div>
     <section class="story-composer__preview">
+      <div class="story-composer__batch-toolbar" data-batch-toolbar hidden>
+        <strong data-selected-count>0 file dipilih</strong>
+        <div><button class="button button--ghost" type="button" data-add-more>＋ Tambah lagi</button><button class="button button--ghost" type="button" data-clear-files>Hapus semua</button></div>
+      </div>
       <div data-preview-empty><span>✦</span><strong>Pilih foto, video, musik, dokumen, atau mulai menulis.</strong></div>
       <div data-preview-list></div>
     </section>
@@ -50,7 +56,7 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
     </section>
     <footer class="story-composer__footer"><span data-detected>Belum ada isi</span><button class="button button--primary" type="submit">Bagikan ke semesta</button></footer>`;
 
-  const modal=openModal({title:'',content:shell,className:'story-composer-modal'});
+  const modal=openModal({title:'',content:shell,className:'story-composer-modal',onClose:clearPreviewUrls});
   shell.querySelector('[data-close]').onclick=()=>modal.close();
   const actionHost=shell.querySelector('[data-actions]');
 
@@ -68,7 +74,20 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
     };
     actionHost.append(button);
   }
+  const batchHelp=document.createElement('p');
+  batchHelp.className='story-composer__batch-help';
+  batchHelp.textContent='Bisa pilih banyak file sekaligus. Jika pemilih file HP hanya memberi satu file, ketuk lagi. Pilihan sebelumnya tetap tersimpan.';
+  actionHost.append(batchHelp);
 
+  shell.querySelector('[data-add-more]').onclick=()=>openFilePicker(lastFileAction||ACTIONS[1]);
+  shell.querySelector('[data-clear-files]').onclick=()=>{
+    if(!files.length)return;
+    files=[];
+    inferredType=shell.elements.body.value.trim()?'note':'memory';
+    renderPreview();
+    renderPlanets();
+    toast('Semua file dihapus dari draft.');
+  };
   shell.querySelector('[data-open-notepad]').onclick=openWritingNotepad;
   shell.querySelector('[data-new-planet]').onclick=()=>openPlanetComposer({onSaved:async planet=>{
     planets=await repository.listPlanets();
@@ -81,10 +100,12 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
   renderPreview();
 
   function openFilePicker(action){
+    lastFileAction=action;
     const picker=document.createElement('input');
     picker.type='file';
     picker.accept=action.accept||'';
     picker.multiple=Boolean(action.multiple);
+    if(action.multiple)picker.setAttribute('multiple','');
     picker.tabIndex=-1;
     picker.style.position='fixed';
     picker.style.left='-10000px';
@@ -97,13 +118,43 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
       const selected=[...(picker.files||[])];
       picker.remove();
       if(!selected.length)return;
-      files=selected;
-      inferredType=inferType(files);
-      renderPreview();
-      renderPlanets();
+      appendFiles(selected);
     },{once:true});
     picker.click();
     window.addEventListener('focus',()=>setTimeout(()=>{if(picker.isConnected&&!picker.files?.length)picker.remove();},900),{once:true});
+  }
+
+  function appendFiles(selected=[]){
+    const known=new Set(files.map(fileIdentity));
+    const added=[];
+    for(const file of selected){
+      const identity=fileIdentity(file);
+      if(known.has(identity))continue;
+      known.add(identity);
+      added.push(file);
+    }
+    if(!added.length){
+      toast('File yang dipilih sudah ada di draft.');
+      return;
+    }
+    files=[...files,...added];
+    inferredType=inferType(files);
+    renderPreview();
+    renderPlanets();
+    toast(`${added.length} file ditambahkan. Total ${files.length} file.`,{type:'success'});
+  }
+
+  function removeFileAt(index){
+    if(index<0||index>=files.length)return;
+    files=files.filter((_,itemIndex)=>itemIndex!==index);
+    inferredType=inferType(files);
+    renderPreview();
+    renderPlanets();
+  }
+
+  function clearPreviewUrls(){
+    for(const url of previewUrls)URL.revokeObjectURL(url);
+    previewUrls=[];
   }
 
   function openWritingNotepad(){
@@ -152,9 +203,13 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
   }
 
   function renderPreview(){
+    clearPreviewUrls();
     const empty=shell.querySelector('[data-preview-empty]');
     const list=shell.querySelector('[data-preview-list]');
     list.innerHTML='';
+    const toolbar=shell.querySelector('[data-batch-toolbar]');
+    toolbar.hidden=!files.length;
+    shell.querySelector('[data-selected-count]').textContent=`${files.length} file dipilih`;
     empty.hidden=Boolean(files.length||shell.elements.body.value.trim());
     if(!files.length&&shell.elements.body.value.trim()){
       const note=document.createElement('article');
@@ -162,12 +217,13 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
       note.textContent=shell.elements.body.value;
       list.append(note);
     }
-    for(const file of files){
+    for(const [index,file] of files.entries()){
       const card=document.createElement('article');
       card.className='story-preview';
       const kind=detectFileKind(file);
       if(kind==='image'||kind==='video'){
         const url=URL.createObjectURL(file);
+        previewUrls.push(url);
         const media=document.createElement(kind==='image'?'img':'video');
         media.src=url;
         media.muted=true;
@@ -179,6 +235,17 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
         card.querySelector('strong').textContent=file.name;
         card.querySelector('small').textContent=kind;
       }
+      const remove=document.createElement('button');
+      remove.type='button';
+      remove.className='story-preview__remove';
+      remove.setAttribute('aria-label',`Hapus ${file.name||`file ${index+1}`}`);
+      remove.textContent='×';
+      remove.onclick=()=>removeFileAt(index);
+      card.append(remove);
+      const number=document.createElement('span');
+      number.className='story-preview__number';
+      number.textContent=String(index+1);
+      card.append(number);
       list.append(card);
     }
     shell.querySelector('[data-detected]').textContent=`Terdeteksi: ${typeLabel(inferredType)}${files.length?` · ${files.length} file`:''}`;
@@ -239,7 +306,7 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
         title:shell.elements.title.value||defaultTitle(inferredType),
         body:shell.elements.body.value,
         event_date:shell.elements.event_date.value?new Date(shell.elements.event_date.value).toISOString():new Date().toISOString(),
-        metadata:{source:'story-composer-v4-1-3',detected_type:inferredType}
+        metadata:{source:'story-composer-v4-9-1-multi-upload',detected_type:inferredType,file_count:files.length}
       });
       for(let index=0;index<files.length;index++){
         detected.textContent=`Mengunggah file ${index+1} dari ${files.length}…`;
@@ -270,6 +337,7 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
   return modal;
 }
 
+function fileIdentity(file){return [file.name||'',file.size||0,file.lastModified||0,file.type||''].join('::');}
 function kindIcon(kind){return({audio:'♫',pdf:'PDF',document:'DOC',archive:'ZIP',text:'TXT',other:'⌑'})[kind]||'⌑';}
 function typeLabel(type){return({gallery:'foto/video',music:'musik/audio',file:'dokumen',note:'catatan',memory:'kenangan'})[type]||type;}
 function defaultTitle(type){return `${typeLabel(type)} · ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}`;}

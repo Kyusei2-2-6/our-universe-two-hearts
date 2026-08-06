@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050817">
+  <title>OUR UNIVERSE v4.9.1</title>
+  <style>body{min-height:100dvh;margin:0;display:grid;place-items:center;background:#050817;color:#fff;font-family:system-ui,sans-serif;padding:24px;text-align:center}.card{max-width:560px;padding:30px;border:1px solid rgba(255,255,255,.14);border-radius:28px;background:rgba(13,19,40,.88);box-shadow:0 30px 90px rgba(0,0,0,.45)}h1{margin:.2rem 0 1rem;font-size:clamp(2rem,8vw,3.3rem)}p{color:#c8d0e6;line-height:1.65}.status{color:#a9c3ff;font-weight:800}</style>
+</head>
+<body>
+  <main class="card"><div>✦</div><h1>Menyalakan v4.9.1</h1><p>Cache lama sedang dibersihkan agar pemilih banyak foto, audio, video, dan dokumen langsung aktif.</p><p class="status" id="status">Membersihkan semesta…</p></main>
+  <script>
+    (async()=>{
+      const status=document.querySelector('#status');
+      try{
+        const registrations=await navigator.serviceWorker?.getRegistrations?.()||[];
+        await Promise.all(registrations.map(item=>item.unregister()));
+        const keys=await caches.keys();
+        await Promise.all(keys.filter(key=>key.startsWith('our-universe-')).map(key=>caches.delete(key)));
+        status.textContent='Selesai. Membuka OUR UNIVERSE…';
+      }catch(error){status.textContent='Cache sebagian dibersihkan. Membuka aplikasi…';}
+      setTimeout(()=>location.replace('./?fresh=4.9.1-'+Date.now()),900);
+    })();
+  </script>
+</body>
+</html>

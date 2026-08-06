@@ -1,0 +1,144 @@
+/* OUR UNIVERSE v4.9.0 · Cosmic Identity + Relationship Journey */
+
+/* Home relationship clock */
+.living-connection-clock{
+  position:relative;
+  z-index:19;
+  width:var(--ou481-width,min(1180px,calc(100vw - 34px)));
+  min-height:104px;
+  display:grid;
+  grid-template-columns:74px minmax(0,1fr) 34px;
+  align-items:center;
+  gap:18px;
+  padding:16px 20px;
+  border:1px solid rgba(222,213,255,.14);
+  border-radius:28px;
+  color:#fff;
+  text-align:left;
+  background:
+    radial-gradient(circle at 8% 50%,rgba(255,111,169,.18),transparent 23%),
+    radial-gradient(circle at 88% 0,rgba(132,112,255,.16),transparent 30%),
+    linear-gradient(135deg,rgba(17,19,45,.86),rgba(7,9,25,.78));
+  box-shadow:0 20px 70px rgba(0,0,0,.31),inset 0 1px 0 rgba(255,255,255,.05);
+  cursor:pointer;
+  overflow:hidden;
+  transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease;
+}
+.living-connection-clock:hover,.living-connection-clock:focus-visible{transform:translateY(-2px);border-color:rgba(215,195,255,.3);box-shadow:0 25px 75px rgba(0,0,0,.38),0 0 36px rgba(140,113,255,.1)}
+.living-connection-clock::after{content:"";position:absolute;inset:auto -50px -95px auto;width:220px;aspect-ratio:1;border:1px solid rgba(255,255,255,.05);border-radius:50%;box-shadow:0 0 0 28px rgba(255,255,255,.018),0 0 0 63px rgba(255,255,255,.01);pointer-events:none}
+.living-connection-clock__symbol{position:relative;z-index:2;width:66px;aspect-ratio:1;display:grid;place-items:center;border:1px solid rgba(255,255,255,.16);border-radius:22px;background:linear-gradient(145deg,rgba(255,107,164,.24),rgba(126,102,255,.23));box-shadow:inset 0 0 24px rgba(255,255,255,.04),0 10px 30px rgba(0,0,0,.25);font-family:var(--font-display);font-size:2.05rem}
+.living-connection-clock.is-configured .living-connection-clock__symbol{animation:ou490-connection-pulse 3.2s ease-in-out infinite}
+.living-connection-clock__copy{position:relative;z-index:2;min-width:0;display:grid;gap:4px}
+.living-connection-clock__copy>small{color:#c9bdf7;font-size:.57rem;font-weight:800;letter-spacing:.23em}
+.living-connection-clock__copy>strong{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;font-weight:700}
+.living-connection-clock__copy>strong b{font-family:var(--font-display);font-size:clamp(1.45rem,3.5vw,2.55rem);line-height:1;color:#fff}
+.living-connection-clock__copy>strong span{color:#f0eafa;font-size:.84rem}
+.living-connection-clock__copy>em{color:rgba(216,218,239,.62);font-style:normal;font-size:.73rem;line-height:1.45}
+.living-connection-clock__arrow{position:relative;z-index:2;color:rgba(225,219,255,.66);font-size:2.2rem;text-align:center}
+.living-connection-clock.is-unavailable{border-color:rgba(255,187,109,.2)}
+
+/* Cosmic Identity profile */
+.member-profile--cosmic{width:min(620px,calc(100vw - 34px))}
+.member-profile__hero--cosmic{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 0,rgba(174,143,255,.25),transparent 42%),radial-gradient(circle at 15% 85%,rgba(255,101,163,.12),transparent 32%),rgba(255,255,255,.025)}
+.member-profile__constellation{position:absolute;inset:0;pointer-events:none;opacity:.55}
+.member-profile__constellation::before,.member-profile__constellation::after{content:"";position:absolute;height:1px;transform-origin:left;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent)}
+.member-profile__constellation::before{left:8%;top:25%;width:44%;transform:rotate(18deg)}
+.member-profile__constellation::after{right:3%;bottom:25%;width:39%;transform:rotate(-27deg)}
+.member-profile__constellation i{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.8)}
+.member-profile__constellation i:nth-child(1){left:10%;top:22%}.member-profile__constellation i:nth-child(2){left:38%;top:35%}.member-profile__constellation i:nth-child(3){right:17%;top:19%}.member-profile__constellation i:nth-child(4){right:9%;bottom:19%}
+.member-profile__nickname{margin:7px 0 -3px;color:#d9cfff;font-size:.8rem;font-style:italic}
+.member-profile__facts--cosmic{grid-template-columns:repeat(5,1fr)}
+.member-profile__facts--cosmic>div{display:grid;justify-items:center;align-content:start;gap:3px;min-height:91px;padding:11px 7px}
+.member-profile__facts--cosmic>div>span{display:grid;place-items:center;width:26px;height:26px;border-radius:9px;background:rgba(148,124,255,.1);font-size:.85rem}
+.member-profile__facts--cosmic small{margin-top:2px}
+.member-profile__facts--cosmic strong{max-width:100%;white-space:normal;line-height:1.25}
+.member-profile__identity-card{display:grid;gap:13px;padding:17px;border:1px solid rgba(255,255,255,.08);border-radius:24px;background:radial-gradient(circle at 95% 0,rgba(141,115,255,.13),transparent 34%),rgba(255,255,255,.025)}
+.member-profile__identity-card>header{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.member-profile__identity-card>header small{display:block;color:#b8aaf3;font-size:.55rem;font-weight:850;letter-spacing:.18em}
+.member-profile__identity-card>header strong{display:block;margin-top:4px;font-size:.9rem}
+.member-profile__identity-card>header>span{font-size:1.35rem;color:#e5dcff}
+.member-profile__identity-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.member-profile__identity-grid article{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:start;gap:10px;padding:12px;border:1px solid rgba(255,255,255,.065);border-radius:17px;background:rgba(255,255,255,.025)}
+.member-profile__identity-grid article>span{display:grid;place-items:center;width:32px;height:32px;border-radius:11px;color:#fff;background:linear-gradient(145deg,rgba(255,101,163,.18),rgba(124,105,255,.18))}
+.member-profile__identity-grid small{display:block;color:#8995ae;font-size:.58rem}
+.member-profile__identity-grid strong{display:block;margin-top:3px;color:#f3f0fb;font-size:.76rem;line-height:1.45;overflow-wrap:anywhere}
+.member-profile__identity-empty{grid-column:1/-1;margin:0;padding:14px;border:1px dashed rgba(255,255,255,.1);border-radius:16px;color:#8f99b0;font-size:.72rem;line-height:1.6;text-align:center}
+.member-profile__identity-card blockquote{position:relative;margin:0;padding:15px 17px 15px 37px;border-left:2px solid #b398ff;border-radius:0 16px 16px 0;color:#e9e3f2;background:rgba(255,255,255,.026);font-size:.78rem;font-style:italic;line-height:1.65}
+.member-profile__identity-card blockquote::before{content:"“";position:absolute;left:12px;top:3px;color:#cdbdff;font-family:serif;font-size:2.1rem}
+
+.profile-editor--cosmic{width:min(700px,calc(100vw - 34px));display:grid;gap:12px}
+.profile-editor__section{display:grid;gap:12px;padding:15px;border:1px solid rgba(255,255,255,.075);border-radius:21px;background:rgba(255,255,255,.024)}
+.profile-editor__section>header{display:flex;align-items:center;gap:10px}
+.profile-editor__section>header>span{display:grid;place-items:center;width:34px;height:34px;border-radius:12px;background:linear-gradient(145deg,rgba(255,107,168,.18),rgba(130,108,255,.2))}
+.profile-editor__section>header small{display:block;color:#aa9de0;font-size:.54rem;font-weight:850;letter-spacing:.16em}
+.profile-editor__section>header strong{display:block;margin-top:3px;font-size:.83rem}
+.profile-editor__grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.profile-editor__section--avatar{grid-template-columns:1fr}
+.profile-editor__save{min-height:48px}
+
+/* Relationship Journey */
+.relationship-journey-hero{grid-template-columns:180px minmax(0,1fr) auto}
+.relationship-stats-duration{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.relationship-stats-duration span{min-width:64px;display:grid;justify-items:center;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.035)}
+.relationship-stats-duration strong{font-family:var(--font-display);font-size:1.25rem}
+.relationship-stats-duration small{color:#9297ad;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase}
+.relationship-journey-map{display:grid;gap:13px}
+.relationship-journey-loading{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.relationship-journey-loading i{height:120px;border-radius:20px;background:linear-gradient(90deg,rgba(255,255,255,.025),rgba(255,255,255,.08),rgba(255,255,255,.025));background-size:220% 100%;animation:loveTimelineShimmer 1.25s linear infinite}
+.relationship-journey-loading i:last-child{grid-column:1/-1;height:210px}
+.relationship-journey-summary{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.relationship-journey-summary-card{display:grid;grid-template-columns:56px minmax(0,1fr);align-items:center;gap:13px;padding:16px;border:1px solid rgba(255,255,255,.1);border-radius:21px;background:radial-gradient(circle at 0 50%,rgba(255,104,162,.12),transparent 35%),linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.022))}
+.relationship-journey-summary-card>span{display:grid;place-items:center;width:54px;aspect-ratio:1;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:linear-gradient(145deg,rgba(255,94,153,.18),rgba(130,109,255,.2));font-size:1.55rem}
+.relationship-journey-summary-card small{display:block;color:#a99cdb;font-size:.57rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase}
+.relationship-journey-summary-card strong{display:block;margin-top:4px;font-family:var(--font-display);font-size:1.2rem;line-height:1.15}
+.relationship-journey-summary-card em{display:block;margin-top:5px;color:#9699ae;font-size:.67rem;font-style:normal;line-height:1.5}
+.relationship-journey-timeline,.relationship-journey-story{padding:18px}
+.relationship-journey-timeline>header,.relationship-journey-story>header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}
+.relationship-journey-timeline>header small,.relationship-journey-story>header small{display:block;color:#ae9ee7;font-size:.55rem;font-weight:850;letter-spacing:.17em}
+.relationship-journey-timeline>header strong,.relationship-journey-story>header strong{display:block;margin-top:4px;font-size:1rem}
+.relationship-journey-timeline>header>span,.relationship-journey-story>header>span{color:#989caf;font-size:.59rem}
+.relationship-journey-line{position:relative;display:grid;gap:0;padding:4px 2px}
+.relationship-journey-line::before{content:"";position:absolute;left:24px;top:22px;bottom:22px;width:1px;background:linear-gradient(180deg,rgba(255,105,165,.5),rgba(142,117,255,.48));box-shadow:0 0 16px rgba(167,137,255,.25)}
+.relationship-journey-milestone{position:relative;display:grid;grid-template-columns:49px minmax(0,1fr);gap:13px;align-items:start;padding:10px 0;animation:ou490-milestone-in .45s both;animation-delay:calc(var(--journey-index)*55ms)}
+.relationship-journey-milestone>span{position:relative;z-index:2;display:grid;place-items:center;width:47px;aspect-ratio:1;border:5px solid #0d1025;border-radius:50%;color:#fff;background:linear-gradient(145deg,#ff649d,#8068ef);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 0 24px rgba(151,120,255,.2)}
+.relationship-journey-milestone>div{padding:8px 12px 11px;border:1px solid rgba(255,255,255,.065);border-radius:15px;background:rgba(255,255,255,.025)}
+.relationship-journey-milestone small{display:block;color:#a797df;font-size:.57rem;font-weight:800}
+.relationship-journey-milestone strong{display:block;margin-top:3px;font-size:.84rem}
+.relationship-journey-milestone em{display:block;margin-top:4px;color:#9195aa;font-size:.66rem;font-style:normal;line-height:1.5}
+.relationship-journey-empty{position:relative;z-index:2;display:grid;grid-template-columns:47px minmax(0,1fr);align-items:center;gap:13px;padding:10px 0}
+.relationship-journey-empty>span{display:grid;place-items:center;width:47px;aspect-ratio:1;border-radius:50%;background:#181b38;color:#b6a5ef}
+.relationship-journey-empty strong{display:block;font-size:.83rem}.relationship-journey-empty small{display:block;margin-top:4px;color:#8f93a8;font-size:.67rem;line-height:1.5}
+.relationship-journey-story p{margin:0;padding:16px;border-left:2px solid #ff6ca5;border-radius:0 16px 16px 0;color:#ddd9e6;background:rgba(255,255,255,.025);font-size:.76rem;line-height:1.8;white-space:pre-wrap}
+.relationship-journey-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.relationship-journey-editor form{width:min(720px,100%)}
+
+@keyframes ou490-connection-pulse{0%,100%{transform:scale(1);box-shadow:inset 0 0 24px rgba(255,255,255,.04),0 10px 30px rgba(0,0,0,.25)}50%{transform:scale(1.035);box-shadow:inset 0 0 24px rgba(255,255,255,.07),0 0 32px rgba(154,126,255,.2)}}
+@keyframes ou490-milestone-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+@media(max-width:900px){
+  .member-profile__facts--cosmic{grid-template-columns:repeat(3,1fr)}
+  .member-profile__facts--cosmic>div:first-child{grid-column:auto}
+  .relationship-journey-hero{grid-template-columns:110px minmax(0,1fr)}
+  .relationship-journey-hero>[data-stats-edit]{grid-column:1/-1;width:100%}
+}
+@media(max-width:700px){
+  .living-connection-clock{grid-template-columns:58px minmax(0,1fr) 20px;gap:12px;min-height:92px;padding:13px 14px;border-radius:23px}
+  .living-connection-clock__symbol{width:54px;border-radius:17px;font-size:1.55rem}
+  .living-connection-clock__copy>strong{gap:6px}.living-connection-clock__copy>strong b{font-size:1.45rem}.living-connection-clock__copy>strong span{font-size:.72rem}
+  .member-profile__identity-grid,.profile-editor__grid,.relationship-journey-summary,.relationship-journey-form-grid{grid-template-columns:1fr}
+  .member-profile__facts--cosmic{grid-template-columns:1fr 1fr}
+  .member-profile__facts--cosmic>div:first-child{grid-column:1/-1}
+}
+@media(max-width:560px){
+  .living-connection-clock{width:calc(100vw - 24px);grid-template-columns:50px minmax(0,1fr);padding:12px}
+  .living-connection-clock__symbol{width:48px}.living-connection-clock__arrow{display:none}
+  .living-connection-clock__copy>small{font-size:.49rem;letter-spacing:.16em}.living-connection-clock__copy>strong b{font-size:1.25rem}.living-connection-clock__copy>em{font-size:.62rem}
+  .member-profile--cosmic,.profile-editor--cosmic{width:100%}
+  .member-profile__facts--cosmic{gap:6px}.member-profile__facts--cosmic>div{min-height:82px;padding:9px 5px}
+  .member-profile__identity-card{padding:13px;border-radius:20px}.member-profile__identity-grid article{padding:10px}
+  .profile-editor__section{padding:12px;border-radius:18px}
+  .relationship-stats-duration span{min-width:54px;padding:7px}.relationship-stats-duration strong{font-size:1rem}
+  .relationship-journey-summary-card{grid-template-columns:46px minmax(0,1fr);padding:13px}.relationship-journey-summary-card>span{width:44px;border-radius:14px;font-size:1.2rem}
+  .relationship-journey-timeline,.relationship-journey-story{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){.living-connection-clock.is-configured .living-connection-clock__symbol,.relationship-journey-milestone{animation:none!important}}

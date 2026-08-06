@@ -158,3 +158,75 @@ html[data-galaxy-engine="lite"] #universe-canvas{opacity:.94;background:radial-g
   .entry-card__meta{grid-template-columns:1fr auto!important}
   .entry-card__creator{grid-column:1/-1;grid-row:2;text-align:left}
 }
+
+/* v4.9.1 · Android multi-file queue */
+.story-composer__batch-help{
+  grid-column:1/-1;
+  margin:2px 4px 0;
+  color:#9faccc;
+  font-size:.72rem;
+  line-height:1.45;
+  text-align:center;
+}
+.story-composer__preview{align-content:start}
+.story-composer__batch-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 0 12px;
+  padding:10px 12px;
+  border:1px solid rgba(160,181,241,.2);
+  border-radius:18px;
+  background:rgba(13,19,40,.86);
+}
+.story-composer__batch-toolbar[hidden]{display:none!important}
+.story-composer__batch-toolbar>strong{font-size:.78rem;color:#dfe7ff}
+.story-composer__batch-toolbar>div{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.story-composer__batch-toolbar .button{min-height:36px;padding:7px 11px;font-size:.68rem}
+.story-composer__preview>[data-preview-list]{align-content:start;max-height:620px;overflow:auto;overscroll-behavior:contain;padding-right:2px}
+.story-preview__remove{
+  position:absolute;
+  z-index:4;
+  top:9px;
+  right:9px;
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:50%;
+  background:rgba(4,7,17,.84);
+  color:#fff;
+  font-size:1.35rem;
+  line-height:1;
+  box-shadow:0 8px 22px rgba(0,0,0,.34);
+  backdrop-filter:blur(10px);
+}
+.story-preview__number{
+  position:absolute;
+  z-index:3;
+  left:10px;
+  bottom:10px;
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:rgba(4,7,17,.82);
+  color:#e8eeff;
+  font-size:.68rem;
+  font-weight:800;
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(8px);
+}
+@media(max-width:600px){
+  .story-composer__batch-help{font-size:.66rem;line-height:1.35;margin-top:0}
+  .story-composer__batch-toolbar{align-items:flex-start;flex-direction:column}
+  .story-composer__batch-toolbar>div{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .story-composer__batch-toolbar .button{width:100%;justify-content:center}
+  .story-composer__preview>[data-preview-list]{max-height:68dvh}
+  .story-preview{min-height:150px;padding:12px}
+  .story-preview strong{overflow-wrap:anywhere}
+}
