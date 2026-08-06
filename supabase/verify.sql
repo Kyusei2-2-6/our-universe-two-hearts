@@ -19,3 +19,10 @@ select column_name,data_type from information_schema.columns where table_schema=
 
 select to_regclass('public.push_subscriptions') as push_subscriptions_table,
        to_regclass('public.notification_preferences') as notification_preferences_table;
+
+-- OUR BOND v4.5.0
+select table_name
+from information_schema.tables
+where table_schema='public'
+  and table_name in ('bond_pulses','bond_emotions','bond_replays','bond_capsules','bond_capsule_secrets')
+order by table_name;

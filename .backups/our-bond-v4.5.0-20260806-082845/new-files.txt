@@ -1,0 +1,12 @@
+AUDIT-V4.5.0-OUR-BOND.md
+INSTALL-V4.5-OUR-BOND.md
+PATCH-V4.5.0-OUR-BOND.txt
+PATCH-V4.5.0-SHA256SUMS.txt
+css/our-bond.css
+js/features/heartbeat-engine.js
+js/features/love-cinema.js
+js/features/memory-replay.js
+js/features/our-bond.js
+js/features/secret-room.js
+supabase/migrations/2026-08-06-v4-5-our-bond.sql
+supabase/migrations/verify-v4-5-our-bond.sql

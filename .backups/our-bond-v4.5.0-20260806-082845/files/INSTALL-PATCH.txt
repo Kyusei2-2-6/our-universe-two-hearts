@@ -1,0 +1,5 @@
+1. Ekstrak ZIP ini ke folder ~/OUR-UNIVERSE-TWO-HEARTS dengan opsi overwrite.
+2. Jalankan migrasi supabase/migrations/2026-08-04-memory-orbits.sql.
+3. Jalankan npm test dan npm run build.
+4. Commit dan push ke repository GitHub yang sama.
+Akun, login, data, dan file lama tidak dihapus.

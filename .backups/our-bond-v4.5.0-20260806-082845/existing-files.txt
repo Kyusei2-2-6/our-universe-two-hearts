@@ -1,0 +1,12 @@
+ARCHITECTURE.md
+INSTALL-PATCH.txt
+PROJECT-INVENTORY.txt
+README.md
+index.html
+manifest.webmanifest
+package-lock.json
+package.json
+supabase/schema.sql
+supabase/verify.sql
+sw.js
+tests/validate.mjs

@@ -31,3 +31,14 @@ Database changes dipublikasikan untuk tabel kolaboratif. Setiap klien berlanggan
 ## Performance
 
 Three.js profile dipilih sebelum renderer dibuat. Jumlah bintang, partikel galaksi, asteroid, nebula, pixel ratio, bloom, afterimage, dan target FPS mengikuti profil perangkat.
+## Our Bond v4.5.0
+
+Our Bond memakai satu orchestrator `js/features/our-bond.js` dan empat modul yang dimuat sebagai tab dalam panel yang sama. Modul tidak mendaftarkan route dan tidak mengubah struktur planet.
+
+- `heartbeat-engine.js` membaca presence yang sudah ada dan menyimpan pulse serta emotion melalui RLS.
+- `memory-replay.js` memilih entry lama di sisi klien dan hanya menyimpan jejak replay. Konten tidak digandakan.
+- `love-cinema.js` menyusun media dari attachment yang sudah ada dan memakai signed URL Storage.
+- `secret-room.js` memisahkan metadata kapsul dan isi rahasia ke dua tabel. Policy isi rahasia memeriksa `unlock_at` sebelum SELECT diizinkan.
+
+Realtime hanya diaktifkan untuk `bond_pulses`, `bond_emotions`, `bond_replays`, dan `bond_capsules`. Tabel `bond_capsule_secrets` sengaja tidak dimasukkan ke publication Realtime.
+

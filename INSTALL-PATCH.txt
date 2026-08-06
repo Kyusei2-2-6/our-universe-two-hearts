@@ -1,5 +1,18 @@
-1. Ekstrak ZIP ini ke folder ~/OUR-UNIVERSE-TWO-HEARTS dengan opsi overwrite.
-2. Jalankan migrasi supabase/migrations/2026-08-04-memory-orbits.sql.
-3. Jalankan npm test dan npm run build.
-4. Commit dan push ke repository GitHub yang sama.
-Akun, login, data, dan file lama tidak dihapus.
+PATCH TERBARU: OUR BOND v4.5.0
+
+Cara otomatis di Termux:
+1. Ekstrak OUR-UNIVERSE-PATCH-v4.5.0.zip.
+2. Masuk ke folder hasil ekstrak.
+3. Jalankan:
+   bash install-v4.5.0.sh ~/OUR-UNIVERSE-TWO-HEARTS
+4. Jalankan migrasi Supabase:
+   supabase/migrations/2026-08-06-v4-5-our-bond.sql
+5. Commit dan push ke repository GitHub yang sama.
+
+Cara manual:
+1. Salin seluruh isi folder payload ke ~/OUR-UNIVERSE-TWO-HEARTS dengan opsi overwrite.
+2. Jalankan npm test dan npm run build.
+3. Jalankan migrasi SQL v4.5.0 di Supabase.
+4. Commit dan push.
+
+Installer membuat backup file yang ditimpa. Akun, login, planet, entry, attachment, map, kalender, chat, dan musik lama tidak dihapus.
