@@ -1,4 +1,4 @@
-# OUR UNIVERSE v4.9.3
+# OUR UNIVERSE v4.9.4
 
 OUR UNIVERSE adalah semesta digital privat untuk tepat dua orang. Versi 4 tidak memakai menu Gallery, Music, Notes, atau Files sebagai planet bawaan. Semesta dimulai kosong dan kedua pengguna menciptakan planet sendiri.
 
@@ -78,6 +78,11 @@ v4.8.1 memperbaiki beranda yang sebelumnya terlalu mirip dengan versi lama. Rili
 
 Tidak ada migration SQL baru. Panduan Android tersedia di `INSTALL-V4.8.1-ANDROID.md`. Setelah deployment, buka `refresh-481.html` sekali pada setiap HP.
 
+
+
+## Replay dan Love Cinema Runtime Fix v4.9.4
+
+v4.9.4 memperbaiki kondisi ketika jejak Replay atau Love Cinema sudah tercatat, tetapi kartu dan adegan tidak muncul. Tampilan sekarang dirender lebih dahulu, kemudian riwayat dicatat secara terpisah. Kegagalan media atau pencatatan tidak lagi membuat layar kosong. Tidak ada SQL baru untuk pembaruan ini. Setelah deployment, buka `refresh-494.html` sekali pada kedua HP.
 
 ## Cosmic Identity, Relationship Journey, dan Our Bond Repair v4.9.3
 
