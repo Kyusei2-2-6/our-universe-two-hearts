@@ -247,3 +247,42 @@
   .couple-meeting-countdown__timer b{font-size:15px}
 }
 @media(prefers-reduced-motion:reduce){.couple-meeting-countdown__mark,.couple-life-button.has-meeting .couple-life-button__icon{animation:none!important}}
+
+/* FIX MOBILE EVENT EDITOR v4.5.3 */
+.couple-event-editor form{
+    display:flex;
+    flex-direction:column;
+}
+
+.couple-event-editor__actions{
+    position:sticky;
+    bottom:0;
+    background:linear-gradient(
+        180deg,
+        rgba(27,30,59,.85),
+        rgba(13,16,36,1)
+    );
+    padding-top:14px;
+    margin-top:16px;
+    z-index:10;
+}
+
+@media(max-width:560px){
+
+    .couple-event-editor form{
+        max-height:calc(100dvh - 20px);
+        padding-bottom:20px;
+    }
+
+    .couple-event-editor__actions{
+        grid-template-columns:1fr 1fr!important;
+    }
+
+    .couple-event-editor__actions .primary{
+        grid-column:auto!important;
+    }
+
+    .couple-event-editor__actions .danger{
+        display:none;
+    }
+}
