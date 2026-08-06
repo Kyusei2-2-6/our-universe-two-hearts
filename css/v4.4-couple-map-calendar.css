@@ -31,12 +31,27 @@
     z-index: 601 !important;
 }
 
-.couple-map-stage,
-.couple-map-canvas,
-.couple-map-canvas[data-map] {
+.couple-map-stage {
     position: relative !important;
     z-index: 1 !important;
+}
+
+.couple-map-canvas,
+.couple-map-canvas[data-map] {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    z-index: 1 !important;
     touch-action: pan-x pan-y !important;
+}
+
+.couple-map-canvas.leaflet-container,
+.couple-map-canvas[data-map].leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /*
@@ -137,3 +152,5 @@
     }
 }
 
+
+/* OUR UNIVERSE V4.4.8 MAP CANVAS FIX */

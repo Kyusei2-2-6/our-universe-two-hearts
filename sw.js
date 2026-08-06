@@ -1,4 +1,4 @@
-const CACHE='our-universe-v4-4-1-couple-life-hotfix';
+const CACHE='our-universe-v4-4-8-map-canvas-fix';
 const STATIC_CACHE=`${CACHE}-static`;
 const PAGE_CACHE=`${CACHE}-pages`;
 const SHELL=[
