@@ -1,0 +1,16 @@
+OUR UNIVERSE v4.5.2 · COUNTDOWN + REPAIR
+
+Perbaikan utama:
+- Meeting Countdown terhubung langsung ke Kalender, tanpa tombol baru.
+- Countdown menampilkan hari, jam, menit, dan detik.
+- Jadwal ketemuan yang dibuat salah satu pengguna terlihat oleh keduanya.
+- Label tombol Kalender berubah menjadi "Ketemu X hari lagi".
+- Repair database kalender lintas skema v4.4.0 dan v4.4.1.
+- Cache service worker dinaikkan agar file v4.5 tidak tertahan versi lama.
+- Startup Our Bond dibuat lebih cepat dan kegagalan satu tab tidak mematikan panel lain.
+
+WAJIB setelah memasang patch:
+1. Jalankan SQL:
+   supabase/migrations/2026-08-06-v4-5-2-countdown-calendar-repair.sql
+2. Push perubahan ke GitHub.
+3. Buka refresh-452.html di website produksi.

@@ -194,10 +194,18 @@ async function setTab(tab){
   activeTab=tab;
   sheet?.querySelectorAll('[data-bond-tab]').forEach(button=>button.classList.toggle('is-active',button.dataset.bondTab===tab));
   sheet?.querySelectorAll('[data-bond-view]').forEach(view=>{view.hidden=view.dataset.bondView!==tab;});
-  if(isOpen)await controllers.get(tab)?.activate?.();
+  if(isOpen){
+    try{await controllers.get(tab)?.activate?.();}
+    catch(error){
+      console.warn(`Our Bond tab ${tab}:`,error);
+      const view=sheet?.querySelector(`[data-bond-view="${tab}"]`);
+      if(view)view.innerHTML='<div class="bond-empty is-error"><strong>Fitur ini belum dapat dibuka</strong><span>Muat ulang aplikasi. Bila masih gagal, jalankan migration repair yang sesuai.</span></div>';
+    }
+  }
 }
 
 events.on('presence:sync',()=>controllers.get('heartbeat')?.presenceChanged?.());
+events.on('state:change',event=>{if(['user','universe','members'].includes(event.detail?.key))setTimeout(()=>ensureStarted().catch(()=>{}),100);});
 events.on('realtime:change',event=>{if(['universe_members','profiles'].includes(event.detail?.table))setTimeout(()=>ensureStarted().catch(()=>{}),350);});
 window.addEventListener('pagehide',()=>{disconnectChannel();for(const controller of controllers.values())controller.destroy?.();});
 setInterval(()=>ensureStarted().catch(()=>{}),1200);

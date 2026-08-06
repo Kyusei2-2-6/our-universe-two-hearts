@@ -195,3 +195,55 @@
     width: 100% !important;
     height: 100% !important;
 }
+
+/* =========================================================
+   OUR UNIVERSE v4.5.2 · MEETING COUNTDOWN + CALENDAR REPAIR
+   ========================================================= */
+.couple-calendar-panel{display:flex;flex-direction:column}
+.couple-calendar-panel>.couple-life-header{flex:0 0 auto}
+.couple-calendar-layout{flex:1 1 auto;height:auto;min-height:0}
+.couple-meeting-countdown{position:relative;flex:0 0 auto;display:grid;grid-template-columns:54px minmax(190px,1fr) auto auto;align-items:center;gap:14px;margin:12px 18px 0;padding:13px 14px;border:1px solid rgba(255,255,255,.12);border-radius:19px;background:linear-gradient(135deg,rgba(255,79,135,.09),rgba(141,115,255,.1));overflow:hidden}
+.couple-meeting-countdown::before{content:"";position:absolute;inset:auto -40px -70px auto;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,79,135,.18),transparent 68%);pointer-events:none}
+.couple-meeting-countdown.has-meeting{border-color:rgba(255,119,167,.3);box-shadow:0 12px 34px rgba(59,38,116,.16)}
+.couple-meeting-countdown.has-error{border-color:rgba(255,105,135,.28);background:rgba(255,79,110,.06)}
+.couple-meeting-countdown__mark{display:grid;place-items:center;width:50px;height:50px;border-radius:17px;color:#fff;background:linear-gradient(145deg,#ff5d91,#8d73ff);box-shadow:0 9px 24px rgba(142,112,255,.3);font-size:24px;animation:meetingHeart 1.8s ease-in-out infinite}
+.couple-meeting-countdown__copy{display:grid;gap:3px;min-width:0}
+.couple-meeting-countdown__copy>small{color:#e1d6ff;font-size:8px;font-weight:850;letter-spacing:.18em}
+.couple-meeting-countdown__copy>strong{min-width:0;font-size:14px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.couple-meeting-countdown__copy>span{color:#aaadc3;font-size:9px;line-height:1.35}
+.couple-meeting-countdown__timer{display:grid;grid-template-columns:repeat(4,minmax(46px,1fr));gap:6px}
+.couple-meeting-countdown__timer[hidden]{display:none!important}
+.couple-meeting-countdown__timer>span{display:grid;place-items:center;min-width:52px;padding:7px 6px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(5,7,20,.42)}
+.couple-meeting-countdown__timer b{font-size:17px;line-height:1;font-variant-numeric:tabular-nums}
+.couple-meeting-countdown__timer small{margin-top:4px;color:#aeb0c5;font-size:7px;text-transform:uppercase;letter-spacing:.08em}
+.couple-meeting-countdown__action{position:relative;z-index:1;min-height:38px;padding:8px 12px;border:1px solid rgba(255,255,255,.14);border-radius:12px;color:#fff;background:rgba(255,255,255,.065);font-size:10px;font-weight:780;cursor:pointer;white-space:nowrap}
+.couple-event-meeting{display:flex!important;grid-template-columns:auto 1fr!important;align-items:flex-start!important;gap:10px!important;padding:11px 12px;border:1px solid rgba(255,112,162,.2);border-radius:14px;background:linear-gradient(135deg,rgba(255,79,135,.07),rgba(141,115,255,.06))}
+.couple-event-meeting input{width:auto!important;margin-top:3px}
+.couple-event-meeting span{display:grid;gap:3px}
+.couple-event-meeting strong{color:#fff;font-size:11px}
+.couple-event-meeting small{color:#aeb0c5;font-size:9px;line-height:1.4}
+.couple-calendar-day.has-meeting{box-shadow:inset 0 0 0 1px rgba(255,94,147,.2)}
+.couple-calendar-pill.is-meeting{border-left-color:#fff;color:#ffd2e0;background:linear-gradient(90deg,rgba(255,79,135,.2),rgba(141,115,255,.16))}
+.couple-calendar-person.is-meeting i{display:grid;place-items:center;width:14px;height:14px;color:#fff;background:linear-gradient(145deg,#ff5d91,#8d73ff);font-size:9px}
+.couple-agenda-card.is-meeting{border-color:rgba(255,104,155,.2);background:linear-gradient(135deg,rgba(255,79,135,.075),rgba(141,115,255,.065))}
+.couple-agenda-card__meeting{display:inline-flex!important;width:max-content;max-width:100%;padding:4px 7px;border:1px solid rgba(255,130,171,.2);border-radius:8px;color:#ffd3e1!important;background:rgba(255,79,135,.08);font-weight:750;white-space:normal}
+.couple-life-button.has-meeting .couple-life-button__icon{animation:meetingHeart 1.8s ease-in-out infinite}
+@keyframes meetingHeart{0%,100%{transform:scale(1)}45%{transform:scale(1.08)}60%{transform:scale(.98)}}
+@media(max-width:820px){
+  .couple-calendar-layout{height:auto;flex:1;min-height:0;overflow:auto}
+  .couple-meeting-countdown{grid-template-columns:46px minmax(0,1fr) auto;margin:9px 10px 0;padding:10px;gap:10px}
+  .couple-meeting-countdown__mark{width:44px;height:44px;border-radius:15px}
+  .couple-meeting-countdown__timer{grid-column:1/-1;grid-template-columns:repeat(4,1fr)}
+  .couple-meeting-countdown__timer>span{min-width:0}
+  .couple-meeting-countdown__action{grid-column:3;grid-row:1}
+}
+@media(max-width:560px){
+  .couple-meeting-countdown{grid-template-columns:42px minmax(0,1fr);padding:9px}
+  .couple-meeting-countdown__mark{width:40px;height:40px;border-radius:14px;font-size:20px}
+  .couple-meeting-countdown__copy>strong{font-size:12px}
+  .couple-meeting-countdown__copy>span{font-size:8px}
+  .couple-meeting-countdown__action{grid-column:1/-1;grid-row:auto;width:100%}
+  .couple-meeting-countdown__timer{grid-column:1/-1;gap:4px}
+  .couple-meeting-countdown__timer b{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){.couple-meeting-countdown__mark,.couple-life-button.has-meeting .couple-life-button__icon{animation:none!important}}

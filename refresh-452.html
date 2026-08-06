@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050611">
+  <title>OUR UNIVERSE v4.5.2</title>
+</head>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 20%,#24183f,#050611 60%);color:#fff;font-family:system-ui">
+  <main style="width:min(420px,calc(100% - 36px));padding:28px;border:1px solid rgba(255,255,255,.14);border-radius:24px;background:rgba(255,255,255,.05);text-align:center;box-shadow:0 28px 80px rgba(0,0,0,.4)">
+    <div style="font-size:42px">♡</div>
+    <h2 style="margin:10px 0 6px">Memuat v4.5.2</h2>
+    <p style="margin:0;color:#bfc0d2;line-height:1.55">Cache lama sedang dibersihkan agar Our Bond, kalender, dan countdown ketemuan memakai file terbaru.</p>
+  </main>
+  <script>
+    ;(async()=>{
+      try{
+        if('serviceWorker' in navigator){
+          const registrations=await navigator.serviceWorker.getRegistrations()
+          await Promise.all(registrations.map(item=>item.unregister()))
+        }
+        if('caches' in window){
+          const names=await caches.keys()
+          await Promise.all(names.map(name=>caches.delete(name)))
+        }
+      }catch(error){console.warn(error)}
+      location.replace('./?v=452&fresh='+Date.now())
+    })()
+  </script>
+</body>
+</html>
