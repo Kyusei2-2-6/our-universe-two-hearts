@@ -3,7 +3,7 @@ import { events } from '../core/event-bus.js';
 import { supabase } from '../core/supabase.js';
 import { toast } from '../components/toast.js';
 
-const VERSION='4.9.1';
+const VERSION='4.9.2';
 let initialized=false;
 let lastSummary={planets:0,memories:0,stories:0};
 let relationshipProfile=null;
@@ -114,7 +114,7 @@ async function refreshConnectionClock(force=false){
     relationshipProfile=data||{};
   }catch(error){
     if(current!==relationshipRequest)return;
-    relationshipProfile={__unavailable:true};
+    relationshipProfile={__setupRequired:isSchemaSetupError(error),__unavailable:!isSchemaSetupError(error)};
     console.warn('Relationship Journey belum tersambung:',error);
   }
   renderConnectionClock();
@@ -126,12 +126,20 @@ function renderConnectionClock(){
   const profile=relationshipProfile||{};
   const base=profile.connected_on||profile.started_on||profile.first_met_on||null;
   button.classList.toggle('is-configured',Boolean(base));
-  button.classList.toggle('is-unavailable',Boolean(profile.__unavailable));
+  button.classList.toggle('is-unavailable',Boolean(profile.__unavailable||profile.__setupRequired));
+  button.classList.toggle('is-setup-required',Boolean(profile.__setupRequired));
+  if(profile.__setupRequired){
+    setText('[data-home-connection-kicker]','RELATIONSHIP JOURNEY');
+    setText('[data-home-connected-value]','Belum aktif');
+    setText('[data-home-connected-label]','siapkan perjalanan kalian');
+    setText('[data-home-connected-date]','Jalankan satu SQL Rescue. Seluruh data dan fitur lama tetap aman.');
+    return;
+  }
   if(profile.__unavailable){
     setText('[data-home-connection-kicker]','RELATIONSHIP JOURNEY');
-    setText('[data-home-connected-value]','Migration');
-    setText('[data-home-connected-label]','v4.9.0 diperlukan');
-    setText('[data-home-connected-date]','Jalankan SQL upgrade untuk mengaktifkan penghitung hubungan.');
+    setText('[data-home-connected-value]','Coba lagi');
+    setText('[data-home-connected-label]','koneksi belum stabil');
+    setText('[data-home-connected-date]','Data lama tetap aman. Ketuk untuk membuka Journey.');
     return;
   }
   if(!base){
@@ -179,6 +187,7 @@ function dayMessage(){
   return'Malam ini, setiap planet menunggu untuk dikunjungi kembali.';
 }
 
+function isSchemaSetupError(error){const message=String(error?.message||error?.details||error||'');return /couple_relationship_profiles|schema cache|relation .* does not exist|column .* does not exist|PGRST20[45]|42P01|42703/i.test(message);}
 function daysSince(value){
   const start=parseDateOnly(value);if(!start)return 0;
   const today=new Date();today.setHours(12,0,0,0);

@@ -75,7 +75,7 @@ export function createRelationshipStats(api){
       if(current!==token)return;
       snapshot=buildSnapshot(results);
       render();
-    }catch(error){if(current!==token)return;renderError(error);}
+    }catch(error){if(current!==token)return;isSchemaSetupError(error)?renderSetupRequired():renderError(error);}
     finally{if(current===token)loading=false;}
   }
 
@@ -125,6 +125,17 @@ export function createRelationshipStats(api){
     };
   }
 
+  function renderSetupRequired(){
+    const days=host?.querySelector('[data-stats-days]');if(days)days.textContent='∞';
+    const label=host?.querySelector('[data-stats-days-label]');if(label)label.textContent='menunggu aktivasi';
+    const since=host?.querySelector('[data-stats-since]');if(since)since.innerHTML='<strong>Journey belum diaktifkan</strong><span>Jalankan RUN-THIS-IN-SUPABASE-V4.9.2-RESCUE.sql satu kali. Tidak ada data lama yang dihapus.</span>';
+    const duration=host?.querySelector('[data-stats-duration]');if(duration)duration.innerHTML='';
+    const journey=host?.querySelector('[data-stats-journey]');if(journey)journey.innerHTML='<article class="relationship-journey-setup"><span>✦</span><div><small>SAFE DATABASE RESCUE</small><strong>Satu langkah untuk menyalakan perjalanan kalian</strong><p>SQL Rescue membuat tabel yang belum ada, menambahkan kolom baru, mempertahankan data versi lama, lalu memuat ulang schema Supabase.</p></div></article>';
+    const grid=host?.querySelector('[data-stats-grid]');if(grid)grid.innerHTML='<div class="bond-empty bond-empty--large"><strong>Fitur lama tetap aman</strong><span>Connect, lokasi, kalender, musik, planet, dan seluruh kenangan tidak disentuh.</span></div>';
+    const insights=host?.querySelector('[data-stats-insights]');if(insights)insights.innerHTML='';
+    const edit=host?.querySelector('[data-stats-edit]');if(edit){edit.disabled=true;edit.textContent='Aktifkan lewat SQL Rescue';}
+  }
+
   function renderLoading(){
     const journey=host?.querySelector('[data-stats-journey]');if(journey)journey.innerHTML='<div class="relationship-journey-loading"><i></i><i></i><i></i></div>';
     const grid=host?.querySelector('[data-stats-grid]');if(grid)grid.innerHTML='<div class="relationship-stats-loading"><i></i><i></i><i></i><i></i></div>';
@@ -133,6 +144,7 @@ export function createRelationshipStats(api){
 
   function render(){
     if(!snapshot)return;
+    const edit=host?.querySelector('[data-stats-edit]');if(edit){edit.disabled=false;edit.textContent='Atur perjalanan';}
     renderHero();
     renderJourney();
     const grid=host.querySelector('[data-stats-grid]');grid.innerHTML='';
