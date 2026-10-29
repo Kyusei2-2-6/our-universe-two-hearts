@@ -41,3 +41,17 @@ html.is-keyboard-open .story-notepad__paper textarea {
     background: rgba(5, 8, 20, .98);
   }
 }
+
+/* 4. Penampil cerita/kenangan di HP: layar penuh benar-benar penuh.
+      Aturan lama (.memory-experience-modal) kalah kuat dari .modal.memory-experience-modal (batas tinggi 94dvh),
+      sehingga isinya (100dvh) terpotong di bawah dan bar navigasi (nomor halaman, tombol sebelum/berikut) tidak terlihat. */
+@media (max-width: 700px) {
+  .modal.memory-experience-modal {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: 0 !important;
+  }
+}
