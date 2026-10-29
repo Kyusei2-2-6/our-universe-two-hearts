@@ -15,6 +15,10 @@ const ACTIONS=[
   {key:'write',icon:'✎',label:'Tulis sesuatu'}
 ];
 
+const NOTEPAD_DRAFT_KEY='ou:notepad-draft:v1';
+function readNotepadDraft(){try{const raw=localStorage.getItem(NOTEPAD_DRAFT_KEY);if(!raw)return null;const data=JSON.parse(raw);return data&&typeof data.b==='string'?data:null;}catch{return null;}}
+function clearNotepadDraft(){try{localStorage.removeItem(NOTEPAD_DRAFT_KEY);}catch{}}
+
 export async function openStoryComposer({planetId=null,onSaved}={}){
   let files=[];
   let previewUrls=[];
@@ -22,6 +26,8 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
   let chosenPlanet=planetId;
   let inferredType='memory';
   let planets=[];
+  let saving=false;
+  let bodyTimer=0;
   const shell=document.createElement('form');
   shell.className='story-composer';
   shell.innerHTML=`
@@ -56,8 +62,11 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
     </section>
     <footer class="story-composer__footer"><span data-detected>Belum ada isi</span><button class="button button--primary" type="submit">Bagikan ke semesta</button></footer>`;
 
-  const modal=openModal({title:'',content:shell,className:'story-composer-modal',onClose:clearPreviewUrls});
-  shell.querySelector('[data-close]').onclick=()=>modal.close();
+  const modal=openModal({title:'',content:shell,className:'story-composer-modal',onClose:()=>{clearTimeout(bodyTimer);clearPreviewUrls();},confirmClose:()=>{
+    if(saving)return'Penyimpanan sedang berjalan. Tetap tutup layar ini?';
+    const hasDraft=files.length>0||shell.elements.title.value.trim()||shell.elements.body.value.trim();
+    return hasDraft?'Buang draft ini? Tulisan dan file yang sudah dipilih akan hilang.':null;
+  }});
   const actionHost=shell.querySelector('[data-actions]');
 
   for(const action of ACTIONS){
@@ -171,10 +180,25 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
     editor.elements.note_title.value=shell.elements.title.value||'';
     editor.elements.note_body.value=shell.elements.body.value||'';
     const count=editor.querySelector('[data-count]');
+    const initialTitle=editor.elements.note_title.value;
+    const initialBody=editor.elements.note_body.value;
+    const leftover=readNotepadDraft();
+    const restored=Boolean(leftover&&leftover.b&&!initialBody.trim());
+    if(restored){editor.elements.note_body.value=leftover.b;if(leftover.t&&!initialTitle)editor.elements.note_title.value=leftover.t;}
     const syncCount=()=>count.textContent=`${editor.elements.note_body.value.length.toLocaleString('id-ID')} karakter`;
     editor.elements.note_body.addEventListener('input',syncCount);
     syncCount();
-    const noteModal=openModal({title:'',content:editor,className:'story-notepad-modal'});
+    let draftTimer=0;
+    const saveDraft=()=>{try{localStorage.setItem(NOTEPAD_DRAFT_KEY,JSON.stringify({t:editor.elements.note_title.value,b:editor.elements.note_body.value,at:Date.now()}));}catch{}};
+    const scheduleDraft=()=>{clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,900);};
+    const flushDraft=()=>{if(document.visibilityState==='hidden'){clearTimeout(draftTimer);saveDraft();}};
+    editor.elements.note_body.addEventListener('input',scheduleDraft);
+    editor.elements.note_title.addEventListener('input',scheduleDraft);
+    document.addEventListener('visibilitychange',flushDraft);
+    const noteModal=openModal({title:'',content:editor,className:'story-notepad-modal',
+      onClose:()=>{clearTimeout(draftTimer);document.removeEventListener('visibilitychange',flushDraft);clearNotepadDraft();},
+      confirmClose:()=>(editor.elements.note_body.value!==initialBody||editor.elements.note_title.value!==initialTitle)?'Buang perubahan tulisan ini? Teks yang belum dipakai akan hilang.':null});
+    if(restored)toast('Draft sebelumnya dipulihkan.');
     editor.querySelector('[data-cancel]').onclick=()=>noteModal.close();
     editor.onsubmit=event=>{
       event.preventDefault();
@@ -214,7 +238,8 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
     if(!files.length&&shell.elements.body.value.trim()){
       const note=document.createElement('article');
       note.className='story-preview story-preview--text';
-      note.textContent=shell.elements.body.value;
+      const fullText=shell.elements.body.value;
+      note.textContent=fullText.length>1200?`${fullText.slice(0,1200).replace(/[\uD800-\uDBFF]$/,'')}…`:fullText;
       list.append(note);
     }
     for(const [index,file] of files.entries()){
@@ -280,15 +305,19 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
   }
 
   shell.elements.body.addEventListener('input',()=>{
-    if(!files.length){
-      inferredType='note';
+    if(files.length)return;
+    clearTimeout(bodyTimer);
+    bodyTimer=setTimeout(()=>{
+      if(files.length)return;
+      if(inferredType!=='note'){inferredType='note';renderPlanets();}
       renderPreview();
-      renderPlanets();
-    }
+    },350);
   });
 
   shell.onsubmit=async event=>{
     event.preventDefault();
+    if(saving)return;
+    saving=true;
     const submit=shell.querySelector('[type=submit]');
     const originalLabel=submit.textContent;
     const detected=shell.querySelector('[data-detected]');
@@ -324,6 +353,7 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
       }
       detected.textContent=error.message;
       toast(error.message,{type:'error',duration:7000});
+      saving=false;
       submit.disabled=false;
       submit.textContent=originalLabel;
       return;

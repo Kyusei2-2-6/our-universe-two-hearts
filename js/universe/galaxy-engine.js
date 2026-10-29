@@ -395,6 +395,7 @@ export class GalaxyEngine {
 
   render=()=>{
     if(this.disposed)return;requestAnimationFrame(this.render);
+    if(document.hidden||document.body.dataset.modalOpen==='true'){this.clock.getDelta();return;}
     const now=performance.now();if(now-this.lastFrame<1000/this.profile.fps)return;this.lastFrame=now;
     const dt=Math.min(this.clock.getDelta(),.05);const elapsed=this.clock.elapsedTime;
     this.pointer.lerp(this.pointerTarget,.045);

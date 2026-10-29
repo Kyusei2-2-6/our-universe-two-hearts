@@ -1,0 +1,43 @@
+/* v4.9.6 - Stabilitas modal, keyboard Android, dan peringanan efek.
+   File ini hanya MENIMPA aturan lama. Desain galaxy, ungu-biru, dan kaca tetap sama.
+   Rollback: hapus baris <link> file ini di index.html. */
+
+/* 1. Modal selalu berada di lapisan paling atas, di atas semua tombol melayang. Toast di atas modal. */
+#modal-root { z-index: 2000; }
+.toast-root { z-index: 2100; }
+
+/* 2. Editor story dan notepad mengikuti tinggi layar yang benar-benar terlihat saat keyboard Android terbuka,
+      sehingga tombol simpan dan kursor tidak tertutup keyboard. */
+html.is-keyboard-open .story-composer-modal .modal,
+html.is-keyboard-open .story-notepad-modal .modal {
+  height: calc(var(--ou-visual-height, 100dvh) - 12px);
+  max-height: calc(var(--ou-visual-height, 100dvh) - 12px);
+}
+html.is-keyboard-open .story-notepad__intro { display: none; }
+html.is-keyboard-open .story-notepad__paper textarea {
+  min-height: 120px;
+  height: max(120px, calc(var(--ou-visual-height, 100dvh) - 330px));
+  overflow-y: auto;
+}
+
+/* 3. Peringankan efek berat di HP (tampilan tetap gelap dan berkaca). */
+.modal { will-change: auto; }
+@media (max-width: 820px), (pointer: coarse) {
+  html[data-ui-polish="4.8.1"] .modal-backdrop,
+  .modal-backdrop {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(1, 2, 8, .88);
+  }
+  html[data-ui-polish="4.8.1"] .modal.glass-panel,
+  .modal.glass-panel {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .story-composer__header,
+  .story-composer__footer {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(5, 8, 20, .98);
+  }
+}
