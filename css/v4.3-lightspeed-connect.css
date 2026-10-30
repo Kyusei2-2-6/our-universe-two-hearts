@@ -449,7 +449,8 @@ html[data-data-mode="economy"] .glass-panel {
 
 .couple-connect-compose {
   display: grid;
-  grid-template-columns: minmax(0,1fr) auto;
+  grid-template-columns: auto minmax(0,1fr) auto auto;
+  align-items: end;
   gap: 9px;
   padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
   border-top: 1px solid rgba(255,255,255,.09);
@@ -598,4 +599,48 @@ body.is-couple-poked .app-shell {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* v4.9.7 - Foto dan pesan suara di Couple Connect */
+.couple-connect-compose .couple-connect-tool {
+  width: 44px; height: 44px; min-width: 44px; padding: 0;
+  display: grid; place-items: center;
+  border: 1px solid rgba(255,255,255,.11); border-radius: 16px;
+  background: rgba(255,255,255,.055); color: #fff; font-size: 1.1rem; cursor: pointer;
+}
+.couple-connect-compose .couple-connect-tool:disabled { opacity: .45; cursor: default; }
+.couple-connect-compose.is-recording > textarea,
+.couple-connect-compose.is-recording > .couple-connect-tool,
+.couple-connect-compose.is-recording > [type="submit"] { display: none; }
+.couple-connect-recording { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; min-height: 44px; color: #fff; }
+.couple-connect-recording[hidden] { display: none; }
+.couple-connect-recording__dot { width: 11px; height: 11px; border-radius: 50%; background: #ff5d8f; animation: couple-rec-pulse 1s ease-in-out infinite; }
+.couple-connect-recording strong { font-variant-numeric: tabular-nums; }
+.couple-connect-recording__hint { flex: 1; color: rgba(255,255,255,.7); font-size: .8rem; }
+@keyframes couple-rec-pulse { 50% { opacity: .35; transform: scale(.8); } }
+.couple-message.is-sending { opacity: .65; }
+.couple-message__bubble--media { padding: 4px; overflow: hidden; }
+.couple-message__photo {
+  display: block; width: min(260px, 64vw); max-height: 340px; padding: 0; border: 0;
+  border-radius: 14px; overflow: hidden; background: rgba(255,255,255,.06); cursor: zoom-in;
+}
+.couple-message__photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.couple-message__photo.is-error { min-height: 90px; cursor: pointer; }
+.couple-message__photo.is-error::after { content: "Foto belum termuat. Ketuk untuk mencoba lagi."; display: block; padding: 14px; font-size: .74rem; color: rgba(255,255,255,.7); }
+.couple-message__voice { display: flex; align-items: center; gap: 10px; min-width: 200px; padding: 6px 8px; }
+.couple-voice__button {
+  width: 38px; height: 38px; flex: none; display: grid; place-items: center;
+  border: 0; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; font-size: .9rem; cursor: pointer;
+}
+.couple-voice__track { flex: 1; height: 5px; border-radius: 99px; background: rgba(255,255,255,.18); overflow: hidden; }
+.couple-voice__track i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #b9a6ff, #ff9fcd); }
+.couple-voice__time { min-width: 2.6em; text-align: right; font-size: .7rem; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.75); }
+.couple-photo-viewer {
+  position: fixed; inset: 0; z-index: 2200; display: grid; place-items: center;
+  background: rgba(2,3,10,.95); padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+.couple-photo-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.couple-photo-viewer button {
+  position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; width: 44px; height: 44px;
+  border: 1px solid rgba(255,255,255,.18); border-radius: 50%; background: rgba(5,8,20,.8); color: #fff; font-size: 1.3rem; cursor: pointer;
 }
