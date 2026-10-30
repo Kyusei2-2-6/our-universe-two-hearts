@@ -8,17 +8,15 @@
 
 /* 2. Editor story dan notepad mengikuti tinggi layar yang benar-benar terlihat saat keyboard Android terbuka,
       sehingga tombol simpan dan kursor tidak tertutup keyboard. */
-html.is-keyboard-open .story-composer-modal .modal,
-html.is-keyboard-open .story-notepad-modal .modal {
+html.is-keyboard-open .modal.story-composer-modal,
+html.is-keyboard-open .modal.story-notepad-modal {
   height: calc(var(--ou-visual-height, 100dvh) - 12px);
   max-height: calc(var(--ou-visual-height, 100dvh) - 12px);
 }
 html.is-keyboard-open .story-notepad__intro { display: none; }
-html.is-keyboard-open .story-notepad__paper textarea {
-  min-height: 120px;
-  height: max(120px, calc(var(--ou-visual-height, 100dvh) - 330px));
-  overflow-y: auto;
-}
+html.is-keyboard-open .story-notepad__status > span:last-child { display: none; }
+html.is-keyboard-open .story-composer__header .eyebrow { display: none; }
+html.is-keyboard-open .story-composer__header { padding-block: 8px; }
 
 /* 3. Peringankan efek berat di HP (tampilan tetap gelap dan berkaca). */
 .modal { will-change: auto; }
@@ -54,4 +52,92 @@ html.is-keyboard-open .story-notepad__paper textarea {
     border-radius: 0;
     border: 0 !important;
   }
+}
+
+/* 5. Editor story di HP: header dan tombol Bagikan TETAP di tempatnya (tidak ikut scroll, tidak menutupi isi);
+      hanya bagian tengah yang di-scroll. Di layar lebar, pembungkus ini tidak mengubah tata letak. */
+.story-composer__scroll { display: contents; }
+@media (max-width: 850px) {
+  .modal.story-composer-modal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    height: 94dvh;
+    max-height: 94dvh;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+  .modal.story-composer-modal .modal__content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal.story-composer-modal .story-composer {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .story-composer__header {
+    position: static;
+    flex: 0 0 auto;
+    padding: 12px 16px;
+    background: #050817;
+  }
+  .story-composer__header h2 { font-size: 1.35rem; }
+  .story-composer__scroll {
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .story-composer__actions { position: static; }
+  .story-composer__footer {
+    position: static;
+    flex: 0 0 auto;
+    background: #050817;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* 6. Notepad di HP: kolom tulisan mengisi sisa layar, tombol Batal dan Gunakan tulisan ini selalu terlihat
+      di bawah (tidak perlu scroll untuk menjangkaunya). Judul dan tulisan tetap bisa di-scroll di dalam kolomnya. */
+@media (max-width: 850px) {
+  .modal.story-notepad-modal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+  .modal.story-notepad-modal .modal__header { flex: 0 0 auto; padding: 8px 12px; }
+  .modal.story-notepad-modal .modal__content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .modal.story-notepad-modal .story-notepad {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .story-notepad__intro { flex: 0 0 auto; }
+  .story-notepad__intro h3 { font-size: 1.5rem; margin: .1rem 0 .3rem; }
+  .story-notepad__intro > p:last-child { display: none; }
+  .story-notepad__paper { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .story-notepad__paper input { flex: 0 0 auto; }
+  .story-notepad__paper textarea { flex: 1 1 auto; min-height: 0; height: auto; resize: none; overflow-y: auto; }
+  .story-notepad__status, .story-notepad__actions { flex: 0 0 auto; }
 }
