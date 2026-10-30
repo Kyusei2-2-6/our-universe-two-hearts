@@ -35,6 +35,7 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
       <div><p class="eyebrow">UPDATE SEMESTA</p><h2>Tambahkan sesuatu.</h2></div>
       <button class="icon-button" type="button" data-close>×</button>
     </header>
+    <div class="story-composer__scroll">
     <div class="story-composer__actions" data-actions aria-label="Pilih jenis isi"></div>
     <section class="story-composer__preview">
       <div class="story-composer__batch-toolbar" data-batch-toolbar hidden>
@@ -60,6 +61,7 @@ export async function openStoryComposer({planetId=null,onSaved}={}){
       <label><input type="radio" name="visibility" value="both"><span><strong>Story + permanen</strong><small>Tampil sebagai story dan tetap tersimpan.</small></span></label>
       <label><input type="radio" name="visibility" value="story"><span><strong>Story 24 jam</strong><small>Isi dihapus otomatis setelah story kedaluwarsa.</small></span></label>
     </section>
+    </div>
     <footer class="story-composer__footer"><span data-detected>Belum ada isi</span><button class="button button--primary" type="submit">Bagikan ke semesta</button></footer>`;
 
   const modal=openModal({title:'',content:shell,className:'story-composer-modal',onClose:()=>{clearTimeout(bodyTimer);clearPreviewUrls();},confirmClose:()=>{
