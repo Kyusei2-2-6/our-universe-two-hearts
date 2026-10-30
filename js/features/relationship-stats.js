@@ -68,7 +68,7 @@ export function createRelationshipStats(api){
         client.from('couple_calendar_events').select('id,event_type,start_at,timeline_enabled,owner_id',{count:'exact'}).eq('universe_id',universeId).limit(2000),
         client.from('love_timeline_moments').select('id,moment_at,owner_id',{count:'exact'}).eq('universe_id',universeId).limit(2000),
         client.from('bond_pulses').select('id,pulse_type,sender_id,created_at',{count:'exact'}).eq('universe_id',universeId).limit(2000),
-        client.from('couple_messages').select('id,sender_id,created_at',{count:'exact'}).eq('universe_id',universeId).limit(2000),
+        client.from('couple_messages').select('id,sender_id,created_at,metadata',{count:'exact'}).eq('universe_id',universeId).limit(2000),
         client.from('comments').select('id,user_id,created_at',{count:'exact'}).eq('universe_id',universeId).limit(2000)
       ]);
       if(results[0].error)throw results[0].error;
@@ -90,7 +90,9 @@ export function createRelationshipStats(api){
     const calendar=calendarResult.data||[];
     const timeline=timelineResult.data||[];
     const pulses=pulsesResult.data||[];
-    const messages=messagesResult.data||[];
+    const rawMessages=messagesResult.data||[];
+    const messages=rawMessages.filter(item=>item?.metadata?.game!=='snakes');
+    const gameRowCount=rawMessages.length-messages.length;
     const comments=commentsResult.data||[];
     const profile=profileResult.data||null;
     const now=Date.now();
@@ -121,7 +123,7 @@ export function createRelationshipStats(api){
         calendar:calendarResult.count??calendar.length,
         timeline:(timelineResult.count??timeline.length)+linkedCalendar.length,
         pulses:pulsesResult.count??pulses.length,
-        messages:messagesResult.count??messages.length,
+        messages:Math.max(0,(messagesResult.count??rawMessages.length)-gameRowCount),
         comments:commentsResult.count??comments.length,
         meetups,futureMeetups,favorites,orbitPercent
       }

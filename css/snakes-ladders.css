@@ -1,0 +1,76 @@
+/* v4.9.8 - Ular Tangga (Couple Connect). Dimuat otomatis saat game dibuka. */
+.couple-connect-header__actions { display: flex; align-items: center; gap: 8px; }
+.couple-game-button { position: relative; font-size: 1.05rem; }
+.couple-game-dot {
+  position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; border-radius: 50%;
+  background: #ff5d8f; box-shadow: 0 0 0 2px rgba(5,8,20,.9), 0 0 10px #ff5d8f;
+}
+.couple-game-dot[hidden] { display: none; }
+
+.snk-overlay {
+  position: fixed; inset: 0; z-index: 2050; display: flex; flex-direction: column; color: #fff;
+  background: radial-gradient(120% 70% at 50% 0%, #21164f 0%, #0a0d24 55%, #04050f 100%);
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); overflow: hidden;
+}
+.snk-overlay[hidden] { display: none; }
+.snk-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px 6px; }
+.snk-title h2 { margin: 0; font-size: 1.1rem; }
+.snk-title small { display: block; margin-top: 2px; min-height: 1.2em; color: rgba(255,255,255,.66); font-size: .82rem; }
+.snk-title small.is-mine { color: #ffd1e8; font-weight: 700; }
+.snk-main { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 6px 12px 18px; }
+
+.snk-board-wrap { width: min(100%, 64dvh, 520px); padding-bottom: 11%; }
+.snk-board {
+  position: relative; aspect-ratio: 1; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr);
+  border: 1px solid rgba(255,255,255,.16); border-radius: 14px; overflow: visible;
+  background: rgba(8,10,28,.72); box-shadow: 0 10px 40px rgba(110,80,255,.22);
+}
+.snk-cell { position: relative; display: grid; place-items: start start; padding: 2px 3px; background: rgba(120,100,255,.10); }
+.snk-cell.is-alt { background: rgba(255,120,190,.07); }
+.snk-cell span { font-size: clamp(.42rem, 1.9vw, .66rem); color: rgba(255,255,255,.55); font-variant-numeric: tabular-nums; }
+.snk-cell:first-child { border-radius: 13px 0 0 0; }
+.snk-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.snk-ladder line { stroke: #ffd36b; stroke-width: .7; stroke-linecap: round; filter: drop-shadow(0 0 1.2px rgba(255,211,107,.8)); }
+.snk-ladder line.rung { stroke-width: .55; opacity: .9; }
+.snk-snake .body { fill: none; stroke-width: 2.1; stroke-linecap: round; opacity: .86; filter: drop-shadow(0 0 1.4px rgba(255,255,255,.35)); }
+.snk-snake .eye { fill: #1a1030; }
+.snk-snake .tail { opacity: .9; }
+
+.snk-token {
+  position: absolute; width: 6.6%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%;
+  transform: translate(-50%, -50%); transition: left .6s cubic-bezier(.3,.8,.3,1), top .6s cubic-bezier(.3,.8,.3,1);
+  font: 800 clamp(.5rem, 2.3vw, .78rem)/1 inherit; color: #120a2a; border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 2px 8px rgba(0,0,0,.5); z-index: 3;
+}
+.snk-token[hidden] { display: none; }
+.snk-token.is-me { background: linear-gradient(145deg, #d6c8ff, #8f6dff); }
+.snk-token.is-partner { background: linear-gradient(145deg, #ffc2de, #ff5d8f); }
+.snk-token.is-stacked { transform: translate(-50%, -50%) translate(55%, 40%); }
+
+.snk-panel { width: min(100%, 520px); display: grid; gap: 10px; justify-items: center; }
+.snk-controls { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.snk-controls [hidden], .snk-panel [hidden] { display: none !important; }
+.snk-die {
+  width: 62px; height: 62px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+  padding: 9px; gap: 2px; border-radius: 16px; background: linear-gradient(145deg, #fff, #d9d2ff);
+  box-shadow: 0 6px 18px rgba(130,100,255,.45);
+}
+.snk-die .pip { width: 100%; height: 100%; border-radius: 50%; background: #2a1a5e; opacity: 0; transform: scale(.7); }
+.snk-die[data-face="1"] .p4,
+.snk-die[data-face="2"] .p0, .snk-die[data-face="2"] .p8,
+.snk-die[data-face="3"] .p0, .snk-die[data-face="3"] .p4, .snk-die[data-face="3"] .p8,
+.snk-die[data-face="4"] .p0, .snk-die[data-face="4"] .p2, .snk-die[data-face="4"] .p6, .snk-die[data-face="4"] .p8,
+.snk-die[data-face="5"] .p0, .snk-die[data-face="5"] .p2, .snk-die[data-face="5"] .p4, .snk-die[data-face="5"] .p6, .snk-die[data-face="5"] .p8,
+.snk-die[data-face="6"] .p0, .snk-die[data-face="6"] .p2, .snk-die[data-face="6"] .p3, .snk-die[data-face="6"] .p5, .snk-die[data-face="6"] .p6, .snk-die[data-face="6"] .p8 { opacity: 1; transform: scale(1); }
+.snk-die.is-rolling { animation: snk-shake .35s linear infinite; }
+.snk-die.is-pop { animation: snk-pop .45s ease-out; }
+@keyframes snk-shake { 25% { transform: rotate(-12deg) translateY(-3px); } 75% { transform: rotate(12deg) translateY(2px); } }
+@keyframes snk-pop { 0% { transform: scale(.7) rotate(-20deg); } 70% { transform: scale(1.12) rotate(6deg); } 100% { transform: scale(1) rotate(0); } }
+.snk-roll { min-width: 160px; min-height: 48px; font-weight: 800; }
+.snk-roll:disabled { opacity: .5; }
+.snk-banner { padding: 10px 14px; border-radius: 16px; text-align: center; font-weight: 800; background: linear-gradient(135deg, rgba(255,211,107,.25), rgba(255,125,188,.25)); border: 1px solid rgba(255,255,255,.2); }
+.snk-log { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 4px; font-size: .8rem; color: rgba(255,255,255,.72); }
+.snk-log li { padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.05); }
+.snk-log li:first-child { color: #fff; background: rgba(255,255,255,.09); }
+.snk-start, .snk-new { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) { .snk-token { transition: none; } .snk-die.is-rolling, .snk-die.is-pop { animation: none; } }
