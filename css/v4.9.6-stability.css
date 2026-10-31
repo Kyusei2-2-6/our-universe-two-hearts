@@ -141,3 +141,91 @@ html.is-keyboard-open .story-composer__header { padding-block: 8px; }
   .story-notepad__paper textarea { flex: 1 1 auto; min-height: 0; height: auto; resize: none; overflow-y: auto; }
   .story-notepad__status, .story-notepad__actions { flex: 0 0 auto; }
 }
+
+/* ======================================================================
+   7. Polesan UI v4.9.6e - lebih cepat terasa, tombol enak ditekan, lebih ringan di HP
+   (hanya menambah/menimpa; desain galaxy, kaca, dan warna tetap sama)
+   ====================================================================== */
+
+/* 7a. Umpan balik tekan: tombol sedikit mengecil saat disentuh, jadi terasa responsif. */
+button:not(:disabled):active,
+.button:not(:disabled):active,
+.icon-button:not(:disabled):active,
+[role="button"]:active { scale: .965; }
+button, .button, .icon-button, [role="button"] {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+
+/* 7b. Area ketuk minimal 44x44 px untuk tombol kecil (tampilan tidak berubah; hanya area sentuh yang membesar). */
+:is(.link-button, .couple-calendar-month, .couple-calendar-today, .database-music-player__button, .planet-profile__search-toggle, .love-timeline-sort, .bond-primary) { position: relative; }
+:is(.link-button, .couple-calendar-month, .couple-calendar-today, .database-music-player__button, .planet-profile__search-toggle, .love-timeline-sort, .bond-primary)::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%);
+}
+
+/* 7c. Saat modal terbuka, animasi dekoratif di belakangnya dijeda (hemat baterai dan GPU). Modal, toast, dan game tidak terpengaruh. */
+body[data-modal-open="true"] *:not(:is(#modal-root, .toast-root, .snk-overlay, .couple-photo-viewer)):not(:is(#modal-root, .toast-root, .snk-overlay, .couple-photo-viewer) *) {
+  animation-play-state: paused;
+}
+
+/* 7d. Gulir di dalam modal/chat tidak "bocor" ke halaman; tarik-untuk-muat-ulang tidak menghapus tulisan yang sedang diketik. */
+.modal, .modal__content, .couple-connect-messages, .snk-main, .story-composer__scroll { overscroll-behavior: contain; }
+html:has(body[data-modal-open="true"]) { overscroll-behavior: none; }
+
+/* 7e. Efek kaca (blur) lebih ringan di HP. Hanya kelas yang hasil akhirnya masih blur >=14px diturunkan menjadi 10px
+      (kelas yang sudah diringankan oleh aturan lama tidak disentuh). Tampilan tetap berkaca; layar lebar tidak berubah. */
+@media (max-width: 820px), (pointer: coarse) {
+  .database-music-player {
+    -webkit-backdrop-filter: blur(10px) saturate(1.35);
+    backdrop-filter: blur(10px) saturate(1.35);
+  }
+  .auth-root,
+  .memory-experience__caption,
+  .our-bond-backdrop,
+  .planet-profile__back,
+  .planet-profile__menu,
+  .planet-profile__controls,
+  .create-planet-float,
+  .planet-story-ring,
+  .ou-install-chip,
+  .couple-connect-launcher,
+  .couple-popup,
+  .couple-life-button,
+  .couple-map-floating,
+  .galaxy-signal {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  .modal,
+  .onboarding-card {
+    -webkit-backdrop-filter: blur(10px) saturate(1.08);
+    backdrop-filter: blur(10px) saturate(1.08);
+  }
+  .living-observatory {
+    -webkit-backdrop-filter: blur(10px) saturate(1.22);
+    backdrop-filter: blur(10px) saturate(1.22);
+  }
+
+  /* kelas yang punya aturan asli lebih spesifik (html[data-ui-polish]) */
+  html[data-ui-polish="4.8.1"] .couple-life-backdrop,
+  html[data-ui-polish="4.8.1"] .our-bond-backdrop {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* 7f. Panel kaca di HP. Di readability.css ada aturan blur dengan !important yang mengalahkan aturan biasa,
+      jadi penurunan blur harus memakai !important juga.
+      - Panel modal asli (.modal.glass-panel): tanpa blur (latarnya sudah hampir solid).
+      - Keluarga kartu kaca lainnya: 13px menjadi 10px. */
+@media (max-width: 820px), (pointer: coarse) {
+  .glass-panel, .world-panel, .stat-card, .empty-state, .player, .growth-meter, .empty-universe-hint, .orbit-card, .entry-card:not(.entry-card--letter) {
+    -webkit-backdrop-filter: blur(10px) saturate(102%) !important;
+    backdrop-filter: blur(10px) saturate(102%) !important;
+  }
+  .modal.glass-panel,
+  html[data-ui-polish="4.8.1"] .modal.glass-panel {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
