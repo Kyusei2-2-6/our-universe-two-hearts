@@ -91,7 +91,7 @@ export function createRelationshipStats(api){
     const timeline=timelineResult.data||[];
     const pulses=pulsesResult.data||[];
     const rawMessages=messagesResult.data||[];
-    const messages=rawMessages.filter(item=>item?.metadata?.game!=='snakes');
+    const messages=rawMessages.filter(item=>!(item?.metadata?.game==='snakes'||item?.metadata?.feature==='qotd'));
     const gameRowCount=rawMessages.length-messages.length;
     const comments=commentsResult.data||[];
     const profile=profileResult.data||null;
