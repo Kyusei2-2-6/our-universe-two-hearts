@@ -644,3 +644,12 @@ body.is-couple-poked .app-shell {
   position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; width: 44px; height: 44px;
   border: 1px solid rgba(255,255,255,.18); border-radius: 50%; background: rgba(5,8,20,.8); color: #fff; font-size: 1.3rem; cursor: pointer;
 }
+
+/* v4.9.9 - Tombol 💭 dan 🎲 di header chat (dipindah ke sini agar selalu dimuat, bukan hanya setelah game dibuka). */
+.couple-connect-header__actions { display: flex; align-items: center; gap: 8px; }
+.couple-game-button { position: relative; font-size: 1.05rem; }
+.couple-game-dot {
+  position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; border-radius: 50%;
+  background: #ff5d8f; box-shadow: 0 0 0 2px rgba(5,8,20,.9), 0 0 10px #ff5d8f;
+}
+.couple-game-dot[hidden] { display: none; }

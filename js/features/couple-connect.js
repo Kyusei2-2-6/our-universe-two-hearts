@@ -7,11 +7,12 @@ import { initials } from '../core/utils.js';
 import { toast } from '../components/toast.js';
 import { CONFIG } from '../config.js';
 import { createSnakesGame, isGameRow } from './snakes-ladders.js';
+import { createDailyQuestion, isQuestionRow } from './daily-question.js';
 
 const MAX_HISTORY=50;
 const MAX_VOICE_SECONDS=180;
 const MAX_PHOTO_EDGE=1600;
-const MAX_SCAN=300;
+const MAX_SCAN=500;
 const SIGNAL_LABELS={poke:'👉 Colek',heart:'❤️ Mengirim hati',miss_you:'🌙 Bilang kangen'};
 let launcher=null,sheet=null,messagesHost=null,typingHost=null,compose=null,channel=null;
 let activeUniverseId='',activeUserId='',partner=null,unread=0,isOpen=false,subscribed=false;
@@ -49,7 +50,7 @@ async function ensureStarted(){
   partner=next.partner;
   if(signature!==lastPartnerSignature){lastPartnerSignature=signature;await refreshPartnerUI();}
   if(changedContext){
-    seenIds.clear();unread=0;updateUnreadBadge();retryAt=0;game.reset();
+    seenIds.clear();unread=0;updateUnreadBadge();retryAt=0;game.reset();daily.reset();
     activeUniverseId=next.universeId;activeUserId=next.userId;
     await disconnectChannel();
   }
@@ -69,7 +70,7 @@ function ensureUI(){
 
   sheet=document.createElement('section');sheet.className='couple-connect-sheet';sheet.hidden=true;sheet.setAttribute('data-capture-ignore','true');
   sheet.innerHTML=`<div class="couple-connect-panel" role="dialog" aria-modal="true" aria-labelledby="couple-connect-title">
-    <header class="couple-connect-header"><div class="couple-connect-header__person"><span class="couple-connect-header__avatar" data-partner-avatar>♡</span><span class="couple-connect-header__copy"><strong id="couple-connect-title" data-partner-name>Pasanganmu</strong><small data-partner-status>Memeriksa orbit…</small></span></div><span class="couple-connect-header__actions"><button class="icon-button couple-game-button" data-game type="button" aria-label="Main ular tangga">🎲<i class="couple-game-dot" hidden></i></button><button class="icon-button" data-close type="button" aria-label="Tutup chat">×</button></span></header>
+    <header class="couple-connect-header"><div class="couple-connect-header__person"><span class="couple-connect-header__avatar" data-partner-avatar>♡</span><span class="couple-connect-header__copy"><strong id="couple-connect-title" data-partner-name>Pasanganmu</strong><small data-partner-status>Memeriksa orbit…</small></span></div><span class="couple-connect-header__actions"><button class="icon-button couple-game-button" data-daily type="button" aria-label="Pertanyaan hari ini">💭<i class="couple-game-dot" hidden></i></button><button class="icon-button couple-game-button" data-game type="button" aria-label="Main ular tangga">🎲<i class="couple-game-dot" hidden></i></button><button class="icon-button" data-close type="button" aria-label="Tutup chat">×</button></span></header>
     <div class="couple-connect-quick"><button data-signal="poke" type="button">👉 Colek</button><button data-signal="heart" type="button">❤️ Kirim hati</button><button data-signal="miss_you" type="button">🌙 Aku kangen</button></div>
     <div class="couple-connect-messages" data-messages><div class="couple-connect-empty">Kirim pesan kecil, colek, atau hati. Hanya kalian berdua yang dapat melihat ruang ini.</div></div>
     <div><div class="couple-connect-typing" data-typing></div><form class="couple-connect-compose" data-compose><button class="couple-connect-tool" type="button" data-attach aria-label="Kirim foto">📷</button><textarea name="message" maxlength="2000" rows="1" placeholder="Tulis pesan…" aria-label="Pesan untuk pasangan"></textarea><button class="couple-connect-tool" type="button" data-voice aria-label="Rekam pesan suara">🎤</button><button class="button button--primary" type="submit" aria-label="Kirim pesan">➤</button><div class="couple-connect-recording" data-recording hidden><i class="couple-connect-recording__dot"></i><strong data-rec-time>0:00</strong><span class="couple-connect-recording__hint">Merekam…</span><button class="button button--ghost" type="button" data-rec-cancel>Batal</button><button class="button button--primary" type="button" data-rec-send>Kirim</button></div><input type="file" accept="image/*" data-photo-input hidden></form></div>
@@ -79,6 +80,7 @@ function ensureUI(){
   sheet.onclick=event=>{if(event.target===sheet)closeConnect();};
   sheet.querySelectorAll('[data-signal]').forEach(button=>button.onclick=()=>sendSignal(button.dataset.signal,button));
   sheet.querySelector('[data-game]').onclick=()=>game.open();
+  sheet.querySelector('[data-daily]').onclick=()=>daily.open();
   compose.onsubmit=sendText;
   compose.querySelector('[data-attach]').onclick=()=>{if(!sending&&!rec.active)compose.querySelector('[data-photo-input]').click();};
   compose.querySelector('[data-photo-input]').onchange=event=>{const file=event.target.files?.[0];event.target.value='';if(file)sendPhoto(file);};
@@ -104,7 +106,7 @@ async function refreshPartnerUI(){
   launcher.querySelector('[data-connect-status]').textContent=partner?(online?'Online sekarang':'Kirim pesan kapan saja'):'Menunggu pasangan bergabung';
   sheet.querySelector('[data-partner-name]').textContent=name;
   const status=sheet.querySelector('[data-partner-status]');status.textContent=partner?(online?'Online di semesta':'Pesan akan menunggunya'):'Pasangan belum bergabung';status.classList.toggle('is-online',online);
-  sheet.querySelectorAll('[data-signal], [data-game], [data-compose] textarea, [data-compose] button').forEach(node=>node.disabled=!partner);
+  sheet.querySelectorAll('[data-signal], [data-game], [data-daily], [data-compose] textarea, [data-compose] button').forEach(node=>node.disabled=!partner);
   const avatar=sheet.querySelector('[data-partner-avatar]');avatar.textContent=initials(name);
   if(partner?.profile?.avatar_path){
     try{const url=await signedUrl(partner.profile.avatar_path);const img=document.createElement('img');img.src=url;img.alt='';img.loading='lazy';avatar.replaceChildren(img);}catch{}
@@ -142,7 +144,7 @@ async function openConnect(){
 }
 
 function closeConnect(){
-  if(!sheet)return;sheet.hidden=true;isOpen=false;broadcastTyping(false,true);stopRecording(true);playingAudio?.pause();game.close();
+  if(!sheet)return;sheet.hidden=true;isOpen=false;broadcastTyping(false,true);stopRecording(true);playingAudio?.pause();game.close();daily.close();
 }
 
 async function loadMessages(){
@@ -152,8 +154,9 @@ async function loadMessages(){
     const{data,error}=await supabase().from('couple_messages').select('*').eq('universe_id',activeUniverseId).order('created_at',{ascending:false}).limit(MAX_SCAN);
     if(error)throw error;
     const all=(data||[]).reverse();
-    all.forEach(item=>seenIds.add(item.id));game.ingest(all.filter(isGameRow));
-    const rows=all.filter(item=>!isGameRow(item)).slice(-MAX_HISTORY);messagesHost.innerHTML='';
+    all.forEach(item=>seenIds.add(item.id));game.ingest(all.filter(isGameRow));daily.ingest(all.filter(isQuestionRow));
+    updateGameDot();updateDailyDot();
+    const rows=all.filter(item=>!isGameRow(item)&&!isQuestionRow(item)).slice(-MAX_HISTORY);messagesHost.innerHTML='';
     if(!rows.length){messagesHost.innerHTML='<div class="couple-connect-empty">Belum ada pesan. Mulai dengan colek kecil atau katakan sesuatu dari hati.</div>';return;}
     for(const row of rows){seenIds.add(row.id);messagesHost.append(renderMessage(row));}
     scrollToLatest();
@@ -193,7 +196,7 @@ const game=createSnakesGame({
 });
 
 function updateGameDot(){
-  const dot=sheet?.querySelector('.couple-game-dot');if(dot)dot.hidden=!game.isMyTurn();
+  const dot=sheet?.querySelector('[data-game] .couple-game-dot');if(dot)dot.hidden=!game.isMyTurn();
 }
 
 function handleGameRow(row){
@@ -207,6 +210,36 @@ function handleGameRow(row){
   else if(winner===row.sender_id){showPopup('🏆',`${senderName} menang ular tangga`,'Ketuk 🎲 untuk main lagi');}
   else if(game.isMyTurn()){showPopup('🎲','Giliranmu di ular tangga','Buka chat lalu ketuk 🎲');}
   navigator.vibrate?.([70,40,90]);
+}
+
+/* ---------- Pertanyaan hari ini (v4.9.9) ---------- */
+const daily=createDailyQuestion({
+  getContext:()=>{
+    const me=(state.snapshot.members||[]).find(member=>member.user_id===activeUserId);
+    return{userId:activeUserId,partnerId:partner?.user_id||'',myName:me?.profile?.display_name||'Kamu',partnerName:partner?.profile?.display_name||'Pasanganmu'};
+  },
+  load:async()=>{
+    const{data,error}=await supabase().from('couple_messages').select('*').eq('universe_id',activeUniverseId).order('created_at',{ascending:false}).limit(MAX_SCAN);
+    if(error)throw error;
+    return(data||[]).reverse().filter(isQuestionRow);
+  },
+  send:(metadata,body)=>insertMessage('text',body,metadata),
+  toast,
+  onChange:()=>updateDailyDot()
+});
+
+function updateDailyDot(){
+  const dot=sheet?.querySelector('[data-daily] .couple-game-dot');if(dot)dot.hidden=!daily.needsMyAnswer();
+}
+
+function handleQuestionRow(row){
+  daily.ingest(row);
+  if(row.sender_id===activeUserId)return;
+  if(daily.isOpen()){markRead();return;}
+  unread+=1;updateUnreadBadge();
+  const senderName=partner?.profile?.display_name||'Pasanganmu';
+  showPopup('💭',`${senderName} sudah menjawab pertanyaan hari ini`,daily.needsMyAnswer()?'Jawab dulu untuk membuka jawabannya':'Jawaban kalian sudah terbuka');
+  navigator.vibrate?.([60,40,80]);
 }
 
 /* ---------- Foto dan pesan suara (v4.9.7) ---------- */
@@ -427,6 +460,7 @@ function appendOwn(row){
 async function handleIncoming(row){
   if(!row?.id||seenIds.has(row.id))return;seenIds.add(row.id);
   if(isGameRow(row)){handleGameRow(row);return;}
+  if(isQuestionRow(row)){handleQuestionRow(row);return;}
   if(row.sender_id===activeUserId){if(isOpen)appendOwn(row);return;}
   if(isOpen){messagesHost?.querySelector('.couple-connect-empty')?.remove();messagesHost?.append(renderMessage(row));scrollToLatest();await markRead();}
   else{unread+=1;updateUnreadBadge();}
