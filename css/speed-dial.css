@@ -1,0 +1,51 @@
+/* v4.9.10 - Tombol tunggal ✦ yang membuka semua menu utama. Dimuat otomatis. */
+html.ou-dial-on .couple-life-dock,
+html.ou-dial-on .couple-connect-launcher { visibility: hidden; pointer-events: none; }
+
+.ou-dial { position: fixed; right: 14px; bottom: calc(88px + env(safe-area-inset-bottom)); z-index: 100; }
+body:has(#database-music-player:not([hidden])) .ou-dial { bottom: calc(154px + env(safe-area-inset-bottom)); }
+.ou-dial[hidden] { display: none; }
+html.is-keyboard-open .ou-dial { display: none; }
+
+.ou-dial__fab {
+  position: relative; width: 56px; height: 56px; display: grid; place-items: center; padding: 0;
+  border: 1px solid rgba(255,255,255,.3); border-radius: 50%; cursor: pointer; color: #1b1138; font-size: 1.75rem;
+  background: linear-gradient(145deg, #c9b9ff, #ff93c6); box-shadow: 0 8px 26px rgba(150,110,255,.5);
+}
+.ou-dial__glyph { display: block; line-height: 1; transition: transform .2s ease; }
+.ou-dial.is-open .ou-dial__glyph { transform: rotate(135deg) scale(.92); }
+.ou-dial__badge {
+  position: absolute; top: -3px; right: -3px; min-width: 21px; height: 21px; padding: 0 5px; box-sizing: border-box;
+  display: grid; place-items: center; border-radius: 11px; background: #ff3d7f; color: #fff;
+  font: 800 .7rem/1 inherit; font-style: normal; box-shadow: 0 0 0 2px rgba(5,8,20,.95);
+}
+.ou-dial__badge.is-dot { min-width: 13px; width: 13px; height: 13px; padding: 0; top: 0; right: 0; }
+.ou-dial__badge[hidden] { display: none; }
+
+.ou-dial__scrim { position: fixed; inset: 0; background: rgba(3,4,12,.55); opacity: 0; pointer-events: none; transition: opacity .18s ease; }
+.ou-dial.is-open .ou-dial__scrim { opacity: 1; pointer-events: auto; }
+
+.ou-dial__menu { position: absolute; right: 0; bottom: 68px; width: max-content; max-width: calc(100vw - 28px); display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 10px; pointer-events: none; }
+.ou-dial.is-open .ou-dial__menu { pointer-events: auto; }
+.ou-dial__item {
+  position: relative; display: flex; align-items: center; gap: 10px; padding: 7px 16px 7px 7px; cursor: pointer; white-space: nowrap;
+  border: 1px solid rgba(255,255,255,.18); border-radius: 999px; background: rgba(12,14,38,.98); color: #fff; font: inherit;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  opacity: 0; transform: translateY(14px) scale(.92); visibility: hidden;
+  transition: transform .18s ease, opacity .18s ease, visibility 0s linear .18s; transition-delay: calc(var(--i, 0) * 28ms), calc(var(--i, 0) * 28ms), .18s;
+}
+.ou-dial.is-open .ou-dial__item { opacity: 1; transform: none; visibility: visible; transition-delay: calc(var(--i, 0) * 28ms), calc(var(--i, 0) * 28ms), 0s; }
+.ou-dial__item:active { scale: .97; }
+.ou-dial__icon {
+  width: 42px; height: 42px; display: grid; place-items: center; flex: none; border-radius: 50%; font-size: 1.25rem;
+  background: linear-gradient(145deg, rgba(150,120,255,.4), rgba(255,120,190,.3)); border: 1px solid rgba(255,255,255,.14);
+}
+.ou-dial__text { display: grid; text-align: left; gap: 1px; }
+.ou-dial__text strong { font-size: .92rem; line-height: 1.2; }
+.ou-dial__text small { font-size: .72rem; line-height: 1.2; color: rgba(255,255,255,.68); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ou-dial__item-badge {
+  min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; display: grid; place-items: center; margin-left: 2px;
+  border-radius: 10px; background: #ff3d7f; color: #fff; font: 800 .7rem/1 inherit; font-style: normal;
+}
+.ou-dial__item-badge.is-dot { min-width: 11px; width: 11px; height: 11px; padding: 0; }
+@media (prefers-reduced-motion: reduce) { .ou-dial__item, .ou-dial__glyph, .ou-dial__scrim { transition: none; } }

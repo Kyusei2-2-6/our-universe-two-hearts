@@ -653,3 +653,33 @@ body.is-couple-poked .app-shell {
   background: #ff5d8f; box-shadow: 0 0 0 2px rgba(5,8,20,.9), 0 0 10px #ff5d8f;
 }
 .couple-game-dot[hidden] { display: none; }
+
+/* v4.9.10 - Chat lebih ringkas: tombol ＋ membuka menu (foto, pertanyaan, game, sinyal) seperti WhatsApp. */
+.couple-connect-compose { position: relative; grid-template-columns: auto minmax(0, 1fr) auto; }
+.couple-connect-compose:not(.has-text) > [type="submit"] { display: none; }
+.couple-connect-compose.has-text > [data-voice] { display: none; }
+.couple-connect-plus { position: relative; transition: background .16s ease; font-size: 1.35rem; }
+.couple-connect-plus .cp-glyph { display: block; line-height: 1; transition: transform .16s ease; }
+.couple-connect-compose.is-menu-open .couple-connect-plus { background: rgba(150,120,255,.28); }
+.couple-connect-compose.is-menu-open .couple-connect-plus .cp-glyph { transform: rotate(45deg); }
+.couple-connect-menu {
+  position: absolute; left: 0; right: 0; bottom: calc(100% + 10px); z-index: 5;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 10px;
+  border-radius: 22px; border: 1px solid rgba(255,255,255,.14); background: rgba(10,12,34,.99);
+  box-shadow: 0 16px 48px rgba(0,0,0,.55); animation: cm-pop .16s ease-out;
+}
+.couple-connect-menu[hidden] { display: none; }
+@keyframes cm-pop { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+.couple-connect-compose .couple-connect-menu button {
+  position: relative; display: grid; justify-items: center; gap: 6px; min-width: 0; padding: 10px 2px 8px;
+  border: 0; border-radius: 16px; background: transparent; color: #fff; font: inherit; font-size: .74rem; font-weight: 600; cursor: pointer;
+}
+.couple-connect-compose .couple-connect-menu button:active { background: rgba(255,255,255,.08); }
+.couple-connect-compose .couple-connect-menu button:disabled { opacity: .45; }
+.cm-icon {
+  width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; font-size: 1.35rem;
+  background: linear-gradient(145deg, rgba(150,120,255,.35), rgba(255,120,190,.25)); border: 1px solid rgba(255,255,255,.14);
+}
+.cm-label { line-height: 1.2; text-align: center; }
+.couple-connect-menu .couple-game-dot { top: 6px; right: calc(50% - 30px); }
+@media (prefers-reduced-motion: reduce) { .couple-connect-menu { animation: none; } }

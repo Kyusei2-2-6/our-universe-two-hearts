@@ -8,6 +8,7 @@ import { toast } from '../components/toast.js';
 import { CONFIG } from '../config.js';
 import { createSnakesGame, isGameRow } from './snakes-ladders.js';
 import { createDailyQuestion, isQuestionRow } from './daily-question.js';
+import './speed-dial.js';
 
 const MAX_HISTORY=50;
 const MAX_VOICE_SECONDS=180;
@@ -70,10 +71,9 @@ function ensureUI(){
 
   sheet=document.createElement('section');sheet.className='couple-connect-sheet';sheet.hidden=true;sheet.setAttribute('data-capture-ignore','true');
   sheet.innerHTML=`<div class="couple-connect-panel" role="dialog" aria-modal="true" aria-labelledby="couple-connect-title">
-    <header class="couple-connect-header"><div class="couple-connect-header__person"><span class="couple-connect-header__avatar" data-partner-avatar>♡</span><span class="couple-connect-header__copy"><strong id="couple-connect-title" data-partner-name>Pasanganmu</strong><small data-partner-status>Memeriksa orbit…</small></span></div><span class="couple-connect-header__actions"><button class="icon-button couple-game-button" data-daily type="button" aria-label="Pertanyaan hari ini">💭<i class="couple-game-dot" hidden></i></button><button class="icon-button couple-game-button" data-game type="button" aria-label="Main ular tangga">🎲<i class="couple-game-dot" hidden></i></button><button class="icon-button" data-close type="button" aria-label="Tutup chat">×</button></span></header>
-    <div class="couple-connect-quick"><button data-signal="poke" type="button">👉 Colek</button><button data-signal="heart" type="button">❤️ Kirim hati</button><button data-signal="miss_you" type="button">🌙 Aku kangen</button></div>
+    <header class="couple-connect-header"><div class="couple-connect-header__person"><span class="couple-connect-header__avatar" data-partner-avatar>♡</span><span class="couple-connect-header__copy"><strong id="couple-connect-title" data-partner-name>Pasanganmu</strong><small data-partner-status>Memeriksa orbit…</small></span></div><button class="icon-button" data-close type="button" aria-label="Tutup chat">×</button></header>
     <div class="couple-connect-messages" data-messages><div class="couple-connect-empty">Kirim pesan kecil, colek, atau hati. Hanya kalian berdua yang dapat melihat ruang ini.</div></div>
-    <div><div class="couple-connect-typing" data-typing></div><form class="couple-connect-compose" data-compose><button class="couple-connect-tool" type="button" data-attach aria-label="Kirim foto">📷</button><textarea name="message" maxlength="2000" rows="1" placeholder="Tulis pesan…" aria-label="Pesan untuk pasangan"></textarea><button class="couple-connect-tool" type="button" data-voice aria-label="Rekam pesan suara">🎤</button><button class="button button--primary" type="submit" aria-label="Kirim pesan">➤</button><div class="couple-connect-recording" data-recording hidden><i class="couple-connect-recording__dot"></i><strong data-rec-time>0:00</strong><span class="couple-connect-recording__hint">Merekam…</span><button class="button button--ghost" type="button" data-rec-cancel>Batal</button><button class="button button--primary" type="button" data-rec-send>Kirim</button></div><input type="file" accept="image/*" data-photo-input hidden></form></div>
+    <div><div class="couple-connect-typing" data-typing></div><form class="couple-connect-compose" data-compose><button class="couple-connect-tool couple-connect-plus" type="button" data-plus aria-expanded="false" aria-haspopup="menu" aria-label="Menu: foto, pertanyaan, game, sinyal"><span class="cp-glyph">＋</span><i class="couple-game-dot" hidden></i></button><textarea name="message" maxlength="2000" rows="1" placeholder="Tulis pesan…" aria-label="Pesan untuk pasangan"></textarea><button class="couple-connect-tool" type="button" data-voice aria-label="Rekam pesan suara">🎤</button><button class="button button--primary" type="submit" aria-label="Kirim pesan">➤</button><div class="couple-connect-menu" data-menu role="menu" hidden><button type="button" role="menuitem" data-attach><span class="cm-icon">📷</span><span class="cm-label">Foto</span></button><button type="button" role="menuitem" data-daily><span class="cm-icon">💭</span><span class="cm-label">Pertanyaan hari ini</span><i class="couple-game-dot" hidden></i></button><button type="button" role="menuitem" data-game><span class="cm-icon">🎲</span><span class="cm-label">Ular tangga</span><i class="couple-game-dot" hidden></i></button><button type="button" role="menuitem" data-signal="poke"><span class="cm-icon">👉</span><span class="cm-label">Colek</span></button><button type="button" role="menuitem" data-signal="heart"><span class="cm-icon">❤️</span><span class="cm-label">Kirim hati</span></button><button type="button" role="menuitem" data-signal="miss_you"><span class="cm-icon">🌙</span><span class="cm-label">Aku kangen</span></button></div><div class="couple-connect-recording" data-recording hidden><i class="couple-connect-recording__dot"></i><strong data-rec-time>0:00</strong><span class="couple-connect-recording__hint">Merekam…</span><button class="button button--ghost" type="button" data-rec-cancel>Batal</button><button class="button button--primary" type="button" data-rec-send>Kirim</button></div><input type="file" accept="image/*" data-photo-input hidden></form></div>
   </div>`;
   messagesHost=sheet.querySelector('[data-messages]');typingHost=sheet.querySelector('[data-typing]');compose=sheet.querySelector('[data-compose]');
   sheet.querySelector('[data-close]').onclick=closeConnect;
@@ -87,8 +87,14 @@ function ensureUI(){
   compose.querySelector('[data-voice]').onclick=startRecording;
   compose.querySelector('[data-rec-cancel]').onclick=()=>stopRecording(true);
   compose.querySelector('[data-rec-send]').onclick=()=>stopRecording(false);
+  const plus=compose.querySelector('[data-plus]'),plusMenu=compose.querySelector('[data-menu]');
+  plus.onclick=()=>setMenu(plusMenu.hidden);
+  plusMenu.addEventListener('click',event=>{if(event.target.closest('button'))setMenu(false);});
+  document.addEventListener('pointerdown',event=>{if(!plusMenu.hidden&&!plusMenu.contains(event.target)&&!plus.contains(event.target))setMenu(false);},true);
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!plusMenu.hidden){event.stopPropagation();setMenu(false);}},true);
   const input=compose.elements.message;
   input.addEventListener('input',()=>{
+    compose.classList.toggle('has-text',Boolean(input.value.trim()));
     input.style.height='auto';input.style.height=`${Math.min(120,input.scrollHeight)}px`;
     broadcastTyping(Boolean(input.value.trim()));
   });
@@ -144,7 +150,7 @@ async function openConnect(){
 }
 
 function closeConnect(){
-  if(!sheet)return;sheet.hidden=true;isOpen=false;broadcastTyping(false,true);stopRecording(true);playingAudio?.pause();game.close();daily.close();
+  if(!sheet)return;sheet.hidden=true;isOpen=false;broadcastTyping(false,true);stopRecording(true);playingAudio?.pause();game.close();daily.close();setMenu(false);
 }
 
 async function loadMessages(){
@@ -196,7 +202,7 @@ const game=createSnakesGame({
 });
 
 function updateGameDot(){
-  const dot=sheet?.querySelector('[data-game] .couple-game-dot');if(dot)dot.hidden=!game.isMyTurn();
+  const dot=sheet?.querySelector('[data-game] .couple-game-dot');if(dot)dot.hidden=!game.isMyTurn();updateMenuDot();emitAttention();
 }
 
 function handleGameRow(row){
@@ -229,7 +235,7 @@ const daily=createDailyQuestion({
 });
 
 function updateDailyDot(){
-  const dot=sheet?.querySelector('[data-daily] .couple-game-dot');if(dot)dot.hidden=!daily.needsMyAnswer();
+  const dot=sheet?.querySelector('[data-daily] .couple-game-dot');if(dot)dot.hidden=!daily.needsMyAnswer();updateMenuDot();emitAttention();
 }
 
 function handleQuestionRow(row){
@@ -240,6 +246,20 @@ function handleQuestionRow(row){
   const senderName=partner?.profile?.display_name||'Pasanganmu';
   showPopup('💭',`${senderName} sudah menjawab pertanyaan hari ini`,daily.needsMyAnswer()?'Jawab dulu untuk membuka jawabannya':'Jawaban kalian sudah terbuka');
   navigator.vibrate?.([60,40,80]);
+}
+
+/* ---------- Menu ＋ dan tombol ✦ (v4.9.10) ---------- */
+function setMenu(open){
+  const plus=compose?.querySelector('[data-plus]'),menu=compose?.querySelector('[data-menu]');
+  if(!plus||!menu)return;
+  menu.hidden=!open;plus.setAttribute('aria-expanded',String(open));compose.classList.toggle('is-menu-open',open);
+}
+function updateMenuDot(){
+  const dot=sheet?.querySelector('[data-plus] .couple-game-dot');
+  if(dot)dot.hidden=!(daily.needsMyAnswer()||game.isMyTurn());
+}
+function emitAttention(){
+  try{window.dispatchEvent(new CustomEvent('ou:couple-attention',{detail:{unread,daily:daily.needsMyAnswer(),game:game.isMyTurn()}}));}catch{}
 }
 
 /* ---------- Foto dan pesan suara (v4.9.7) ---------- */
@@ -429,7 +449,7 @@ async function sendText(event){
   const button=compose.querySelector('[type="submit"]');button.disabled=true;
   try{
     const row=await insertMessage('text',body);
-    input.value='';input.style.height='auto';broadcastTyping(false,true);appendOwn(row);
+    input.value='';input.style.height='auto';compose.classList.remove('has-text');broadcastTyping(false,true);appendOwn(row);
   }catch(error){toast(friendlyError(error),{type:'error',duration:6000});}
   finally{button.disabled=false;input.focus();}
 }
@@ -492,7 +512,7 @@ async function markRead(){
 }
 
 function updateUnreadBadge(){
-  if(!launcher)return;launcher.classList.toggle('has-unread',unread>0);launcher.querySelector('[data-unread]').textContent=String(Math.min(unread,99));
+  if(!launcher)return;launcher.classList.toggle('has-unread',unread>0);launcher.querySelector('[data-unread]').textContent=String(Math.min(unread,99));emitAttention();
 }
 
 function broadcastTyping(active,immediate=false){
