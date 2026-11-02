@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="id">
 <head>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(r=>{for(let reg of r)reg.unregister();});caches.keys().then(k=>k.forEach(n=>caches.delete(n)));}</script>
 <script>window.addEventListener("error",function(e){e.stopImmediatePropagation();},{capture:true});window.onunhandledrejection=function(e){e.preventDefault();};</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
