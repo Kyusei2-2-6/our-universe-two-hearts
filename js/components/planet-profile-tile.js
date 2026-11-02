@@ -35,7 +35,9 @@ export function createPlanetProfileTile(entry,{profileMap=new Map(),onOpen}={}){
   const top=document.createElement('span');
   top.className='planet-profile-tile__top';
   top.innerHTML='<span data-type></span><span data-media></span>';
-  top.querySelector('[data-type]').textContent=`${TYPE_ICONS[entry.type]||'✦'} ${TYPE_LABELS[entry.type]||entry.type}`;
+  const typeBadge=top.querySelector('[data-type]');
+  typeBadge.textContent=TYPE_ICONS[entry.type]||'✦';
+  typeBadge.dataset.label=TYPE_LABELS[entry.type]||entry.type;
   const mediaCount=entry.attachments?.length||0;
   top.querySelector('[data-media]').textContent=mediaCount>1?`▧ ${mediaCount}`:(media?.kind==='video'?'▶':'');
 
