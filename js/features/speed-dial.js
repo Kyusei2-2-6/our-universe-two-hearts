@@ -1,5 +1,6 @@
-/* Satu tombol ✦ yang membuka semua menu utama (Chat, Lokasi, Kalender, Our Bond).
-   Menggantikan tumpukan tombol mengambang: tombol aslinya tetap ada (tersembunyi) dan dipanggil lewat klik. */
+/* Satu tombol menu yang membuka semua menu utama (Chat, Lokasi, Kalender, Our Bond).
+   Menggantikan tumpukan tombol mengambang: tombol aslinya tetap ada (tersembunyi) dan dipanggil lewat klik.
+   Tampil sebagai tombol ⋮ di header (seperti WhatsApp) bila header ada; jika tidak, sebagai tombol ✦ mengambang. */
 
 const SOURCES=[
   {key:'chat',selector:'.couple-connect-launcher',icon:'💬',label:'Chat',hint:'Pesan berdua'},
@@ -9,14 +10,14 @@ const SOURCES=[
 ];
 
 const attention={unread:0,daily:false,game:false};
-let root=null,fab=null,menu=null,badge=null,isOpen=false,raf=0,started=false;
+let root=null,trigger=null,menu=null,badge=null,topMode=false,isOpen=false,raf=0,started=false;
 
 function el(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;}
 
 function loadStyles(){
   return new Promise(resolve=>{
     const link=document.createElement('link');link.rel='stylesheet';
-    link.href=new URL('../../css/speed-dial.css?v=4.9.10',import.meta.url).href;
+    link.href=new URL('../../css/speed-dial.css?v=4.9.11',import.meta.url).href;
     link.onload=()=>resolve();link.onerror=()=>resolve();
     document.head.append(link);setTimeout(resolve,1800);
   });
@@ -46,6 +47,7 @@ function sync(){
   if(!root)return;
   const list=available();
   root.hidden=list.length===0;
+  if(topMode)trigger.hidden=list.length===0;
   document.documentElement.classList.toggle('ou-dial-on',list.length>0);
   if(!list.length&&isOpen)closeMenu();
   renderBadge();
@@ -55,7 +57,7 @@ function schedule(){if(!raf)raf=requestAnimationFrame(sync);}
 function closeMenu(){
   isOpen=false;
   if(!root)return;
-  root.classList.remove('is-open');fab.setAttribute('aria-expanded','false');
+  root.classList.remove('is-open');trigger.setAttribute('aria-expanded','false');
   menu.setAttribute('aria-hidden','true');
 }
 
@@ -78,36 +80,52 @@ function buildItems(){
   }));
 }
 
+function placeTopMenu(){
+  const bar=document.querySelector('.topbar')||trigger;
+  const rect=bar.getBoundingClientRect();
+  menu.style.top=`${Math.round(rect.bottom+8)}px`;
+}
+
 function openMenu(){
   buildItems();
   if(!menu.children.length)return;
+  if(topMode)placeTopMenu();
   isOpen=true;
-  root.classList.add('is-open');fab.setAttribute('aria-expanded','true');
+  root.classList.add('is-open');trigger.setAttribute('aria-expanded','true');
   menu.setAttribute('aria-hidden','false');
 }
 
 function build(){
-  root=el('div','ou-dial');root.hidden=true;root.setAttribute('data-capture-ignore','true');
+  const actions=document.querySelector('.topbar__actions');
+  topMode=Boolean(actions);
+  root=el('div',`ou-dial${topMode?' ou-dial--top':''}`);root.hidden=true;root.setAttribute('data-capture-ignore','true');
   const scrim=el('div','ou-dial__scrim');scrim.onclick=closeMenu;
   menu=el('div','ou-dial__menu');menu.setAttribute('role','menu');menu.setAttribute('aria-hidden','true');
-  fab=el('button','ou-dial__fab');fab.type='button';fab.setAttribute('aria-label','Menu semesta');fab.setAttribute('aria-haspopup','menu');fab.setAttribute('aria-expanded','false');
-  fab.append(el('span','ou-dial__glyph','✦'));
-  badge=el('i','ou-dial__badge');badge.hidden=true;fab.append(badge);
-  fab.onclick=()=>{isOpen?closeMenu():openMenu();};
-  root.append(scrim,menu,fab);document.body.append(root);
+  if(topMode){
+    trigger=el('button','icon-button ou-dial__top');trigger.hidden=true;trigger.append(el('span','ou-dial__glyph','⋮'));
+    actions.insertBefore(trigger,actions.querySelector('#profile-button')||null);
+    root.append(scrim,menu);
+  }else{
+    trigger=el('button','ou-dial__fab');trigger.append(el('span','ou-dial__glyph','✦'));
+    root.append(scrim,menu,trigger);
+  }
+  trigger.type='button';trigger.setAttribute('aria-label','Menu semesta');trigger.setAttribute('aria-haspopup','menu');trigger.setAttribute('aria-expanded','false');
+  badge=el('i','ou-dial__badge');badge.hidden=true;trigger.append(badge);
+  trigger.onclick=()=>{isOpen?closeMenu():openMenu();};
+  document.body.append(root);
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&isOpen){event.stopPropagation();closeMenu();}},true);
   window.addEventListener('ou:couple-attention',event=>{
     const detail=event.detail||{};
     attention.unread=Number(detail.unread)||0;attention.daily=Boolean(detail.daily);attention.game=Boolean(detail.game);
     renderBadge();
   });
+  window.addEventListener('resize',()=>{if(isOpen&&topMode)placeTopMenu();});
 }
 
 async function start(){
   if(started)return;started=true;
   await loadStyles();
   build();
-  new MutationObserver(schedule).observe(document.body,{childList:true});
   const watchDock=()=>{const dock=document.getElementById('couple-life-dock');if(dock&&!dock.dataset.dialWatched){dock.dataset.dialWatched='1';new MutationObserver(schedule).observe(dock,{childList:true});}};
   new MutationObserver(()=>{watchDock();schedule();}).observe(document.body,{childList:true});
   watchDock();sync();

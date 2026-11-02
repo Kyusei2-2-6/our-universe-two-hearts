@@ -36,3 +36,48 @@
   .world-stage--v4{padding-left:0!important;padding-right:0!important}.planet-profile{border-left:0;border-right:0;border-radius:0;box-shadow:none;margin-top:-8px}.planet-profile__cover{min-height:170px}.planet-profile__identity{margin-top:-46px;padding:0 15px;grid-template-columns:auto 1fr;gap:13px;align-items:end}.planet-profile__avatar{width:92px;padding:4px}.planet-profile__title{padding-bottom:3px}.planet-profile__title h1{font-size:1.65rem}.planet-profile__handle{font-size:.72rem;margin-top:5px}.planet-profile__primary-actions{grid-column:1/-1;padding:4px 0 0;display:grid;grid-template-columns:1fr auto}.planet-profile__primary-actions .button{width:100%}.planet-profile__bio{padding:12px 15px 0;gap:12px}.planet-profile__bio p{font-size:.86rem}.planet-profile__stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.planet-profile__stat{min-width:0;padding:9px 6px;text-align:center}.planet-profile__stat strong{font-size:.9rem}.planet-profile__stat small{font-size:.59rem}.planet-profile__stories{padding:15px 9px 8px}.planet-profile__controls{top:68px;padding:9px}.planet-profile__grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px!important;padding:2px!important}.planet-profile-tile__top{left:5px;right:5px;top:5px}.planet-profile-tile__top span:first-child{width:25px;height:25px;padding:0 5px;display:block;overflow:hidden;white-space:nowrap;line-height:25px;font-size:.64rem}.planet-profile-tile__copy{left:6px;right:6px;bottom:5px}.planet-profile-tile__copy small{display:none}.planet-profile-tile__text-body{-webkit-line-clamp:3;font-size:.56rem}.planet-profile-tile__text-icon{font-size:1.6rem}}
 @media(max-width:380px){.planet-profile__title h1{font-size:1.45rem}.planet-profile__avatar{width:82px}.planet-profile-tile__copy strong{font-size:.58rem}.planet-profile-tile__text-body{display:none}}
 @media(prefers-reduced-motion:reduce){.planet-profile-tile__visual img,.planet-profile-tile__visual.is-loading{transition:none;animation:none}}
+
+/* ======================================================================
+   v4.9.11 - Profil planet ala Instagram.
+   Planet = akun: avatar + statistik berdampingan, nama, bio, dua tombol sama lebar, tab, lalu kisi foto persegi.
+   Di layar HP saja; layar lebar tidak berubah. Struktur HTML tidak diubah (hanya CSS).
+   ====================================================================== */
+/* Label tipe di pojok tile: tampil lengkap di layar lebar, hanya ikon di HP (sebelumnya terpotong "♫ Mu"). */
+.planet-profile-tile__top [data-type]::after { content: " " attr(data-label); }
+
+@media (max-width: 700px) {
+  .planet-profile__header {
+    display: grid; grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "bar bar" "avatar stats" "title title" "bio bio" "actions actions";
+    align-items: center; column-gap: 18px; row-gap: 10px; padding: 12px 14px 14px;
+  }
+  .planet-profile__identity, .planet-profile__bio { display: contents; }
+  .planet-profile__cover { position: absolute; inset: 0 0 auto 0; height: 170px; z-index: 0; opacity: .55; pointer-events: none; }
+  .planet-profile__header > :not(.planet-profile__cover), .planet-profile__identity > *, .planet-profile__bio > * { position: relative; z-index: 1; }
+  .planet-profile__back, .planet-profile__menu { position: relative; top: auto; left: auto; right: auto; grid-area: bar; width: 40px; height: 40px; }
+  .planet-profile__back { justify-self: start; }
+  .planet-profile__menu { justify-self: end; }
+  .planet-profile__avatar { grid-area: avatar; width: 86px; }
+  .planet-profile__stats { grid-area: stats; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; }
+  .planet-profile__stat { padding: 2px 0; border: 0; border-radius: 0; background: none; box-shadow: none; text-align: center; }
+  .planet-profile__stat strong { font-size: 1.12rem; }
+  .planet-profile__stat small { font-size: .66rem; line-height: 1.2; }
+  .planet-profile__title { grid-area: title; }
+  .planet-profile__title h1 { font-size: 1.3rem; line-height: 1.2; }
+  .planet-profile__title p { margin: 2px 0 0; font-size: .76rem; }
+  .planet-profile__bio > p { grid-area: bio; margin: 0; font-size: .88rem; line-height: 1.5; }
+  .planet-profile__primary-actions { grid-area: actions; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 2px 0 0; }
+  .planet-profile__primary-actions .button { min-height: 40px; padding: 0 8px; border-radius: 12px; font-size: .86rem; white-space: nowrap; }
+
+  .planet-profile__filters {
+    scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent); mask-image: linear-gradient(90deg, #000 90%, transparent);
+  }
+  .planet-profile__filters::-webkit-scrollbar { display: none; }
+
+  .planet-profile-tile__top [data-type]::after { content: none; }
+  .planet-profile-tile__top span:first-child { display: grid; place-items: center; padding: 0; text-align: center; }
+
+  /* Isi halaman tidak boleh tertutup pemutar musik dan navigasi bawah. */
+  .planet-profile { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  body:has(#database-music-player:not([hidden])) .planet-profile { padding-bottom: calc(168px + env(safe-area-inset-bottom, 0px)); }
+}

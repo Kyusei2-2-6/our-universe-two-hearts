@@ -1,4 +1,4 @@
-/* v4.9.10 - Tombol tunggal ✦ yang membuka semua menu utama. Dimuat otomatis. */
+/* v4.9.11 - Tombol menu tunggal (⋮ di header, atau ✦ mengambang jika tidak ada header). Dimuat otomatis. */
 html.ou-dial-on .couple-life-dock,
 html.ou-dial-on .couple-connect-launcher { visibility: hidden; pointer-events: none; }
 
@@ -49,3 +49,26 @@ html.is-keyboard-open .ou-dial { display: none; }
 }
 .ou-dial__item-badge.is-dot { min-width: 11px; width: 11px; height: 11px; padding: 0; }
 @media (prefers-reduced-motion: reduce) { .ou-dial__item, .ou-dial__glyph, .ou-dial__scrim { transition: none; } }
+
+/* Mode header: tombol ⋮ di bilah atas, menu turun sebagai kartu di kanan atas (seperti menu ⋮ WhatsApp). */
+.ou-dial--top { position: fixed; inset: 0; right: 0; bottom: 0; pointer-events: none; z-index: 100; }
+.ou-dial--top .ou-dial__scrim { background: transparent; }
+.ou-dial--top.is-open .ou-dial__scrim { pointer-events: auto; }
+.ou-dial--top .ou-dial__menu {
+  position: fixed; right: 12px; bottom: auto; flex-direction: column; align-items: stretch; gap: 0; padding: 6px; width: min(280px, calc(100vw - 24px));
+  border-radius: 20px; border: 1px solid rgba(255,255,255,.16); background: rgba(10,12,34,.99); box-shadow: 0 18px 50px rgba(0,0,0,.6);
+  opacity: 0; transform: translateY(-8px) scale(.96); transform-origin: top right; visibility: hidden; pointer-events: none;
+  transition: transform .16s ease, opacity .16s ease, visibility 0s linear .16s;
+}
+.ou-dial--top.is-open .ou-dial__menu { opacity: 1; transform: none; visibility: visible; pointer-events: auto; transition-delay: 0s; }
+.ou-dial--top .ou-dial__item {
+  width: 100%; border: 0; border-radius: 14px; background: transparent; box-shadow: none; padding: 8px 10px;
+  opacity: 1; transform: none; visibility: visible; transition: background .12s ease; transition-delay: 0s;
+}
+.ou-dial--top .ou-dial__item:active { background: rgba(255,255,255,.08); }
+.ou-dial--top .ou-dial__text { flex: 1; }
+.ou-dial--top .ou-dial__text small { max-width: none; }
+.ou-dial__top { position: relative; overflow: visible; font-size: 1.25rem; font-weight: 800; }
+.ou-dial__top[hidden] { display: none; }
+.ou-dial__top::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
+.ou-dial__top .ou-dial__badge { top: 2px; right: 2px; }
