@@ -1,0 +1,14 @@
+OUR UNIVERSE · TWO HEARTS
+
+Urutan pemasangan pertama:
+
+1. Buat project Supabase.
+2. Jalankan seluruh supabase/schema.sql melalui SQL Editor.
+3. Di Termux jalankan: npm run configure
+4. Jalankan isi supabase/allowlist.local.sql melalui SQL Editor.
+5. Jalankan: npm test
+6. Push proyek ke GitHub dan aktifkan GitHub Pages melalui GitHub Actions.
+7. Buat akun email penjaga pertama lebih dahulu.
+8. Buat semesta, bagikan kode undangan, lalu buat akun pasangan.
+
+Panduan Android lengkap: SETUP-ANDROID.md

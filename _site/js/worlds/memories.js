@@ -1,0 +1,2 @@
+import { renderCollection } from './shared.js';
+export const renderMemories=container=>renderCollection(container,{type:'memory',eyebrow:'MEMORIES',title:'Kenangan yang menyalakan bintang.',subtitle:'Simpan cerita lengkap dengan tanggal, tempat, suasana, foto, video, voice note, musik, dan berkas lainnya.',emptyTitle:'Belum ada kenangan',emptyText:'Mulailah dari cerita paling sederhana. Satu kenangan pertama cukup untuk menyalakan bintang pertama.'});

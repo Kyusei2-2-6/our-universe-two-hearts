@@ -1,0 +1,12 @@
+import { state } from '../core/state.js';
+import { signedUrl } from '../core/storage.js';
+import { initials, formatDate } from '../core/utils.js';
+import { worldHeader } from './shared.js';
+
+export async function renderAboutUs(container){
+  const snapshot=state.snapshot;container.innerHTML='';container.append(worldHeader({eyebrow:'ABOUT US',title:'Dua orang, satu semesta.',subtitle:'Halaman ini tidak menceritakan siapa kalian kepada dunia. Ia hanya mengingatkan bahwa ruang ini dibangun oleh kalian berdua.'}));
+  const grid=document.createElement('div');grid.className='content-grid';
+  for(const member of snapshot.members||[]){const card=document.createElement('article');card.className='entry-card';card.style.gridColumn='span 6';const avatar=document.createElement('div');avatar.className='entry-card__cover-placeholder';avatar.style.fontSize='4rem';avatar.textContent=initials(member.profile?.display_name);if(member.profile?.avatar_path)signedUrl(member.profile.avatar_path).then(url=>{avatar.innerHTML='';const img=document.createElement('img');img.className='entry-card__cover';img.src=url;img.alt='';avatar.append(img);}).catch(()=>{});const body=document.createElement('div');body.className='entry-card__body';body.innerHTML='<p class="eyebrow"></p><h3></h3><p></p>';body.querySelector('.eyebrow').textContent=member.role==='owner'?'PENJAGA PERTAMA':'PENJAGA KEDUA';body.querySelector('h3').textContent=member.profile?.display_name||'Belum diberi nama';body.querySelector('p').textContent=member.profile?.bio||'Bio belum ditulis.';card.append(avatar,body);grid.append(card);}
+  if((snapshot.members||[]).length<2){const waiting=document.createElement('article');waiting.className='entry-card';waiting.style.gridColumn='span 6';waiting.innerHTML='<div class="entry-card__cover-placeholder">☾</div><div class="entry-card__body"><p class="eyebrow">MENUNGGU</p><h3>Pasangan belum bergabung</h3><p>Bagikan kode undangan melalui menu profil.</p></div>';grid.append(waiting);}container.append(grid);
+  const panel=document.createElement('section');panel.className='world-panel glass-panel';panel.style.marginTop='18px';panel.innerHTML='<h3 style="margin-top:0"></h3><p class="muted"></p>';panel.querySelector('h3').textContent=snapshot.universe?.name||'Our Universe';panel.querySelector('p').textContent=`Semesta ini dinyalakan pada ${formatDate(snapshot.universe?.created_at||new Date())}. Seluruh data di dalamnya hanya dapat dibaca oleh anggota yang terdaftar.`;container.append(panel);
+}

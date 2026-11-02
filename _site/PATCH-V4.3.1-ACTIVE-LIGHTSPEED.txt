@@ -1,0 +1,9 @@
+OUR UNIVERSE v4.3.1 ACTIVE DATA LIGHTSPEED
+
+Perubahan aktif:
+- antrean cover media maksimal 2 request pada mode hemat dan 4 request pada mode seimbang
+- signed URL cache dibersihkan otomatis agar memori tidak terus membesar
+- load-more tidak mengulang exact count database
+- pencarian planet memakai debounce adaptif
+- cache service worker dinaikkan agar browser mengambil kode baru
+- versi aplikasi dinaikkan menjadi 4.3.1

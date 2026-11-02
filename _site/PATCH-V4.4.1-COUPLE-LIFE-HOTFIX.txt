@@ -1,0 +1,11 @@
+OUR UNIVERSE v4.4.1 COUPLE LIFE HOTFIX
+
+- kalender sekarang menyimpan kegiatan pribadi masing-masing pengguna
+- tidak ada overwrite ketika dua orang atau banyak kegiatan memakai tanggal yang sama
+- agenda pasangan dapat dilihat, tetapi hanya pemilik yang dapat mengubah atau menghapus
+- peta default satelit
+- dua marker lokasi dihubungkan garis merah
+- jarak, akurasi, waktu pembaruan, live sharing, refresh sekali, dan jeda berbagi
+- UI responsif desktop dan mobile
+
+WAJIB: jalankan supabase/migrations/2026-08-05-v4-4-1-couple-life-hotfix.sql di Supabase SQL Editor.

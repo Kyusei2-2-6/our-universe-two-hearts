@@ -1,0 +1,28 @@
+* { box-sizing: border-box; }
+html { color-scheme: dark; background: var(--bg); scroll-behavior: smooth; }
+body { margin: 0; min-height: 100vh; overflow-x: hidden; background: var(--bg); color: var(--text); font-family: var(--font-sans); text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+body.no-scroll { overflow: hidden; }
+button, input, textarea, select { font: inherit; }
+button { color: inherit; }
+img, video { max-width: 100%; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; }
+::selection { background: rgba(185,147,255,.35); }
+[hidden] { display: none !important; }
+.skip-link { position: fixed; z-index: 10000; top: 10px; left: 10px; transform: translateY(-150%); padding: .75rem 1rem; background: #fff; color: #000; border-radius: 999px; }
+.skip-link:focus { transform: none; }
+#universe-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; background: radial-gradient(circle at 50% 45%, #10152d 0, #03040b 48%, #010207 100%); }
+.app-shell { position: relative; z-index: 2; min-height: 100vh; padding: calc(18px + var(--safe-top)) 18px calc(20px + var(--safe-bottom)); }
+.glass-panel { border: 1px solid var(--border); background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.035)); box-shadow: var(--shadow); backdrop-filter: blur(22px) saturate(130%); -webkit-backdrop-filter: blur(22px) saturate(130%); }
+.eyebrow { text-transform: uppercase; letter-spacing: .28em; font-size: .72rem; color: var(--accent-2); font-weight: 700; }
+.muted { color: var(--muted); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+body[data-modal-open="true"] { overflow: hidden; }
+button[disabled], .button[aria-busy="true"] { opacity: .55; cursor: wait; transform: none; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 4px rgba(255,255,255,.04); }
+.status-dot.is-online { background: var(--success); box-shadow: 0 0 18px rgba(117,240,197,.55); }
+.link-button { border: 0; background: transparent; color: var(--accent-2); cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 4px; }

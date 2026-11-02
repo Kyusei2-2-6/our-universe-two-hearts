@@ -1,0 +1,28 @@
+OUR UNIVERSE v4.2 - DATABASE MUSIC PLAYER
+
+Fitur:
+- Tombol pemutar musik hanya muncul jika database memiliki entry bertipe music dengan attachment audio.
+- Play, pause, lagu sebelumnya, dan lagu berikutnya.
+- Lagu berikutnya diputar otomatis setelah lagu selesai.
+- Menggunakan signed URL Supabase, sehingga file Storage tetap privat.
+- Ambient galaksi dihentikan ketika musik database diputar agar suara tidak bertumpuk.
+- Playlist disegarkan ketika entries atau attachments berubah melalui realtime.
+- Tidak membutuhkan tabel atau migrasi SQL baru.
+
+Cara pasang dari Termux:
+1. Ekstrak paket ini.
+2. Masuk ke folder hasil ekstrak.
+3. Jalankan:
+
+   chmod +x install.sh
+   ./install.sh "$HOME/our-universe-two-hearts"
+
+Ganti lokasi folder proyek sesuai folder proyekmu. Installer membuat backup sebelum mengubah file.
+Setelah pemasangan berhasil, jalankan dari folder proyek:
+
+   npm test
+   npm run build
+   git status
+   git add -A
+   git commit -m "Add database music player"
+   git push origin main

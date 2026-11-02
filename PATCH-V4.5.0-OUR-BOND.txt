@@ -1,0 +1,46 @@
+OUR UNIVERSE v4.5.0 · OUR BOND
+
+SATU PANEL, EMPAT FITUR
+- Heartbeat Presence
+- Memory Replay
+- Love Cinema
+- Secret Room
+
+PRINSIP BUILD
+- hanya menambah satu launcher Our Bond
+- seluruh fitur berada dalam satu panel bertab
+- tidak menambah route atau halaman baru
+- tidak mengubah sistem planet, story, map, kalender, chat, musik, dan PWA yang sudah berjalan
+- layout mobile tetap memakai dock vertikal agar tidak menimpa music player
+
+DATABASE
+- bond_pulses
+- bond_emotions
+- bond_replays
+- bond_capsules
+- bond_capsule_secrets
+
+KEAMANAN
+- semua tabel memakai RLS
+- hanya anggota universe aktif yang dapat membaca metadata
+- pulse hanya dapat dikirim oleh sender yang sedang login kepada partner di universe yang sama
+- emotion hanya dapat diubah oleh pemiliknya
+- replay hanya dapat diperbarui oleh pengguna yang memulainya
+- isi Secret Room dipisah dari metadata kapsul
+- isi kapsul baru dapat dibaca setelah unlock_at
+- password opsional memakai AES-GCM dan PBKDF2-SHA256 di browser
+- isi kapsul rahasia tidak dipublikasikan lewat Supabase Realtime
+
+FILE UTAMA BARU
+- css/our-bond.css
+- js/features/our-bond.js
+- js/features/heartbeat-engine.js
+- js/features/memory-replay.js
+- js/features/love-cinema.js
+- js/features/secret-room.js
+- supabase/migrations/2026-08-06-v4-5-our-bond.sql
+- supabase/migrations/verify-v4-5-our-bond.sql
+
+VERSI
+- package: 4.5.0
+- PWA cache: our-universe-v4-5-0-our-bond

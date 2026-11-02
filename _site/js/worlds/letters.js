@@ -1,0 +1,2 @@
+import { renderCollection } from './shared.js';
+export const renderLetters=container=>renderCollection(container,{type:'letter',eyebrow:'LETTERS',title:'Kata-kata yang tetap tinggal.',subtitle:'Tulis surat terbuka atau lindungi isinya dengan kata sandi tambahan yang hanya kalian ketahui.',emptyTitle:'Belum ada surat',emptyText:'Tulis surat pertama. Kalian bisa menyimpannya biasa atau menguncinya dengan enkripsi di perangkat.'});

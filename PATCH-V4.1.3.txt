@@ -1,0 +1,14 @@
+OUR UNIVERSE V4.1.3 · PICKER, NOTEPAD & SOLID CARDS
+
+Perbaikan utama:
+- Ambil foto hanya membuka kamera.
+- Pilih foto membuka pemilih gambar tanpa memaksa kamera.
+- Pilih video membuka pemilih video tanpa capture kamera.
+- Pilih audio membuka pemilih audio.
+- Setiap aksi memakai input file baru agar atribut capture tidak bocor ke tombol lain.
+- Tulis sesuatu membuka notepad panjang dengan border, garis kertas, judul, penghitung karakter, dan area tulisan panjang.
+- Nama pembuat selalu tampil pada kartu isi dan story aktif.
+- Kartu isi memakai border solid dan tidak bergeser, terangkat, atau zoom ketika disentuh.
+- Setelah penyimpanan berhasil, halaman dimuat ulang otomatis dan notifikasi sukses muncul setelah reload.
+
+Tidak membutuhkan migrasi SQL baru dan tidak mengubah akun, Supabase, Storage, atau notifikasi push.

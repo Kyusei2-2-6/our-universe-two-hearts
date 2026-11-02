@@ -1,0 +1,10 @@
+OUR UNIVERSE v4.1.1 — FAST START & CACHE STABILITY
+
+Perbaikan:
+- Mencegah kegagalan modul akibat campuran cache V4 dan V4.1.
+- Profil pasangan tetap kompatibel saat service worker lama masih aktif.
+- Mesin galaksi 3D dimuat setelah antarmuka utama siap, bukan sebelum aplikasi terbuka.
+- Mode mobile memakai jumlah partikel, pixel ratio, bloom, dan FPS yang lebih ringan.
+- Service worker melakukan update atomik dan satu kali reload saat versi baru aktif.
+- Modul utama memakai cache-busting versi 4.1.1.
+- Tidak mengubah Supabase, akun, database, planet, storage, atau notifikasi.

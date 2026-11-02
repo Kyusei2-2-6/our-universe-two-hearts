@@ -1,0 +1,13 @@
+OUR UNIVERSE v4.1 · Simple Settings & Partner Profile
+
+Perubahan:
+- Profil kamu dan pasangan sekarang dapat dibuka dari menu Profil.
+- Avatar anggota di bagian atas dapat diketuk untuk melihat profil.
+- Profil pasangan bersifat hanya-baca dan tidak menampilkan email.
+- Statistik sederhana: tanggal bergabung, planet dibuat, dan isi dibagikan.
+- Pengaturan lama diringkas menjadi empat bagian: Tampilan, Notifikasi, Semesta, Akun & data.
+- Tombol Kabar langsung membuka bagian Notifikasi, bukan seluruh menu secara acak.
+- Tampilan Settings ganda dan panel berulang dibuang.
+- Cache PWA dinaikkan agar perubahan terbaru langsung terbaca.
+
+Tidak membutuhkan SQL, Supabase baru, secrets baru, akun baru, atau deploy Edge Function.

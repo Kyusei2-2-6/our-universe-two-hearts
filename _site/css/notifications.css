@@ -1,0 +1,14 @@
+.notification-panel{position:relative;overflow:hidden}
+.notification-panel::before{content:"";position:absolute;inset:-30% auto auto -15%;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(181,145,255,.18),transparent 68%);pointer-events:none}
+.notification-status{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid rgba(255,255,255,.11);border-radius:22px;background:rgba(7,9,24,.38);margin:12px 0 18px}
+.notification-status__orb{width:46px;height:46px;flex:0 0 46px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 28%,#fff 0 5%,#bda2ff 18%,#5978ff 55%,#171c50 100%);box-shadow:0 0 28px rgba(134,128,255,.46)}
+.notification-status[data-active="true"] .notification-status__orb{animation:notification-pulse 2.8s ease-in-out infinite}
+.notification-status strong,.notification-status span{display:block}
+.notification-status span{margin-top:3px;color:var(--text-muted)}
+.notification-options{display:grid;gap:10px;margin:16px 0}
+.notification-option{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.075)}
+.notification-option input{margin-top:3px;accent-color:#9b8cff}
+.notification-option strong{display:block;margin-bottom:3px}
+.notification-option small{color:var(--text-muted);line-height:1.45}
+.notification-note{font-size:.9rem;line-height:1.55;padding:13px 15px;border-radius:17px;background:rgba(104,91,184,.12);border:1px solid rgba(167,145,255,.12)}
+@keyframes notification-pulse{0%,100%{transform:scale(1);box-shadow:0 0 24px rgba(134,128,255,.36)}50%{transform:scale(1.06);box-shadow:0 0 38px rgba(185,151,255,.66)}}

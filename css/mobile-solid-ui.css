@@ -1,0 +1,57 @@
+/* OUR UNIVERSE v4.2.1 · Solid Android layout
+   Keeps every primary surface inside the phone viewport while preserving swipe navigation. */
+@media (max-width:700px){
+  html,body{width:100%;max-width:100%;overflow-x:clip!important}
+  .app-shell--v4{width:100%;max-width:100%;padding-inline:8px!important;overflow-x:clip}
+
+  .topbar--v4{width:100%;max-width:100%;min-width:0;border-radius:24px!important;padding:7px 8px!important;gap:5px!important}
+  .topbar--v4 .brand{min-width:0;flex:0 1 auto;gap:4px}
+  .topbar--v4 .brand__title{font-size:.86rem;letter-spacing:.1em;white-space:nowrap}
+  .topbar--v4 .icon-button,.topbar--v4 .avatar-button{flex:0 0 38px;width:38px;height:38px}
+  .topbar--v4 .topbar__actions{min-width:0;flex:0 0 auto;gap:2px}
+
+  .galaxy-hub--v4{width:100%;max-width:100%;padding-inline:0!important;overflow:hidden!important}
+  .hub-copy--v4{width:calc(100% - 20px);max-width:430px}
+  .home-stories{width:100%!important;max-width:430px;overflow:hidden}
+  .home-story-row{max-width:100%;overscroll-behavior-inline:contain}
+
+  .planet-deck-host{width:100%;max-width:430px;margin-inline:auto;min-width:0;min-height:560px!important;overflow:hidden!important}
+  .planet-deck{width:100%;max-width:100%;min-width:0;min-height:560px!important;overflow:hidden!important}
+  .planet-deck__viewport{inset:0;overflow:hidden!important;border-radius:30px;contain:layout paint}
+  .planet-deck__track{overflow:hidden!important}
+  .planet-slide{top:46%!important;width:calc(100% - 24px)!important;max-width:390px;min-width:0;min-height:480px!important;padding:18px 16px 20px!important;gap:12px!important;border-radius:30px!important}
+  .planet-slide::after{width:270px;height:270px;left:-92px;top:-100px}
+  .planet-slide__halo{left:50%!important;top:29%!important;width:220px;height:220px}
+  .planet-slide__sphere{width:clamp(150px,46vw,186px)!important;max-width:100%;margin-inline:auto}
+  .planet-slide__copy{width:100%;max-width:100%;min-width:0;padding-inline:2px}
+  .planet-slide__copy .eyebrow{max-width:100%;font-size:.64rem;letter-spacing:.22em;overflow-wrap:anywhere}
+  .planet-slide__copy h2{max-width:100%;margin:.15rem 0 .55rem!important;font-size:clamp(1.85rem,8.5vw,2.65rem)!important;line-height:1!important;overflow-wrap:anywhere}
+  .planet-slide__description{width:100%;max-width:100%;margin:.1rem auto!important;font-size:.8rem!important;line-height:1.45!important;overflow-wrap:anywhere}
+  .planet-slide__meta{justify-content:center;margin:11px 0!important}
+  .planet-slide__actions{width:100%;max-width:100%;justify-content:center;gap:8px!important}
+  .planet-slide__actions .button{flex:1 1 auto;min-width:0!important;max-width:190px;padding-inline:14px}
+  .planet-slide__actions .icon-button{flex:0 0 48px;width:48px;height:48px}
+  .planet-deck__footer{width:calc(100% - 24px)!important;max-width:390px;bottom:5px!important}
+  .planet-deck__hint{display:none!important}
+
+  .create-planet-float{max-width:calc(100% - 16px)}
+  .app-dock{width:calc(100% - 16px)!important;max-width:420px;min-width:0}
+  .database-music-player{width:calc(100% - 20px)!important;max-width:420px;min-width:0}
+
+  .world-stage--v4,.planet-world,.planet-world__hero,.planet-world__copy,.planet-world__toolbar,.planet-memory-stream{width:100%;max-width:100%;min-width:0}
+  .world-stage--v4,.planet-world{overflow-x:hidden}
+  .planet-memory-stream{grid-template-columns:minmax(0,1fr)!important}
+  .planet-memory-card{grid-column:1!important;width:100%;max-width:100%;min-width:0}
+  .planet-story-ring{max-width:100%;min-width:0;overflow:hidden}
+  .planet-story-ring__list{max-width:100%;overscroll-behavior-inline:contain}
+
+  .modal,.modal__content,.profile-hub,.member-profile,.settings-simple{max-width:100%;min-width:0}
+}
+
+@media (max-width:370px){
+  .topbar--v4 .brand__title{font-size:.78rem;letter-spacing:.07em}
+  .topbar--v4 .icon-button,.topbar--v4 .avatar-button{flex-basis:36px;width:36px;height:36px}
+  .planet-slide{width:calc(100% - 18px)!important;padding-inline:14px!important}
+  .planet-slide__sphere{width:148px!important}
+  .planet-slide__actions .button{font-size:.83rem;padding-inline:10px}
+}

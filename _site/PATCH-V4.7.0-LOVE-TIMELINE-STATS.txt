@@ -1,0 +1,27 @@
+OUR UNIVERSE v4.7.0 · LOVE TIMELINE + RELATIONSHIP STATS
+
+FITUR BARU
+- Tab Timeline dan Stats di panel Our Bond
+- Love Timeline manual tersimpan di Supabase
+- Agenda kalender pilihan otomatis masuk Timeline
+- Relationship Stats berdasarkan data aplikasi yang benar-benar tersimpan
+- Pengaturan tanggal pertama bertemu dan tanggal mulai bersama
+- Animasi orbit galaxy pada Timeline dan Stats
+
+PERBAIKAN KALENDER
+- Tombol Simpan menggunakan save_couple_calendar_event_v470
+- Fallback otomatis ke direct insert/update saat RPC belum terbaca
+- Fallback kompatibel dengan database v4.5.2 saat kolom timeline belum ada
+- Validasi form dan waktu dibuat lebih jelas
+- Agenda Timeline dapat dibuka kembali langsung ke tanggal kalender
+
+DATABASE
+- love_timeline_moments
+- couple_relationship_profiles
+- couple_calendar_events.timeline_enabled
+- save_couple_calendar_event_v470(...)
+
+FILE INSTALASI TERMUDAH
+- INSTALL-V4.7.0-EASY.md
+- RUN-THIS-IN-SUPABASE-V4.7.0.sql
+- refresh-470.html

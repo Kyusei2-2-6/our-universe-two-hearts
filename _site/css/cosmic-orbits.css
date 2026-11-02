@@ -1,0 +1,428 @@
+/* OUR UNIVERSE · PLANETARY ORBITS
+   Bima Sakti hidup, planet menu berorbit 3D, dan Orbit Kenangan. */
+
+:root {
+  --orbit-front: rgba(15, 20, 43, .84);
+  --orbit-back: rgba(8, 11, 26, .62);
+  --orbit-edge: rgba(168, 198, 255, .34);
+}
+
+.galaxy-hub {
+  min-height: max(900px, calc(100vh - 90px));
+  overflow: hidden;
+  perspective: 1600px;
+  perspective-origin: 50% 52%;
+}
+
+.hub-copy {
+  position: absolute;
+  top: clamp(26px, 5.5vh, 70px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 52;
+  width: min(760px, 91%);
+  pointer-events: none;
+}
+
+.hub-copy h1 { font-size: clamp(2.55rem, 6.6vw, 6.1rem); }
+
+.orbit-cards {
+  inset: 132px 0 72px;
+  z-index: 12;
+  transform-style: preserve-3d;
+  touch-action: pan-y;
+  isolation: isolate;
+}
+
+.orbit-cards::before,
+.orbit-cards::after {
+  content:"";
+  position:absolute;
+  left:50%;
+  top:53%;
+  width:min(76vw,900px);
+  aspect-ratio:1.95;
+  transform:translate(-50%,-50%) rotate(-7deg);
+  border:1px solid rgba(149,179,255,.075);
+  border-radius:50%;
+  pointer-events:none;
+  box-shadow:0 0 42px rgba(75,111,207,.035), inset 0 0 34px rgba(91,127,223,.025);
+}
+
+.orbit-cards::after {
+  width:min(56vw,650px);
+  transform:translate(-50%,-50%) rotate(13deg);
+  border-color:rgba(214,173,255,.06);
+}
+
+.orbit-hint {
+  position:absolute;
+  left:50%;
+  bottom:76px;
+  z-index:54;
+  transform:translateX(-50%);
+  margin:0;
+  width:max-content;
+  max-width:86vw;
+  padding:8px 13px;
+  border:1px solid rgba(185,207,255,.11);
+  border-radius:999px;
+  color:rgba(219,228,248,.72);
+  background:rgba(4,7,18,.46);
+  backdrop-filter:blur(12px);
+  font-size:.66rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+
+.orbit-card {
+  --planet-a:#83b8ff;
+  --planet-b:#294d96;
+  --planet-c:#101a3e;
+  position:absolute;
+  width:clamp(108px,11vw,150px);
+  min-height:138px;
+  padding:0;
+  border:0 !important;
+  border-radius:34px;
+  background:transparent !important;
+  box-shadow:none !important;
+  display:grid;
+  grid-template-rows:auto auto;
+  justify-items:center;
+  align-content:start;
+  gap:10px;
+  text-align:center;
+  transform-style:preserve-3d;
+  transition:filter .2s ease,opacity .2s ease;
+  contain:layout paint style;
+  overflow:visible;
+}
+
+.orbit-card[data-planet="rose"] { --planet-a:#ffb1d2;--planet-b:#b04479;--planet-c:#35142d; }
+.orbit-card[data-planet="gold"] { --planet-a:#ffe2a0;--planet-b:#b77b35;--planet-c:#382518; }
+.orbit-card[data-planet="ocean"] { --planet-a:#9af4e8;--planet-b:#1a8fa6;--planet-c:#0a3043; }
+.orbit-card[data-planet="violet"] { --planet-a:#d2b4ff;--planet-b:#7655c7;--planet-c:#251c55; }
+.orbit-card[data-planet="emerald"] { --planet-a:#a7f4bd;--planet-b:#3f9b69;--planet-c:#163d2d; }
+.orbit-card[data-planet="ice"] { --planet-a:#e6fbff;--planet-b:#80b6d8;--planet-c:#1d405c; }
+.orbit-card[data-planet="coral"] { --planet-a:#ffc0a7;--planet-b:#c96156;--planet-c:#482025; }
+
+.orbit-card::before {
+  content:"";
+  position:absolute;
+  left:50%;
+  top:48px;
+  width:92px;
+  height:34px;
+  transform:translate(-50%,-50%) rotate(calc(-15deg + var(--planet-index,0) * 2deg));
+  border:2px solid color-mix(in srgb,var(--planet-a) 40%,transparent);
+  border-left-color:transparent;
+  border-right-color:transparent;
+  border-radius:50%;
+  opacity:calc(.18 + var(--orbit-depth,.5) * .46);
+  filter:drop-shadow(0 0 10px color-mix(in srgb,var(--planet-a) 25%,transparent));
+  pointer-events:none;
+}
+
+.orbit-card:nth-child(3n+2)::before,
+.orbit-card:nth-child(5n)::before { display:none; }
+
+.orbit-card::after {
+  content:"";
+  position:absolute;
+  left:50%;
+  top:48px;
+  width:78px;
+  height:78px;
+  transform:translate(-50%,-50%) scale(calc(.92 + var(--orbit-depth,.5) * .12));
+  border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--planet-a) 22%,transparent),transparent 66%);
+  filter:blur(7px);
+  opacity:calc(.24 + var(--orbit-depth,.5) * .52);
+  pointer-events:none;
+}
+
+.orbit-card__planet {
+  position:relative;
+  z-index:2;
+  width:76px;
+  aspect-ratio:1;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 28% 23%,rgba(255,255,255,.88) 0 2%,transparent 3%),
+    radial-gradient(ellipse at 48% 38%,rgba(255,255,255,.13) 0 8%,transparent 9%),
+    repeating-linear-gradient(8deg,rgba(255,255,255,.075) 0 4px,rgba(0,0,0,.06) 5px 10px),
+    radial-gradient(circle at 31% 24%,var(--planet-a),var(--planet-b) 43%,var(--planet-c) 76%,#050713 78%);
+  border:1px solid color-mix(in srgb,var(--planet-a) 28%,transparent);
+  box-shadow:
+    inset -15px -13px 22px rgba(1,3,12,.62),
+    inset 7px 5px 13px rgba(255,255,255,.16),
+    0 0 22px color-mix(in srgb,var(--planet-a) 18%,transparent);
+  animation:planet-menu-spin calc(14s + var(--planet-index,0) * .7s) linear infinite;
+}
+
+.orbit-card__planet::before {
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:inherit;
+  padding:1px;
+  background:conic-gradient(from var(--border-angle,0deg),transparent 0 20%,color-mix(in srgb,var(--planet-a) 72%,white) 31%,transparent 43% 72%,color-mix(in srgb,var(--planet-b) 76%,white) 82%,transparent 94%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+
+.orbit-card__planet::after {
+  content:"";
+  position:absolute;
+  inset:7%;
+  border-radius:50%;
+  background:linear-gradient(118deg,rgba(255,255,255,.20),transparent 31%,rgba(0,0,0,.18) 72%);
+  mix-blend-mode:screen;
+  pointer-events:none;
+}
+
+.orbit-card__icon {
+  position:relative;
+  z-index:4;
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  color:#f7fbff !important;
+  background:rgba(4,7,19,.25);
+  border:1px solid rgba(255,255,255,.17);
+  box-shadow:0 4px 18px rgba(0,0,0,.28);
+  font-size:1.2rem;
+  text-shadow:0 1px 8px rgba(0,0,0,.65);
+  backdrop-filter:blur(3px);
+}
+
+.orbit-card__copy {
+  position:relative;
+  z-index:5;
+  width:max-content;
+  max-width:142px;
+  padding:7px 10px 8px;
+  border:1px solid color-mix(in srgb,var(--planet-a) 18%,rgba(255,255,255,.08));
+  border-radius:14px;
+  background:linear-gradient(145deg,rgba(8,12,28,.76),rgba(4,7,18,.62));
+  box-shadow:0 10px 28px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.05);
+  backdrop-filter:blur(14px);
+  overflow:hidden;
+}
+
+.orbit-card__copy::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(105deg,transparent 15%,color-mix(in srgb,var(--planet-a) 10%,transparent) 48%,transparent 75%);
+  transform:translateX(-100%);
+  animation:planet-label-shimmer 7s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.orbit-card__label {
+  position:relative;
+  display:block;
+  color:#f2f6ff;
+  font-size:.82rem;
+  font-weight:750;
+  line-height:1.1;
+  letter-spacing:-.01em;
+}
+
+.orbit-card small {
+  position:relative;
+  display:block;
+  margin-top:4px;
+  color:#adb8d0 !important;
+  font-size:.60rem;
+  line-height:1.25;
+}
+
+.orbit-card[data-depth="back"] .orbit-card__copy { opacity:.58; }
+.orbit-card[data-depth="back"] { pointer-events:none; }
+.orbit-card[data-depth="front"] .orbit-card__planet {
+  box-shadow:inset -15px -13px 22px rgba(1,3,12,.62),inset 7px 5px 13px rgba(255,255,255,.18),0 0 34px color-mix(in srgb,var(--planet-a) 31%,transparent);
+}
+
+.orbit-card:focus-visible { outline:none; }
+.orbit-card:focus-visible .orbit-card__planet,
+.orbit-card:hover .orbit-card__planet {
+  transform:scale(1.08);
+  box-shadow:inset -15px -13px 22px rgba(1,3,12,.62),inset 7px 5px 13px rgba(255,255,255,.22),0 0 42px color-mix(in srgb,var(--planet-a) 38%,transparent);
+}
+
+@keyframes planet-menu-spin { to { background-position:0 0,0 0,120px 0,0 0; } }
+@keyframes planet-label-shimmer { 0%,58%,100%{transform:translateX(-110%)}72%{transform:translateX(110%)} }
+@property --border-angle { syntax:"<angle>"; initial-value:0deg; inherits:false; }
+
+/* Memory orbit world */
+.memory-orbit-stage {
+  position: relative;
+  min-height: 620px;
+  padding: clamp(18px, 4vw, 38px);
+  border-radius: 36px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(85,105,185,.12), transparent 30%),
+    linear-gradient(180deg, rgba(7,10,25,.76), rgba(3,5,15,.88));
+  border:1px solid rgba(185,205,255,.12);
+}
+.memory-orbit-stage::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.42;
+  background-image: radial-gradient(circle, rgba(255,255,255,.72) 0 .8px, transparent 1.2px);
+  background-size: 47px 53px;
+  transform: rotate(7deg) scale(1.3);
+}
+
+.period-grid {
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:18px;
+}
+
+.period-card {
+  grid-column:span 4;
+  min-height:360px;
+  position:relative;
+  border:0;
+  border-radius:34px;
+  overflow:hidden;
+  color:white;
+  text-align:left;
+  cursor:pointer;
+  background:linear-gradient(150deg,rgba(20,25,52,.84),rgba(6,9,23,.90));
+  box-shadow:0 24px 70px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.06);
+  transform-style:preserve-3d;
+  transition:transform .42s var(--ease),box-shadow .42s var(--ease);
+}
+.period-card:hover { transform:translateY(-8px) rotateX(2deg); box-shadow:0 34px 90px rgba(0,0,0,.48),0 0 38px color-mix(in srgb,var(--period-accent,#8fb8ff) 28%,transparent); }
+.period-card::before {
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:inherit;
+  padding:1px;
+  background:conic-gradient(from var(--border-angle),transparent,var(--period-accent,#8fb8ff),transparent 38%,rgba(255,255,255,.22),transparent 70%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  animation:orbit-border-spin 11s linear infinite;
+}
+.period-card__space { position:absolute; inset:0; overflow:hidden; }
+.period-card__space::before { content:"";position:absolute;inset:0;background:radial-gradient(circle at 62% 20%,color-mix(in srgb,var(--period-accent,#8fb8ff) 23%,transparent),transparent 34%),radial-gradient(circle,rgba(255,255,255,.56) 0 .7px,transparent 1.1px);background-size:auto,31px 37px;opacity:.56; }
+.period-planet {
+  position:absolute;
+  width:190px;
+  aspect-ratio:1;
+  right:-28px;
+  top:34px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 24%,rgba(255,255,255,.65) 0 1%,transparent 2%),
+    radial-gradient(circle at 42% 40%,rgba(0,0,0,.16) 0 11%,transparent 12%),
+    radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--period-accent,#8fb8ff) 82%,white),var(--period-accent,#8fb8ff) 38%,#151a36 72%);
+  box-shadow:inset -28px -22px 42px rgba(0,0,0,.54),0 0 45px color-mix(in srgb,var(--period-accent,#8fb8ff) 25%,transparent);
+  animation:period-planet-drift 8s ease-in-out infinite;
+}
+.period-card[data-style="saturn"] .period-planet::after { content:"";position:absolute;left:-22%;right:-22%;top:45%;height:18%;border:8px solid color-mix(in srgb,var(--period-accent) 55%,#d9c5a1);border-left-color:transparent;border-right-color:transparent;border-radius:50%;transform:rotate(-14deg);opacity:.62; }
+.period-card[data-style="aurora"] .period-planet { filter:hue-rotate(45deg) saturate(1.2); }
+.period-card[data-style="ember"] .period-planet { filter:hue-rotate(-35deg) saturate(1.35); }
+.period-card[data-style="ice"] .period-planet { filter:saturate(.72) brightness(1.12); }
+@keyframes period-planet-drift { 0%,100%{transform:translate3d(0,0,0) rotate(-2deg)}50%{transform:translate3d(-9px,8px,0) rotate(2deg)} }
+.period-card__copy { position:absolute;inset:auto 0 0;padding:24px;background:linear-gradient(180deg,transparent,rgba(3,5,15,.78) 26%,rgba(3,5,15,.96));z-index:2; }
+.period-card__copy h3 { margin:.35rem 0 .5rem;font-family:var(--font-display);font-size:1.65rem;line-height:1.05; }
+.period-card__copy p { margin:0;color:#bfc8df;line-height:1.55; }
+.period-card__meta { display:flex;flex-wrap:wrap;gap:8px;margin-top:14px; }
+.period-card__meta span { padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.07);font-size:.72rem;color:#dce4f7; }
+.period-card__actions { position:absolute;left:15px;top:15px;z-index:4;display:flex;gap:7px; }
+.period-card__actions .icon-button { background:rgba(4,7,18,.72); }
+
+.period-empty-card .period-planet { background:radial-gradient(circle at 35% 25%,#eaf2ff,#7889aa 42%,#20283e 73%);filter:grayscale(.28); }
+
+.orbit-experience-modal { width:min(1120px,100%); }
+.orbit-experience { display:grid;gap:22px; }
+.orbit-experience__hero {
+  min-height:360px;
+  position:relative;
+  overflow:hidden;
+  border-radius:30px;
+  padding:clamp(24px,5vw,52px);
+  display:grid;
+  align-content:end;
+  background:radial-gradient(circle at 70% 28%,color-mix(in srgb,var(--period-accent,#8fb8ff) 22%,transparent),transparent 34%),linear-gradient(155deg,rgba(15,21,49,.76),rgba(4,7,19,.96));
+  border:1px solid rgba(198,214,255,.13);
+}
+.orbit-experience__hero .period-planet { width:min(290px,55vw);right:clamp(-40px,4vw,30px);top:25px; }
+.orbit-experience__copy { position:relative;z-index:3;max-width:650px; }
+.orbit-experience__copy h2 { margin:.35rem 0 .65rem;font-family:var(--font-display);font-size:clamp(2.3rem,7vw,5.2rem);line-height:.92; }
+.orbit-experience__copy p { color:#c4cde1;line-height:1.7; }
+.orbit-story { display:grid;gap:20px; }
+.orbit-story-card { opacity:0;transform:translateY(34px) scale(.98);transition:opacity .7s var(--ease),transform .7s var(--ease); }
+.orbit-story-card.is-visible { opacity:1;transform:none; }
+.orbit-story-card:nth-child(even) { margin-left:min(8vw,80px); }
+.orbit-story-card:nth-child(odd) { margin-right:min(8vw,80px); }
+.orbit-story-card .entry-card { grid-column:auto;min-height:290px; }
+.orbit-story-separator { display:flex;align-items:center;gap:13px;color:#9eabc8;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase; }
+.orbit-story-separator::before,.orbit-story-separator::after { content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(168,193,255,.22),transparent); }
+
+.period-form-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+.period-style-picker { display:grid;grid-template-columns:repeat(5,1fr);gap:9px; }
+.period-style-option { border:1px solid rgba(190,207,255,.13);border-radius:17px;padding:12px 8px;background:rgba(255,255,255,.045);color:#dfe7fb;cursor:pointer;text-align:center; }
+.period-style-option.is-active { border-color:var(--accent);background:rgba(150,126,255,.12);box-shadow:0 0 22px rgba(139,151,255,.11); }
+.period-style-option span { display:block;font-size:1.5rem;margin-bottom:5px; }
+
+.composer-period-field select { width:100%; }
+.composer-period-field small { display:block;margin-top:7px;line-height:1.45; }
+
+@media (max-width:900px) {
+  .hub-copy { top:38px; }
+  .orbit-cards { inset:150px 0 84px; }
+  .period-card { grid-column:span 6; }
+}
+
+@media (max-width:620px) {
+  .galaxy-hub { min-height:970px; }
+  .hub-copy { top:25px; }
+  .hub-copy h1 { font-size:2.75rem; }
+  .hub-copy p:last-child { font-size:.86rem; }
+  .orbit-cards { inset:142px -22px 76px; }
+  .orbit-hint { bottom:70px;font-size:.56rem;padding:7px 10px; }
+  .orbit-card { width:94px;min-height:116px;gap:7px; }
+  .orbit-card__planet { width:62px; }
+  .orbit-card::before { top:39px;width:75px;height:28px; }
+  .orbit-card::after { top:39px;width:66px;height:66px; }
+  .orbit-card__copy { max-width:96px;padding:6px 8px; }
+  .orbit-card__label { font-size:.70rem; }
+  .orbit-card small { display:none; }
+  .period-card { grid-column:span 12;min-height:330px; }
+  .period-grid { gap:14px; }
+  .period-form-grid { grid-template-columns:1fr; }
+  .period-style-picker { grid-template-columns:repeat(3,1fr); }
+  .orbit-story-card:nth-child(even),.orbit-story-card:nth-child(odd) { margin:0; }
+  .orbit-experience__hero { min-height:390px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .orbit-card__planet,.orbit-card__copy::before,.period-planet,.period-card::before { animation:none !important; }
+}
+
+.music-thumbnail-picker { gap:16px; }
+.music-thumbnail-control { display:grid;grid-template-columns:112px 1fr;gap:16px;align-items:center; }
+.music-thumbnail-preview { width:112px;aspect-ratio:1;border-radius:24px;display:grid;place-items:center;font-size:2rem;background:radial-gradient(circle at 35% 25%,rgba(153,185,255,.28),rgba(15,19,42,.94));background-size:cover;background-position:center;border:1px solid rgba(195,211,255,.15);box-shadow:0 16px 42px rgba(0,0,0,.28);overflow:hidden; }
+@media(max-width:620px){.music-thumbnail-control{grid-template-columns:84px 1fr}.music-thumbnail-preview{width:84px;border-radius:19px}.music-thumbnail-control .toolbar{display:grid;gap:8px}.music-thumbnail-control .button{width:100%}}

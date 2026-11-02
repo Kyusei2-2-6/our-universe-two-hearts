@@ -1,0 +1,10 @@
+OUR UNIVERSE v4 · Dynamic Planets
+
+1. Ekstrak ZIP ini ke folder project aktif.
+2. Jalankan: node scripts/apply-v4-baseline.mjs
+3. Jalankan migrasi: supabase/migrations/2026-08-04-dynamic-planets-v4.sql
+4. Jalankan: npm test && npm run build
+5. Commit dan push ke repository GitHub yang sama.
+
+Jangan menjalankan npm run configure atau setup:notifications lagi.
+Patch tidak membawa js/config.js sehingga Project URL, Publishable Key, email, dan VAPID Public Key di HP tetap aman.

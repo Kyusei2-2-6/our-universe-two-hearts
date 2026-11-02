@@ -1,0 +1,2 @@
+import { renderCollection } from './shared.js';
+export const renderFiles=container=>renderCollection(container,{type:'file',eyebrow:'FILES',title:'Arsip kecil milik kalian.',subtitle:'Simpan PDF, dokumen, teks, arsip ZIP, atau berkas lainnya secara privat di dalam semesta.',emptyTitle:'Belum ada file',emptyText:'Unggah PDF, catatan teks, dokumen, atau file lain yang ingin kalian simpan bersama.'});

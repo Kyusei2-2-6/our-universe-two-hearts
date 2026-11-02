@@ -1,0 +1,15 @@
+node_modules/
+_site/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# Private local two-account allowlist
+supabase/allowlist.local.sql
+
+# Private Web Push keys
+supabase/.notification-secrets.local.env
+.backup-*
+OUR-UNIVERSE-PATCH-BACKUPS/
