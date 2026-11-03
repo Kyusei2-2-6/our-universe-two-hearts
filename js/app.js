@@ -18,6 +18,7 @@ import { openPlanetComposer } from './components/planet-composer.js';
 import { openStoryComposer } from './components/story-composer.js';
 import * as profileMenu from './components/profile-menu.js';
 import { needsV4Rebuild,openRebuildGate } from './components/rebuild-gate.js';
+import { runCosmicScanner } from './features/cosmic-scanner.js';
 import { toast } from './components/toast.js';
 import { renderConfigurationGate, renderAuthGate, renderOnboarding } from './components/auth-gate.js';
 import { initCinematicPolish, syncCinematicPolish, setCinematicView } from './features/cinematic-polish.js';
@@ -95,7 +96,14 @@ function setupControls(){
   qs('#home-button').onclick=()=>router.navigate('home');qs('#global-search').onclick=()=>router.navigate('search');qs('#capture-universe').onclick=async event=>{const button=event.currentTarget;button.disabled=true;try{await captureCurrentView({galaxy});toast('Tangkapan semesta disimpan.');}catch(error){toast(error.message,{type:'error'});}finally{button.disabled=false;}};
   qs('#dock-home').onclick=()=>router.navigate('home');qs('#dock-search').onclick=()=>router.navigate('search');qs('#dock-add').onclick=()=>openCreateFlow();qs('#dock-notifications').onclick=()=>router.navigate('settings',{section:'notifications'});qs('#dock-profile').onclick=()=>openProfile();document.querySelectorAll('[data-create-planet]').forEach(button=>button.onclick=()=>openPlanetComposer({onSaved:renderHome}));
   qs('#profile-button').onclick=openProfile;const sound=qs('#sound-toggle');sound.textContent=audioEngine.enabled?'◉':'○';sound.onclick=async()=>{await audioEngine.setEnabled(!audioEngine.enabled);localStorage.setItem('our-universe-sound',audioEngine.enabled?'on':'off');sound.textContent=audioEngine.enabled?'◉':'○';toast(audioEngine.enabled?'Suara latar dinyalakan.':'Suara latar dimatikan.');};
-  qs('#skip-intro').onclick=()=>completeIntro(true);qs('#enter-universe').onclick=()=>{qs('#enter-universe').disabled=true;completeIntro(false);};
+  qs('#skip-intro').onclick=()=>completeIntro(true);
+  qs('#enter-universe').onclick=async()=>{
+    const button=qs('#enter-universe');
+    if(button.disabled)return;
+    button.disabled=true;
+    try{await runCosmicScanner();}catch(error){console.warn('Cosmic Scanner gagal dijalankan, melanjutkan tanpa animasi:',error);}
+    completeIntro(false);
+  };
 }
 function openProfile(){profileMenu.openProfileMenu({onRefresh:refreshContext,onNavigate:(route)=>router.navigate(route),onSignOut:showAccessGate,onPlanetCreated:renderHome});}
 async function openCreateFlow(){try{const planets=await repository.listPlanets();if(!planets.length){openPlanetComposer({onSaved:()=>renderHome()});return;}openStoryComposer({onSaved:async()=>{if(state.get('route')==='home')await renderHome();else await renderRoute(state.get('route'));}});}catch(error){toast(error.message,{type:'error'});}}
