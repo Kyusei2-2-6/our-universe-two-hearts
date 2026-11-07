@@ -7,6 +7,7 @@ import { downloadBlob } from '../core/utils.js';
 import { worldHeader } from './shared.js';
 import { toast } from '../components/toast.js';
 import { notificationService } from '../core/notifications.js';
+import { openSecretRoom } from '../features/cosmic-secret-room.js';
 
 export async function renderSettings(container) {
   const snapshot = state.snapshot;
@@ -233,7 +234,13 @@ function createAccountPanel(snapshot) {
     }
   };
   backup.append(exportButton);
-  wrapper.append(pass, backup);
+  const secretLink=document.createElement('button');
+  secretLink.type='button';
+  secretLink.className='settings-secret-link';
+  secretLink.textContent='· · ·';
+  secretLink.setAttribute('aria-label','Ruang privat');
+  secretLink.onclick=()=>openSecretRoom();
+  wrapper.append(pass, backup, secretLink);
   return wrapper;
 }
 
