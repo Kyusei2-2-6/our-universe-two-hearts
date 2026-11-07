@@ -1,6 +1,7 @@
 /* v4.9.12 - Cosmic Scanner: animasi pemindaian singkat setelah tombol MASUK. */
 .cosmic-scanner {
-  position: fixed; inset: 0; z-index: 2150; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6vh; overflow: hidden;
+  position: fixed; inset: 0; z-index: 2150; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4vh;
+  overflow-y: auto; overscroll-behavior: contain; padding: max(4vh, env(safe-area-inset-top)) 16px max(4vh, env(safe-area-inset-bottom));
   background: radial-gradient(120% 90% at 50% 20%, #1c1240 0%, #060712 55%, #020208 100%);
   opacity: 0; transition: opacity .45s ease;
 }
@@ -8,7 +9,7 @@
 .cosmic-scanner.is-leaving { opacity: 0; }
 
 .cosmic-scanner__field {
-  position: absolute; inset: 0;
+  position: fixed; inset: 0; z-index: -1;
   background-image:
     radial-gradient(1.6px 1.6px at 15% 25%, #fff, transparent),
     radial-gradient(1.4px 1.4px at 70% 60%, #c9b9ff, transparent),
@@ -49,3 +50,21 @@
   .cosmic-scanner__sweep { animation: none; }
   .cosmic-scanner__terminal div::after { animation: none; content: ''; }
 }
+
+/* v4.9.13 - Selfie di dalam Cosmic Scanner */
+.cosmic-scanner__selfie-open {
+  min-height: 44px; padding: 0 20px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px;
+  background: rgba(190,150,255,.14); color: #fff; font: inherit; font-size: .86rem; cursor: pointer;
+}
+.cosmic-scanner__selfie-open[hidden] { display: none; }
+.cosmic-scanner__selfie { display: grid; justify-items: center; gap: 12px; width: min(84vw, 340px); }
+.cosmic-scanner__selfie[hidden] { display: none; }
+.cosmic-scanner__video, .cosmic-scanner__canvas {
+  width: 100%; aspect-ratio: 3 / 4; border-radius: 20px; object-fit: cover;
+  background: #050611; border: 1px solid rgba(190,150,255,.35); transform: scaleX(-1);
+}
+.cosmic-scanner__video[hidden], .cosmic-scanner__canvas[hidden] { display: none; }
+.cosmic-scanner__selfie-note { margin: 0; min-height: 1.3em; font-size: .78rem; color: rgba(255,255,255,.75); text-align: center; }
+.cosmic-scanner__selfie-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.cosmic-scanner__selfie-actions button[hidden] { display: none; }
+.cosmic-scanner__selfie-actions .button { min-height: 40px; padding: 0 16px; font-size: .82rem; }
